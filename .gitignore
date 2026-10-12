@@ -20,3 +20,5 @@ notebook_pack/
 # OS files
 .DS_Store
 Thumbs.db
+# Textbooks (large PDF binaries)
+Textbooks/
