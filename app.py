@@ -1,6 +1,6 @@
 """Local browser UI:  pip install streamlit python-docx ;  streamlit run app.py
 Paste text, upload .docx/.txt/.md, or give a Google Doc link shared as 'anyone with the link can view'."""
-import io, json, os, re, tempfile, urllib.request
+import io, json, os, re, tempfile, time, urllib.request
 import streamlit as st
 import engine, triage
 from run import backend, books_default
@@ -34,6 +34,12 @@ with st.sidebar:
     review = st.checkbox("Create expert triage cards (optional)")
     entail = st.checkbox("Auto entailment pre-check")
     check_math = st.checkbox("Math / number verification (optional)", value=False)
+
+    st.divider()
+    if st.button("🛑 End Session (Exit)", help="Stop the local server and exit Python process"):
+        st.warning("Session ended. Server stopped. You can safely close this browser tab.")
+        time.sleep(0.5)
+        os._exit(0)
 
 text = st.text_area("Hypothesis", height=200)
 up = st.file_uploader("...or upload .docx / .txt / .md", type=["docx", "txt", "md"])
