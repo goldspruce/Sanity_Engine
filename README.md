@@ -44,12 +44,13 @@ Sanity Engine/
 ├── triage.py             # Expert review card generator & final response merger
 ├── physics_tools.py      # Deterministic calculation ledger (SymPy + Pint)
 ├── ingest_textbooks.py   # Extracts PDF textbooks into searchable corpus/ text files
-├── pack_for_notebook.py  # Splits corpus into notebook/Google Drive chunks
+├── pack_for_notebook.py  # Splits corpus into notebook/Google Drive chunks for NotebookLM
 ├── mock_llm.py           # Offline test mock simulating LLM responses with planted errors
 ├── hypotheses/           # Test hypotheses (e.g., ubeam.md)
 ├── corpus/               # Extracted textbook text files (used for BM25 search)
 ├── corpus_demo/          # Minimal test corpus for offline smoke tests
 ├── Textbooks/            # Local PDF textbooks (Alberts, Feynman, Murray, Lehninger, etc.)
+├── TEXTBOOKS.md          # Complete catalog of reference textbooks & NotebookLM guide
 ├── requirements.txt      # Python dependencies
 └── .env.example          # Template for GEMINI_API_KEY and ANTHROPIC_API_KEY
 ```
@@ -112,6 +113,24 @@ Open your browser at `http://localhost:8501`. You can:
 - Paste a hypothesis directly
 - Upload a `.docx`, `.txt`, or `.md` file
 - Paste a public Google Doc link
+
+---
+
+## Textbook Corpus & Google NotebookLM Integration
+
+Sanity Engine maintains an indexed library of 12 foundational textbooks across biomechanics, electrophysiology, molecular biology, biochemistry, dynamical systems, and physics. 
+
+See [TEXTBOOKS.md](TEXTBOOKS.md) for the complete catalog of titles and editions.
+
+### Sharing and Querying Textbooks in Google NotebookLM
+To interactively explore the literature, verify untested claims, or review citations:
+1. **Slice the corpus into notebook-friendly parts**:
+   ```bash
+   .venv/bin/python pack_for_notebook.py --corpus corpus --out notebook_pack --max-words 200000
+   ```
+2. Open [Google NotebookLM](https://notebooklm.google.com) and create a notebook.
+3. Upload the files from `notebook_pack/` (or individual PDFs from `Textbooks/`).
+4. Ask questions directly against the exact literature indexed by the engine!
 
 ---
 
