@@ -18,7 +18,13 @@ def _load_dotenv():
                 if not line or line.startswith("#") or "=" not in line:
                     continue
                 k, v = line.split("=", 1)
-                k, v = k.strip(), v.strip().strip("'\"")
+                k = k.strip()
+                v = v.strip()
+                m = re.match(r"^[\"'](.*?)[\"']", v)
+                if m:
+                    v = m.group(1)
+                else:
+                    v = v.split("#", 1)[0].strip()
                 if k and k not in os.environ:
                     os.environ[k] = v
 
@@ -69,14 +75,29 @@ class GeminiLLM:
     def __init__(self, model=None):
         from google import genai
         self.client = genai.Client()
-        self.model = model or os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+        self.model = model or os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")
 
     def json(self, system, user, schema, temperature=0.0):
-        from google.genai import types
+        import time
+        from google.genai import types, errors
         cfg = types.GenerateContentConfig(system_instruction=system, temperature=temperature,
                                           response_mime_type="application/json", response_schema=schema)
-        r = self.client.models.generate_content(model=self.model, contents=user, config=cfg)
-        return json.loads(r.text)
+        candidates = [self.model]
+        for alt in ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"]:
+            if alt not in candidates:
+                candidates.append(alt)
+        last_err = None
+        for model_name in candidates:
+            for attempt in range(3):
+                try:
+                    r = self.client.models.generate_content(model=model_name, contents=user, config=cfg)
+                    return json.loads(r.text)
+                except (errors.ServerError, errors.ClientError) as e:
+                    last_err = e
+                    if "404" in str(e):
+                        break
+                    time.sleep(1.5 * (attempt + 1))
+        raise last_err
 
 
 class AnthropicLLM:
