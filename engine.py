@@ -4,8 +4,12 @@ Channel B = local retrieval over corpus/ (real text; the only citable evidence).
 Pipeline: attack plan -> retrieval + reconcile -> hostile review -> quote verification -> verdict.
 """
 from __future__ import annotations
-import glob, json, math, os, re
+import glob, json, math, os, re, warnings
 from typing import Literal
+
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", message=".*urllib3.*")
+
 from pydantic import BaseModel
 
 
