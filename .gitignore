@@ -22,3 +22,5 @@ notebook_pack/
 Thumbs.db
 # Textbooks (large PDF binaries)
 Textbooks/
+Textbooks/*.pdf
+*.pdf
