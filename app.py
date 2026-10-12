@@ -30,7 +30,8 @@ with st.sidebar:
     gen_name = st.selectbox("Generator model", ["gemini", "anthropic", "mock"])
     critic_name = st.selectbox("Reviewer model", ["same as generator", "gemini", "anthropic", "mock"])
     corpus = st.text_input("Corpus folder", "corpus")
-    books = st.text_input("Book names (recall channel)", "")
+    books = st.text_input("Book names to focus on in model recall?", "",
+                          help="Optional. Leave blank to default to all books in your corpus folder.")
     review = st.checkbox("Create expert triage cards (optional)")
     entail = st.checkbox("Auto entailment pre-check")
     check_math = st.checkbox("Math / number verification (optional)", value=False)

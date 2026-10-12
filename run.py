@@ -16,7 +16,7 @@ if __name__ == "__main__":
     ap.add_argument("--gen", default="gemini", choices=["gemini", "anthropic", "mock"])
     ap.add_argument("--critic", default=None, help="second model family for the review step (default = --gen)")
     ap.add_argument("--corpus", default="corpus")
-    ap.add_argument("--books", default=None, help="book names for the recall channel; default = corpus filenames")
+    ap.add_argument("--books", default=None, help="book names to focus on in model recall; default = corpus filenames")
     ap.add_argument("--chunk-words", type=int, default=180)
     ap.add_argument("--auto-entail", action="store_true")
     ap.add_argument("--check-math", action="store_true", default=False, help="Enable number/math check on critique")
