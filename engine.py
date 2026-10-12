@@ -10,7 +10,7 @@ from typing import Literal
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", message=".*urllib3.*")
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 def _load_dotenv():
@@ -54,23 +54,42 @@ class AttackPlan(BaseModel):
     queries: list[Query]
     recall: list[RecallItem]
 
+class GreenFlag(BaseModel):
+    id: str = "G1"
+    mechanism: str = ""       # What aspect of the hypothesis is biophysically or physically sound
+    rationale: str = ""       # Why it is plausible according to canonical principles
+    passage_id: str = ""      # P# if grounded in a passage
+    quote: str = ""           # Verbatim quote if grounded
+
 class Issue(BaseModel):
     id: str
-    severity: Literal["critical", "major", "minor"]
-    category: str
-    claim_id: str
-    claim: str           # the objection
-    passage_id: str      # P# the objection rests on
-    quote: str           # verbatim from that passage
-    edge_condition: str  # what would flip it (qualitative)
+    flag: Literal["red", "yellow"] = "yellow"
+    severity: Literal["critical", "major", "minor"] = "major"
+    category: str = "Mechanism"
+    claim_id: str = ""
+    claim: str = ""           # the tension or objection
+    passage_id: str = ""      # P# the objection rests on
+    quote: str = ""           # verbatim from that passage
+    edge_condition: str = ""  # what qualitative parameter change or boundary condition flips/resolves it
+    status: Literal["active", "resolved"] = "active"
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_flags(cls, data):
+        if isinstance(data, dict):
+            if "severity" in data and "flag" not in data:
+                data["flag"] = "red" if data["severity"] == "critical" else "yellow"
+            elif "flag" in data and "severity" not in data:
+                data["severity"] = "critical" if data["flag"] == "red" else "major"
+        return data
 
 class Review(BaseModel):
-    viability_score: int = Field(default=5, ge=0, le=9)  # Referee assessment on 0-9 scale
-    score_rationale: str = Field(default="")             # 1-2 sentence justification for the assigned score
-    scientific_synthesis: str = ""  # Narrative: what is biophysically/physically plausible vs what is empirically contested
-    falsification_test: str = ""    # A concrete empirical experiment or clinical test to settle the claim
-    issues: list[Issue]
-    untested_claims: list[str]
+    diagnostic_stance: str = "" # Executive stance on hypothesis viability & tension
+    scientific_synthesis: str = ""  # Narrative: biophysically plausible mechanisms vs empirical friction
+    falsification_test: str = ""    # Concrete empirical experiment or measurement to test the yellow/red flags
+    green_flags: list[GreenFlag] = Field(default_factory=list) # Sound biophysical anchors
+    issues: list[Issue] = Field(default_factory=list)          # Red and Yellow flags
+    untested_claims: list[str] = Field(default_factory=list)
 
 class FollowUpPlan(BaseModel):
     new_claims: list[Claim] = Field(default_factory=list)
@@ -78,13 +97,13 @@ class FollowUpPlan(BaseModel):
     recall: list[RecallItem] = Field(default_factory=list)
 
 class FollowUpReview(BaseModel):
-    viability_score: int = Field(default=5, ge=0, le=9)
-    score_rationale: str = Field(default="")
-    score_delta_explanation: str = Field(default="")
-    resolved_issue_ids: list[str] = Field(default_factory=list)
+    diagnostic_stance: str = ""
+    continuity_assessment: str = "" # How the follow-up changes the flag profile from previous turn
+    resolved_issue_ids: list[str] = Field(default_factory=list) # Prior issue IDs now resolved/flipped
+    green_flags: list[GreenFlag] = Field(default_factory=list)
+    new_issues: list[Issue] = Field(default_factory=list)
     scientific_synthesis: str = ""
     falsification_test: str = ""
-    new_issues: list[Issue] = Field(default_factory=list)
     untested_claims: list[str] = Field(default_factory=list)
 
 class Entail(BaseModel):
@@ -217,25 +236,23 @@ PLAN_SYS = """You prepare an adversarial review of a scientific hypothesis. You 
 3) RECALL: from your memory of these textbooks: {books}
    list up to 8 hard constraints or principles that bear on the claims. This is UNVERIFIED memory. For each give the best-guess book and 3-8 search_terms: keywords likely to appear in that book's own text (not a paraphrase of the claim). No page numbers, no quotes."""
 
-REVIEW_SYS = """You are a rigorous, constructive-adversarial scientific referee evaluating a hypothesis against literature passages.
+REVIEW_SYS = """You are a rigorous, constructive scientific referee stress-testing a hypothesis against literature passages.
 Inputs: HYPOTHESIS, CLAIMS (C#), PASSAGES (P#, real text retrieved from textbooks).
 
+Your role is NOT to pass/fail or compute an arbitrary score, but to act as a high-resolution issue-spotting radar:
+- 🟩 GREEN FLAGS: Identify solid scientific ground, biophysically sound mechanisms, and alignments with canonical principles.
+- 🟨 YELLOW FLAGS: Pinpoint empirical friction, conflicting studies, and parameter regime constraints; formulate workable edge conditions.
+- 🚩 RED FLAGS: Highlight any violation of established physical invariants or biological conservation laws.
+
 Deliverables:
-1. viability_score (integer 0 to 9): Assign an empirical viability / sanity score:
-   - 0: Flatly impossible or definitively falsified by established conservation laws or biophysical invariants.
-   - 1-3: Severely contradicted; core mechanisms directly conflict with verified literature passages.
-   - 4-6: Challenged; notable empirical friction, competing models, or rate/frequency trade-offs exist (the hypothesis requires specific edge conditions or constraints).
-   - 7-8: Plausible; largely consistent with textbook mechanisms, surviving with only minor caveats or scope limits.
-   - 9: Highly robust invariant; fully consistent with canonical principles and unrefuted.
-2. score_rationale: 1-2 concise sentences explaining why this score was assigned on the 0-9 scale.
-3. scientific_synthesis: Provide a 2-4 sentence narrative synthesis of the review: acknowledge what mechanisms in the hypothesis are biophysically or physically plausible, and clearly explain where the hypothesis faces empirical friction, causal ambiguity, or competing explanations in the literature.
-4. falsification_test: Describe a concrete, realistic empirical experiment, clinical study, or benchtop measurement that would decisively test or falsify this hypothesis.
-5. issues: Structured objections. Every issue must rest on ONE passage with a VERBATIM quote (6-40 words) copied exactly from that passage. Do not paraphrase inside `quote`. Do not introduce numbers not in the text.
-   Severity:
-   - critical = the passage shows an established physical/biological invariant violated or mechanism impossible.
-   - major = significant theoretical or empirical friction, but workable edge conditions exist.
-   - minor = peripheral objection, scope limitation, or slight discrepancy.
-   edge_condition: what change to the hypothesis or experimental condition would flip the issue, stated qualitatively.
+1. diagnostic_stance: A 1-2 sentence executive assessment of the hypothesis's empirical standing.
+2. scientific_synthesis: A 2-4 sentence narrative synthesis: acknowledge biophysically plausible mechanisms and explain where empirical friction or competing models exist.
+3. falsification_test: Describe a concrete, realistic empirical experiment, clinical measurement, or benchtop test that would decisively test the flagged tensions.
+4. green_flags: 1-4 points detailing aspects of the hypothesis that are biophysically plausible, mathematically sound, or supported by canonical principles.
+5. issues: Structured red and yellow flags. Every issue must rest on ONE passage with a VERBATIM quote (6-40 words) copied exactly from that passage. Do not paraphrase inside `quote`. Do not introduce numbers not in the text.
+   Flag types:
+   - red = Fatal invariant or conservation law violation (e.g. conservation of energy, absolute thermodynamic impossibility).
+   - yellow = Empirical friction, competing literature, or parameter regime constraints. Must state a qualitative `edge_condition` describing what parameter change or boundary condition flips/resolves it.
 6. untested_claims: Claims where the passages are silent and provide no definitive test. Never guess."""
 
 ENTAIL_SYS = "Decide whether the QUOTE supports the CLAIM. Use only the quote. Answer supports / partly / not / unclear with a one-sentence reason."
@@ -243,7 +260,7 @@ ENTAIL_SYS = "Decide whether the QUOTE supports the CLAIM. Use only the quote. A
 FOLLOW_UP_SYS = """You are a rigorous, constructive scientific referee in an interactive hypothesis evaluation session.
 Inputs available to you:
 - Original Hypothesis
-- Current Verdict Score (0 to 9 scale) and Plain-language classification
+- Diagnostic Flags Summary (Red, Yellow, Green)
 - Scientific Synthesis of Plausible vs Contested Mechanisms
 - Decisive Falsification Test
 - Key Issues and Edge Conditions
@@ -263,7 +280,7 @@ Instructions:
 FOLLOWUP_PLAN_SYS = """You prepare an adversarial follow-up investigation for a scientific hypothesis refinement or probe.
 Context provided:
 - Original Hypothesis
-- Prior Verdict Score and Issues
+- Prior Diagnostic Flags and Issues
 - The user's new follow-up prompt or refined hypothesis
 
 Your tasks:
@@ -273,20 +290,20 @@ Your tasks:
 
 FOLLOWUP_REVIEW_SYS = """You are a rigorous scientific referee evaluating a follow-up refinement or probe of a hypothesis.
 Inputs:
-- ORIGINAL HYPOTHESIS & PREVIOUS VERDICT
+- ORIGINAL HYPOTHESIS & PREVIOUS FLAGS
 - PREVIOUS ISSUES (with their IDs and edge conditions)
 - FOLLOW-UP PROMPT / REFINED HYPOTHESIS
 - CUMULATIVE PASSAGES (both previous passages and newly retrieved passages)
 
 Deliverables:
-1. viability_score (integer 0 to 9): Assign the updated empirical viability score for the refined hypothesis.
-2. score_rationale: 1-2 sentences justifying the updated 0-9 score.
-3. score_delta_explanation: Explicitly explain how and why the score changed from the previous turn (or why it remained unchanged).
-4. resolved_issue_ids: List of issue IDs from previous turns that are now flipped or resolved by the proposed refinement/edge condition.
-5. scientific_synthesis: Cumulative narrative synthesis: what mechanisms in the refined hypothesis are now plausible, and where empirical friction remains.
-6. falsification_test: A concrete empirical test or measurement tailored to test the refined hypothesis.
-7. new_issues: Any NEW objections grounded in the newly retrieved or cumulative passages with VERBATIM quotes (6-40 words).
-8. untested_claims: Claims where the passages remain silent."""
+1. diagnostic_stance: Updated 1-2 sentence executive diagnostic of the refined hypothesis.
+2. continuity_assessment: Explicitly explain how the follow-up changes the flag profile (e.g., "Issue I1 resolved: adding quarter-wave impedance matching removes the red flag boundary reflection; yellow flag attenuation remains active").
+3. resolved_issue_ids: List of issue IDs from previous turns that are now resolved or flipped by the follow-up.
+4. green_flags: Updated or newly confirmed biophysical anchors and synergies.
+5. scientific_synthesis: Cumulative narrative synthesis of plausible vs contested mechanisms.
+6. falsification_test: A concrete empirical test tailored to the refined hypothesis.
+7. new_issues: Any NEW red or yellow flags grounded in newly retrieved passages with VERBATIM quotes (6-40 words).
+8. untested_claims: Claims where the literature remains silent."""
 
 
 
@@ -377,6 +394,17 @@ def run(hyp, books, gen, critic, retriever, min_recall_score=2.0, auto_entail=Fa
     log("[4] quote verification")
     pmap = {p["id"]: p for p in passages}
     grounded = [hyp] + [p["text"] for p in passages]
+
+    green_flags = []
+    for g in getattr(rev, "green_flags", []):
+        gd = g.model_dump()
+        if gd.get("passage_id") and gd.get("quote"):
+            p = pmap.get(gd["passage_id"])
+            gd["quote_status"] = verify_quote(gd["quote"], p["text"], retriever.chunks) if p else "bad_passage_id"
+        else:
+            gd["quote_status"] = "unquoted"
+        green_flags.append(gd)
+
     issues = []
     for i in rev.issues:
         d = i.model_dump()
@@ -389,110 +417,101 @@ def run(hyp, books, gen, critic, retriever, min_recall_score=2.0, auto_entail=Fa
                 ENTAIL_SYS, f"CLAIM: {i.claim}\nQUOTE: {i.quote}", Entail, 0.0)).model_dump()
         issues.append(d)
 
+    counts = count_flags(issues, green_flags)
+    diag_badge = diagnostic_badge(counts)
+    diag_class = diagnostic_classification(counts)
+
     rep = dict(books=books, hypothesis=hyp, plan=plan.model_dump(),
                passages=[{**p, "via": sorted(p["via"])} for p in passages],
                reconcile=reconcile, retrieval_only=retrieval_only,
-               viability_score=getattr(rev, "viability_score", 5),
-               score_rationale=getattr(rev, "score_rationale", ""),
+               diagnostic_stance=getattr(rev, "diagnostic_stance", ""),
+               counts=counts,
+               badge=diag_badge,
+               classification=diag_class,
                scientific_synthesis=rev.scientific_synthesis,
                falsification_test=rev.falsification_test,
+               green_flags=green_flags,
                issues=issues,
                untested_claims=rev.untested_claims, degraded=degraded)
-    rep["verdict"] = verdict(issues, getattr(rev, "viability_score", None), getattr(rev, "score_rationale", ""))
-    m = re.match(r"^(\d+)/9", rep["verdict"])
-    rep["score"] = int(m.group(1)) if m else getattr(rev, "viability_score", 5)
+    rep["verdict"] = verdict(issues, green_flags)
     return rep
 
 
-def score_band(score):
-    if score == 0:
-        return "FAIL (Definitively Falsified)"
-    elif 1 <= score <= 3:
-        return "FAIL / SEVERELY CONTRADICTED"
-    elif 4 <= score <= 6:
-        return "CHALLENGED (Empirical Friction / Edge Conditions Required)"
-    elif 7 <= score <= 8:
-        return "SURVIVES (Plausible / Minor Caveats)"
+def count_flags(issues, green_flags=None):
+    active = [i for i in issues if i.get("status", "active") == "active"]
+    red_verified = sum(1 for i in active if i.get("flag") == "red" and i.get("quote_status") == "verified")
+    yellow_verified = sum(1 for i in active if i.get("flag") == "yellow" and i.get("quote_status") == "verified")
+    red_unv = sum(1 for i in active if i.get("flag") == "red" and i.get("quote_status") != "verified")
+    yellow_unv = sum(1 for i in active if i.get("flag") == "yellow" and i.get("quote_status") != "verified")
+
+    # Graceful fallback for legacy severity labels if flag wasn't set
+    if red_verified == 0 and red_unv == 0:
+        red_verified = sum(1 for i in active if i.get("severity") == "critical" and i.get("quote_status") == "verified")
+        red_unv = sum(1 for i in active if i.get("severity") == "critical" and i.get("quote_status") != "verified")
+    if yellow_verified == 0 and yellow_unv == 0:
+        yellow_verified = sum(1 for i in active if i.get("severity") in ("major", "minor") and i.get("quote_status") == "verified")
+        yellow_unv = sum(1 for i in active if i.get("severity") in ("major", "minor") and i.get("quote_status") != "verified")
+
+    green_count = len(green_flags or [])
+    return {
+        "red": red_verified,
+        "yellow": yellow_verified,
+        "green": green_count,
+        "red_unverified": red_unv,
+        "yellow_unverified": yellow_unv,
+    }
+
+
+def diagnostic_badge(counts):
+    return f"🚩 {counts['red']} Red | 🟨 {counts['yellow']} Yellow | 🟩 {counts['green']} Green"
+
+
+def diagnostic_classification(counts):
+    if counts["red"] > 0:
+        return "CRITICAL INVARIANT FRICTION (Violation of physical/biological conservation laws)"
+    elif counts["yellow"] > 0:
+        return "CONDITIONAL VIABILITY (Empirical friction / edge conditions required)"
+    elif counts["green"] > 0:
+        return "CANONICALLY ANCHORED (Plausible mechanisms, unrefuted by literature)"
     else:
-        return "SURVIVES (Highly Robust / Uncontested)"
+        return "OPEN / UNCONSTRAINED (No canonical flags identified)"
 
 
-def score_explanation(score):
-    if score == 0:
-        return "The hypothesis violates established physical or biological invariants verified directly in the literature."
-    elif 1 <= score <= 3:
-        return "The hypothesis faces severe contradictions and critical failure modes documented in verified literature passages; core mechanisms appear unworkable without substantial revision."
-    elif 4 <= score <= 6:
-        return "The hypothesis faces notable empirical friction, counter-mechanisms, or conflicting findings in the literature. It is viable only under specific, constrained edge conditions or subpopulations."
-    elif 7 <= score <= 8:
-        return "The hypothesis is plausible and largely consistent with canonical literature. It survives adversarial challenge with only minor caveats or peripheral scope limits."
+def diagnostic_explanation(classification):
+    if "CRITICAL" in classification:
+        return "The hypothesis encounters verified Red Flags indicating fundamental physical, thermodynamic, or biophysical conservation law violations."
+    elif "CONDITIONAL" in classification:
+        return "The hypothesis encounters verified Yellow Flags representing empirical friction, conflicting studies, or parameter regime constraints; viable only under specific boundary edge conditions."
+    elif "CANONICALLY" in classification:
+        return "The hypothesis is anchored on verified Green Flags consistent with canonical principles, with no disqualifying Red Flags in the current corpus."
     else:
-        return "The hypothesis is fully consistent with established principles in the current corpus; no disqualifying counter-evidence or contradictions were found."
+        return "The hypothesis mechanisms are currently unconstrained by the available literature corpus."
 
 
-def verdict(issues, referee_score=None, referee_rationale=""):
-    ok_crit = sum(1 for i in issues if i["severity"] == "critical" and i["quote_status"] == "verified")
-    ok_maj = sum(1 for i in issues if i["severity"] == "major" and i["quote_status"] == "verified")
-    ok_min = sum(1 for i in issues if i["severity"] == "minor" and i["quote_status"] == "verified")
-    unv_crit = sum(1 for i in issues if i["severity"] == "critical" and i["quote_status"] != "verified")
-
-    if referee_score is not None:
-        try:
-            score = int(referee_score)
-        except (ValueError, TypeError):
-            score = 5
-        # Reconcile referee assessment against verified issues
-        if ok_crit >= 2:
-            score = min(score, 1)
-        elif ok_crit == 1:
-            score = min(score, 3)
-        elif ok_maj >= 2:
-            score = min(score, 4)
-        elif ok_maj == 1:
-            score = min(score, 5)
-        elif ok_min >= 1:
-            score = min(score, 7)
-        elif not issues:
-            score = max(score, 8)
-
-        if unv_crit >= 1 and ok_crit == 0:
-            score = min(score, 6)
-    else:
-        if ok_crit >= 2:
-            score = 1
-        elif ok_crit == 1:
-            score = 2
-        elif ok_maj >= 2:
-            score = 4
-        elif ok_maj == 1:
-            score = 5
-        elif ok_min >= 1:
-            score = 7
-        elif unv_crit >= 1:
-            score = 5
-        else:
-            score = 9
-
-    score = max(0, min(9, int(score)))
-    band = score_band(score)
-    return f"{score}/9 ({band})"
+def verdict(issues, green_flags=None, *args, **kwargs):
+    counts = count_flags(issues, green_flags)
+    badge = diagnostic_badge(counts)
+    classification = diagnostic_classification(counts)
+    return f"{badge} — {classification}"
 
 
 def render(rep):
-    v = rep["verdict"]
-    m = re.match(r"^(\d+)/9", str(v))
-    score_val = int(m.group(1)) if m else rep.get("score", 5)
-    exp = score_explanation(score_val)
+    counts = rep.get("counts") or count_flags(rep.get("issues", []), rep.get("green_flags", []))
+    badge = rep.get("badge") or diagnostic_badge(counts)
+    classification = rep.get("classification") or diagnostic_classification(counts)
+    stance = rep.get("diagnostic_stance", "").strip()
+    explanation = diagnostic_explanation(classification)
     hyp = rep.get("hypothesis", "").strip()
 
     L = []
     if hyp:
         L += ["## 🔬 Hypothesis / Prompt", f"> {hyp}", ""]
 
-    L += [f"# Verdict Score: {v}"]
-    if rep.get("score_rationale"):
-        L += [f"> **Referee assessment rationale:** {rep['score_rationale']}", ""]
-    L += [f"> **Plain-language explanation:** {exp}", ""]
+    L += [f"# Diagnostic Radar: {badge}"]
+    L += [f"> **Classification:** {classification}", ""]
+    if stance:
+        L += [f"> **Diagnostic Stance:** {stance}", ""]
+    L += [f"> **Diagnostic Analysis:** {explanation}", ""]
 
     synth = rep.get("scientific_synthesis", "").strip()
     test = rep.get("falsification_test", "").strip()
@@ -502,19 +521,57 @@ def render(rep):
             L += [f"> {synth}", ""]
         if test:
             L += [f"> 🧪 **Decisive Falsification Test:** {test}", ""]
-    if rep["degraded"]:
+    if rep.get("degraded"):
         L += ["**Degraded:** " + "; ".join(rep["degraded"]), ""]
-    L += ["## Issue board"]
-    if not rep["issues"]:
-        L += ["_No disqualifying issues or rule violations were found in the cited passages._", ""]
+
+    # Issue Spotting Board
+    L += ["## 🎯 Issue Spotting Board"]
+
+    # 🟩 Green Flags
+    green_flags = rep.get("green_flags", [])
+    L += [f"### 🟩 Green Flags ({len(green_flags)})",
+          "> Biophysically plausible mechanisms, mathematical consistency, or canonical textbook alignments:"]
+    if not green_flags:
+        L += ["_No explicit green flags identified in the cited passages._", ""]
     else:
-        for i in rep["issues"]:
-            flag = "" if i["quote_status"] == "verified" else f" **[quote {i['quote_status']}]**"
-            eye = f" _(eyeball-check numbers: {i['eyeball_numbers']})_" if i["eyeball_numbers"] else ""
+        for idx, g in enumerate(green_flags, 1):
+            gid = g.get("id") or f"G{idx}"
+            pass_str = f" / {g['passage_id']}" if g.get("passage_id") else ""
+            quote_str = f"\n  > \"{g['quote']}\"" if g.get("quote") else ""
+            L.append(f"- **{gid}** {g.get('mechanism', '')}{pass_str}\n  {g.get('rationale', '')}{quote_str}")
+        L += [""]
+
+    # 🟨 Yellow Flags
+    yellow_flags = [i for i in rep.get("issues", []) if i.get("flag") == "yellow" or (not i.get("flag") and i.get("severity") in ("major", "minor"))]
+    L += [f"### 🟨 Yellow Flags ({len(yellow_flags)})",
+          "> Empirical friction, competing literature, or parameter regime constraints (paired with workable edge conditions):"]
+    if not yellow_flags:
+        L += ["_No yellow flags encountered._", ""]
+    else:
+        for i in yellow_flags:
+            flag_warn = "" if i.get("quote_status") == "verified" else f" **[quote {i.get('quote_status')}]**"
+            eye = f" _(eyeball-check numbers: {i['eyeball_numbers']})_" if i.get("eyeball_numbers") else ""
             ent = f" _(auto-entail: {i['auto_entail']['label']})_" if i.get("auto_entail") else ""
-            L.append(f"- **{i['id']}** {i['severity']} / {i['category']} / {i['passage_id']}{flag}{eye}{ent}\n"
-                     f"  {i['claim']}\n  > {i['quote']}\n  _flips if:_ {i['edge_condition']}")
-    L += ["", "## Channel A vs B (Reconciliation)",
+            L.append(f"- **{i['id']}** {i.get('category', 'Friction')} / {i.get('passage_id', '')}{flag_warn}{eye}{ent}\n"
+                     f"  {i['claim']}\n  > \"{i['quote']}\"\n  _flips if (edge condition):_ {i.get('edge_condition', 'N/A')}")
+        L += [""]
+
+    # 🚩 Red Flags
+    red_flags = [i for i in rep.get("issues", []) if i.get("flag") == "red" or (not i.get("flag") and i.get("severity") == "critical")]
+    L += [f"### 🚩 Red Flags ({len(red_flags)})",
+          "> Invariant or conservation law violations (thermodynamics, energy conservation, physical impossibility):"]
+    if not red_flags:
+        L += ["_No fatal red flags encountered._", ""]
+    else:
+        for i in red_flags:
+            flag_warn = "" if i.get("quote_status") == "verified" else f" **[quote {i.get('quote_status')}]**"
+            eye = f" _(eyeball-check numbers: {i['eyeball_numbers']})_" if i.get("eyeball_numbers") else ""
+            ent = f" _(auto-entail: {i['auto_entail']['label']})_" if i.get("auto_entail") else ""
+            L.append(f"- **{i['id']}** {i.get('category', 'Invariant')} / {i.get('passage_id', '')}{flag_warn}{eye}{ent}\n"
+                     f"  {i['claim']}\n  > \"{i['quote']}\"\n  _flips if (edge condition):_ {i.get('edge_condition', 'N/A')}")
+        L += [""]
+
+    L += ["## Channel A vs B (Reconciliation)",
           "> **Channel A (Model Recall):** Theoretical principles and textbooks recalled from model memory (unverified).",
           "> **Channel B (Corpus Retrieval):** Real text passages retrieved deterministically from your library (`corpus/`).",
           "> **Reconciliation:**",
@@ -558,11 +615,16 @@ def render(rep):
 def follow_up(history, user_message, rep, llm):
     """Answers follow-up prompts or evaluates hypothesis refinements against the current review."""
     hyp = rep.get("hypothesis", "")
-    verdict_str = rep.get("verdict", "")
+    badge = rep.get("badge") or rep.get("verdict", "")
+    stance = rep.get("diagnostic_stance", "")
     synth = rep.get("scientific_synthesis", "")
     test = rep.get("falsification_test", "")
+    green_summary = "\n".join(
+        f"- {g.get('id', 'G')}: {g.get('mechanism', '')} ({g.get('rationale', '')})"
+        for g in rep.get("green_flags", [])
+    )
     issues_summary = "\n".join(
-        f"- {i['id']} ({i['severity']}): {i['claim']} [passage: {i['passage_id']}, quote: '{i['quote']}'] (flips if: {i['edge_condition']})"
+        f"- {i['id']} [{i.get('flag', i.get('severity', 'yellow')).upper()}]: {i['claim']} [passage: {i['passage_id']}, quote: '{i['quote']}'] (flips if: {i.get('edge_condition', 'N/A')})"
         for i in rep.get("issues", [])
     )
     passages_summary = "\n".join(
@@ -573,10 +635,12 @@ def follow_up(history, user_message, rep, llm):
 
     ctx = (
         f"ORIGINAL HYPOTHESIS:\n{hyp}\n\n"
-        f"CURRENT VERDICT SCORE: {verdict_str}\n\n"
+        f"CURRENT DIAGNOSTIC FLAGS: {badge}\n\n"
+        f"DIAGNOSTIC STANCE:\n{stance}\n\n"
+        f"GREEN FLAGS:\n{green_summary or '(None)'}\n\n"
         f"SCIENTIFIC SYNTHESIS:\n{synth}\n\n"
         f"DECISIVE FALSIFICATION TEST:\n{test}\n\n"
-        f"KEY ISSUES:\n{issues_summary or '(None)'}\n\n"
+        f"FLAGGED ISSUES (RED & YELLOW):\n{issues_summary or '(None)'}\n\n"
         f"RETRIEVED PASSAGES:\n{passages_summary or '(None)'}\n\n"
         f"UNTESTED CLAIMS:\n{untested_summary or '(None)'}\n\n"
     )
@@ -595,15 +659,16 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
     """Executes a continuous adversarial research pipeline on a follow-up prompt or refined hypothesis."""
     log(f"[followup {turn_idx}] 1. Targeted adversarial plan for follow-up")
     prior_hyp = parent_rep.get("hypothesis") or parent_rep.get("parent_hypothesis") or ""
-    prior_score = parent_rep.get("verdict", "")
+    prior_badge = parent_rep.get("badge") or parent_rep.get("verdict", "")
+    prior_active_issues = [i for i in parent_rep.get("issues", []) if i.get("status", "active") == "active"]
     prior_issues_str = json.dumps([
-        {"id": i["id"], "severity": i["severity"], "claim": i["claim"], "edge_condition": i.get("edge_condition", "")}
-        for i in parent_rep.get("issues", []) if i.get("status", "active") == "active"
+        {"id": i["id"], "flag": i.get("flag", "yellow"), "severity": i["severity"], "claim": i["claim"], "edge_condition": i.get("edge_condition", "")}
+        for i in prior_active_issues
     ], indent=1)
 
     plan_ctx = (
         f"ORIGINAL HYPOTHESIS:\n{prior_hyp}\n\n"
-        f"PRIOR VERDICT SCORE: {prior_score}\n\n"
+        f"PRIOR DIAGNOSTIC FLAGS: {prior_badge}\n\n"
         f"PRIOR ACTIVE ISSUES:\n{prior_issues_str}\n\n"
         f"FOLLOW-UP PROMPT / REFINEMENT:\n{follow_up_prompt}\n"
     )
@@ -644,7 +709,7 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
     log(f"[followup {turn_idx}] 3. Continuous adversarial review with issue tracking")
     review_ctx = (
         f"ORIGINAL HYPOTHESIS:\n{prior_hyp}\n\n"
-        f"PREVIOUS VERDICT:\n{prior_score}\n\n"
+        f"PREVIOUS DIAGNOSTIC FLAGS:\n{prior_badge}\n\n"
         f"PREVIOUS ACTIVE ISSUES:\n{prior_issues_str}\n\n"
         f"FOLLOW-UP PROMPT / REFINEMENT:\n{follow_up_prompt}\n\n"
         f"NEW CLAIMS:\n{json.dumps([c.model_dump() for c in f_plan.new_claims])}\n\n"
@@ -653,9 +718,10 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
 
     f_rev = FollowUpReview.model_validate(critic.json(FOLLOWUP_REVIEW_SYS, review_ctx, FollowUpReview, 0.0))
 
-    log(f"[followup {turn_idx}] 4. Quote verification on new issues")
+    log(f"[followup {turn_idx}] 4. Quote verification on new issues & green flags")
     pmap = {p["id"]: p for p in passages}
     grounded = [prior_hyp, follow_up_prompt] + [p["text"] for p in passages]
+
     new_issues = []
     for i in f_rev.new_issues:
         d = i.model_dump()
@@ -682,11 +748,28 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
         ni["status"] = "active"
         cumulative_issues.append(ni)
 
-    active_issues = [i for i in cumulative_issues if i["status"] == "active"]
+    # Merge green flags across turns
+    parent_greens = parent_rep.get("green_flags", [])
+    new_greens = []
+    for g in getattr(f_rev, "green_flags", []):
+        gd = g.model_dump()
+        if gd.get("passage_id") and gd.get("quote"):
+            p = pmap.get(gd["passage_id"])
+            gd["quote_status"] = verify_quote(gd["quote"], p["text"], retriever.chunks) if p else "bad_passage_id"
+        else:
+            gd["quote_status"] = "unquoted"
+        new_greens.append(gd)
 
-    updated_verdict = verdict(active_issues, f_rev.viability_score, f_rev.score_rationale)
-    m = re.match(r"^(\d+)/9", updated_verdict)
-    score_val = int(m.group(1)) if m else f_rev.viability_score
+    cumulative_greens = list(parent_greens)
+    known_green_mech = {g.get("mechanism", "").lower() for g in parent_greens}
+    for ng in new_greens:
+        if ng.get("mechanism", "").lower() not in known_green_mech:
+            cumulative_greens.append(ng)
+
+    active_issues = [i for i in cumulative_issues if i["status"] == "active"]
+    counts = count_flags(active_issues, cumulative_greens)
+    updated_badge = diagnostic_badge(counts)
+    updated_class = diagnostic_classification(counts)
 
     norm_passages = []
     for p in passages:
@@ -699,14 +782,18 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
         turn=turn_idx,
         parent_hypothesis=prior_hyp,
         follow_up_prompt=follow_up_prompt,
-        previous_verdict=prior_score,
-        verdict=updated_verdict,
-        score=score_val,
-        score_rationale=f_rev.score_rationale,
-        score_delta_explanation=f_rev.score_delta_explanation,
+        previous_badge=prior_badge,
+        badge=updated_badge,
+        classification=updated_class,
+        counts=counts,
+        verdict=f"{updated_badge} — {updated_class}",
+        diagnostic_stance=getattr(f_rev, "diagnostic_stance", ""),
+        continuity_assessment=getattr(f_rev, "continuity_assessment", ""),
         resolved_issue_ids=list(resolved_set),
         scientific_synthesis=f_rev.scientific_synthesis,
         falsification_test=f_rev.falsification_test,
+        green_flags=cumulative_greens,
+        new_green_flags=new_greens,
         new_issues=new_issues,
         issues=cumulative_issues,
         active_issues=active_issues,
@@ -719,11 +806,12 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
 
 def render_followup(rep):
     turn = rep.get("turn", 1)
-    v = rep["verdict"]
-    prev_v = rep.get("previous_verdict", "N/A")
-    m = re.match(r"^(\d+)/9", str(v))
-    score_val = int(m.group(1)) if m else rep.get("score", 5)
-    exp = score_explanation(score_val)
+    badge = rep.get("badge") or diagnostic_badge(rep.get("counts", count_flags(rep.get("active_issues", rep.get("issues", [])), rep.get("green_flags", []))))
+    prev_badge = rep.get("previous_badge") or rep.get("previous_verdict", "N/A")
+    classification = rep.get("classification") or diagnostic_classification(rep.get("counts", count_flags(rep.get("active_issues", rep.get("issues", [])), rep.get("green_flags", []))))
+    stance = rep.get("diagnostic_stance", "").strip()
+    continuity = rep.get("continuity_assessment", "").strip()
+    explanation = diagnostic_explanation(classification)
     hyp = rep.get("parent_hypothesis", "").strip()
     f_prompt = rep.get("follow_up_prompt", "").strip()
 
@@ -732,14 +820,15 @@ def render_followup(rep):
     L += ["## 🔬 Research Lineage & Continuity",
           f"- **Original Hypothesis:** {hyp}",
           f"- **Follow-Up Prompt / Refinement:** {f_prompt}",
-          f"- **Score Trajectory:** `{prev_v}` ➔ `{v}`", ""]
+          f"- **Flag Trajectory:** `{prev_badge}` ➔ `{badge}`", ""]
 
-    L += [f"# Updated Verdict Score: {v}"]
-    if rep.get("score_delta_explanation"):
-        L += [f"> **Score Delta & Impact:** {rep['score_delta_explanation']}", ""]
-    if rep.get("score_rationale"):
-        L += [f"> **Referee assessment rationale:** {rep['score_rationale']}", ""]
-    L += [f"> **Plain-language explanation:** {exp}", ""]
+    L += [f"# Updated Diagnostic Radar: {badge}"]
+    L += [f"> **Classification:** {classification}", ""]
+    if stance:
+        L += [f"> **Diagnostic Stance:** {stance}", ""]
+    if continuity:
+        L += [f"> **Continuity & Flag Trajectory Assessment:** {continuity}", ""]
+    L += [f"> **Diagnostic Analysis:** {explanation}", ""]
 
     synth = rep.get("scientific_synthesis", "").strip()
     test = rep.get("falsification_test", "").strip()
@@ -750,28 +839,65 @@ def render_followup(rep):
         if test:
             L += [f"> 🧪 **Refined Decisive Falsification Test:** {test}", ""]
 
-    L += ["## Issue Board Status (Continuity Tracking)"]
+    # Issue Spotting Board Status (Continuity Tracking)
+    L += ["## 🎯 Issue Spotting Board Status (Continuity Tracking)"]
+
+    # 🟩 Green Flags
+    green_flags = rep.get("green_flags", [])
+    L += [f"### 🟩 Green Flags ({len(green_flags)})",
+          "> Anchoring biophysical mechanisms, mathematical viability, and confirmed principles:"]
+    if not green_flags:
+        L += ["_No green flags identified._", ""]
+    else:
+        for idx, g in enumerate(green_flags, 1):
+            gid = g.get("id") or f"G{idx}"
+            pass_str = f" / {g['passage_id']}" if g.get("passage_id") else ""
+            quote_str = f"\n  > \"{g['quote']}\"" if g.get("quote") else ""
+            L.append(f"- **{gid}** {g.get('mechanism', '')}{pass_str}\n  {g.get('rationale', '')}{quote_str}")
+        L += [""]
+
+    # Resolved Issues
     resolved_ids = set(rep.get("resolved_issue_ids", []))
     if resolved_ids:
-        L += [f"### ✅ Resolved Issues ({len(resolved_ids)}):",
+        L += [f"### ✅ Resolved Prior Issues ({len(resolved_ids)})",
               "> The follow-up refinement or edge condition successfully resolved these prior objections:"]
         for i in rep.get("issues", []):
             if i["id"] in resolved_ids:
-                L.append(f"- **{i['id']}** [RESOLVED] {i['severity']} / {i['category']}: {i['claim']}\n  _edge condition fulfilled:_ {i.get('edge_condition', '')}")
+                flag_type = i.get("flag", "yellow").upper()
+                L.append(f"- **{i['id']}** [RESOLVED] [{flag_type}] {i.get('category', '')}: {i['claim']}\n  _edge condition fulfilled:_ {i.get('edge_condition', '')}")
         L += [""]
 
-    active = [i for i in rep.get("issues", []) if i.get("status") == "active"]
-    if not active:
-        L += ["_No active disqualifying issues or rule violations remain in the cumulative cited passages._", ""]
+    # Active Issues
+    active = rep.get("active_issues", [i for i in rep.get("issues", []) if i.get("status") == "active"])
+    active_yellow = [i for i in active if i.get("flag") == "yellow" or (not i.get("flag") and i.get("severity") in ("major", "minor"))]
+    active_red = [i for i in active if i.get("flag") == "red" or (not i.get("flag") and i.get("severity") == "critical")]
+
+    L += [f"### 🟨 Active Yellow Flags ({len(active_yellow)})",
+          "> Remaining empirical friction, competing models, or parameter regime constraints:"]
+    if not active_yellow:
+        L += ["_No active yellow flags remain._", ""]
     else:
-        L += [f"### ⚠️ Active Issues ({len(active)}):"]
-        for i in active:
+        for i in active_yellow:
             is_new = " *(new this turn)*" if i["id"] in [ni["id"] for ni in rep.get("new_issues", [])] else ""
-            flag = "" if i["quote_status"] == "verified" else f" **[quote {i['quote_status']}]**"
+            flag_warn = "" if i.get("quote_status") == "verified" else f" **[quote {i.get('quote_status')}]**"
             eye = f" _(eyeball-check numbers: {i['eyeball_numbers']})_" if i.get("eyeball_numbers") else ""
             ent = f" _(auto-entail: {i['auto_entail']['label']})_" if i.get("auto_entail") else ""
-            L.append(f"- **{i['id']}** {i['severity']} / {i['category']} / {i['passage_id']}{is_new}{flag}{eye}{ent}\n"
-                     f"  {i['claim']}\n  > {i['quote']}\n  _flips if:_ {i['edge_condition']}")
+            L.append(f"- **{i['id']}** {i.get('category', 'Friction')} / {i.get('passage_id', '')}{is_new}{flag_warn}{eye}{ent}\n"
+                     f"  {i['claim']}\n  > \"{i['quote']}\"\n  _flips if:_ {i.get('edge_condition', 'N/A')}")
+        L += [""]
+
+    L += [f"### 🚩 Active Red Flags ({len(active_red)})",
+          "> Unresolved physical/biological invariant violations:"]
+    if not active_red:
+        L += ["_No active red flags remain._", ""]
+    else:
+        for i in active_red:
+            is_new = " *(new this turn)*" if i["id"] in [ni["id"] for ni in rep.get("new_issues", [])] else ""
+            flag_warn = "" if i.get("quote_status") == "verified" else f" **[quote {i.get('quote_status')}]**"
+            eye = f" _(eyeball-check numbers: {i['eyeball_numbers']})_" if i.get("eyeball_numbers") else ""
+            ent = f" _(auto-entail: {i['auto_entail']['label']})_" if i.get("auto_entail") else ""
+            L.append(f"- **{i['id']}** {i.get('category', 'Invariant')} / {i.get('passage_id', '')}{is_new}{flag_warn}{eye}{ent}\n"
+                     f"  {i['claim']}\n  > \"{i['quote']}\"\n  _flips if:_ {i.get('edge_condition', 'N/A')}")
         L += [""]
 
     new_pids = set(rep.get("new_passage_ids", []))

@@ -18,17 +18,16 @@ Rather than acting as a supportive brainstormer or allowing sycophantic hallucin
    - Python code verifies that the quote is an exact substring of the retrieved passage.
    - Any hallucinated, misattributed, or modified quotes are caught and **disqualified from affecting the verdict**.
 
-3. **Grounded 0–9 Verdict Scoring Scale**:
-   - The referee assesses an empirical viability score from **0 to 9**, grounded against verified literature quotes:
-     - **9/9**: **SURVIVES (Highly Robust / Uncontested)** — Unrefuted invariant, fully consistent with canonical principles.
-     - **7–8/9**: **SURVIVES (Plausible / Minor Caveats)** — Theoretically sound, only minor caveats or peripheral scope limits.
-     - **4–6/9**: **CHALLENGED (Empirical Friction / Edge Conditions Required)** — Notable empirical friction, conflicting studies, or rate/frequency trade-offs (requires specific edge conditions).
-     - **1–3/9**: **FAIL / SEVERELY CONTRADICTED** — Verified critical objections or severe empirical contradictions.
-     - **0/9**: **FAIL (Definitively Falsified)** — Direct violation of fundamental conservation laws or biophysical invariants.
+3. **High-Resolution Flag Spotting Radar (No Arbitrary Scores)**:
+   - Groundbreaking hypotheses challenge conventional wisdom; assigning arbitrary numeric scores or authoritarian "FAIL" stamps stifles scientific novelty. Instead, Sanity Engine acts as a constructive radar mapping three distinct diagnostic flags:
+     - 🟩 **Green Flags**: Biophysically sound mechanisms, mathematical consistency, and alignment with canonical textbook principles that anchor novel ideas.
+     - 🟨 **Yellow Flags**: Empirical friction, conflicting studies, competing mechanisms, or parameter regime constraints; paired with qualitative `edge_condition`s describing what parameter changes or boundaries flip the objection.
+     - 🚩 **Red Flags**: Fatal physical, thermodynamic, or biophysical conservation law violations (e.g. conservation of energy, absolute physical non-viability).
+   - Reports provide diagnostic badges (`🚩 X Red | 🟨 Y Yellow | 🟩 Z Green`) and actionable classification without arbitrary numbers.
 
 4. **Iterative Follow-Up Prompts & Conversational Probing**:
    - Users can iterate with follow-up prompts, challenge critiques, or propose refined hypotheses without losing state.
-   - The referee responds grounded in the literature and re-evaluates the 0–9 score.
+   - The referee maintains research continuity: tracking resolved flags vs. active flags across turns and querying newly relevant literature.
    - Sessions continue until the user chooses to exit (via `exit` command, "🛑 End Session" button, or closing).
 
 5. **Number Linting & Deterministic Physics Ledger**:

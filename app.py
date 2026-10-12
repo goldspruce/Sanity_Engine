@@ -125,6 +125,12 @@ if st.button("Run", disabled=not text, type="primary"):
 
 if st.session_state.get("report"):
     rep = st.session_state["report"]
+    counts = rep.get("counts") or engine.count_flags(rep.get("issues", []), rep.get("green_flags", []))
+    col_r, col_y, col_g = st.columns(3)
+    col_r.metric("🚩 Red Flags", counts.get("red", 0), help="Fatal physical or biological invariant violations")
+    col_y.metric("🟨 Yellow Flags", counts.get("yellow", 0), help="Empirical friction & parameter regime constraints (requires edge conditions)")
+    col_g.metric("🟩 Green Flags", counts.get("green", 0), help="Biophysically sound mechanisms & canonical principles")
+
     rendered = engine.render(rep)
     st.markdown(rendered)
     st.divider()
@@ -143,10 +149,17 @@ if st.session_state.get("report"):
     # Continuous Follow-Up Section
     st.divider()
     st.subheader("💬 Continuous Follow-Up Research & Refinement")
-    st.caption("Ask questions, test edge conditions, or refine the hypothesis. The engine maintains continuous research across turns: querying literature, tracking resolved vs. persisting issues, and generating formal follow-up reports. Type **exit** or click **🛑 End Session** in the sidebar to finish.")
+    st.caption("Ask questions, test edge conditions, or refine the hypothesis. The engine maintains continuous research across turns: querying literature, tracking resolved vs. persisting flags, and generating formal follow-up reports. Type **exit** or click **🛑 End Session** in the sidebar to finish.")
 
     for idx, msg in enumerate(st.session_state.get("follow_up_history", [])):
         with st.chat_message(msg["role"]):
+            if msg.get("report") and msg.get("turn"):
+                f_rep = msg["report"]
+                f_counts = f_rep.get("counts") or engine.count_flags(f_rep.get("active_issues", f_rep.get("issues", [])), f_rep.get("green_flags", []))
+                fcol_r, fcol_y, fcol_g = st.columns(3)
+                fcol_r.metric("🚩 Red Flags", f_counts.get("red", 0))
+                fcol_y.metric("🟨 Yellow Flags", f_counts.get("yellow", 0))
+                fcol_g.metric("🟩 Green Flags", f_counts.get("green", 0))
             st.markdown(msg["content"])
             if msg.get("report") and msg.get("turn"):
                 turn_num = msg["turn"]
