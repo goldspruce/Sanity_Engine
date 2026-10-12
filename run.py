@@ -19,6 +19,7 @@ if __name__ == "__main__":
     ap.add_argument("--books", default=None, help="book names for the recall channel; default = corpus filenames")
     ap.add_argument("--chunk-words", type=int, default=180)
     ap.add_argument("--auto-entail", action="store_true")
+    ap.add_argument("--check-math", action="store_true", default=False, help="Enable number/math check on critique")
     ap.add_argument("--review", action="store_true", help="OPTIONAL: write expert triage cards")
     ap.add_argument("--max-cards", type=int, default=12)
     ap.add_argument("--out", default="out")
@@ -30,7 +31,8 @@ if __name__ == "__main__":
     hyp = open(a.hypothesis).read()
     gen = backend(a.gen); crit = backend(a.critic) if a.critic else gen
     rep = engine.run(hyp, a.books or books_default(a.corpus), gen, crit,
-                     engine.LocalBM25(a.corpus, a.chunk_words), auto_entail=a.auto_entail)
+                     engine.LocalBM25(a.corpus, a.chunk_words), auto_entail=a.auto_entail,
+                     check_math=a.check_math)
     os.makedirs(a.out, exist_ok=True)
     json.dump(rep, open(f"{a.out}/report.json", "w"), indent=1)
     open(f"{a.out}/report.md", "w").write(engine.render(rep))

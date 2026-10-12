@@ -33,6 +33,7 @@ with st.sidebar:
     books = st.text_input("Book names (recall channel)", "")
     review = st.checkbox("Create expert triage cards (optional)")
     entail = st.checkbox("Auto entailment pre-check")
+    check_math = st.checkbox("Math / number verification (optional)", value=False)
 
 text = st.text_area("Hypothesis", height=200)
 up = st.file_uploader("...or upload .docx / .txt / .md", type=["docx", "txt", "md"])
@@ -53,7 +54,7 @@ if st.button("Run", disabled=not text):
         crit = gen if critic_name == "same as generator" else backend(critic_name)
         with st.spinner("Running..."):
             rep = engine.run(text, books or books_default(corpus), gen, crit, engine.LocalBM25(corpus), auto_entail=entail,
-                             log=lambda m: None)
+                             check_math=check_math, log=lambda m: None)
         st.subheader(f"Verdict: {rep['verdict']}")
         st.markdown(engine.render(rep))
         st.download_button("Download report.md", engine.render(rep), "report.md")

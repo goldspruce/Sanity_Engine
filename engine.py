@@ -189,7 +189,7 @@ def eyeball_numbers(text, grounded_texts, rel=0.03):
 
 
 # ------------------------------------------------------------------ pipeline
-def run(hyp, books, gen, critic, retriever, min_recall_score=2.0, auto_entail=False, log=print):
+def run(hyp, books, gen, critic, retriever, min_recall_score=2.0, auto_entail=False, check_math=False, log=print):
     degraded = []
 
     log("[1] attack plan + recall (channel A)")
@@ -236,7 +236,7 @@ def run(hyp, books, gen, critic, retriever, min_recall_score=2.0, auto_entail=Fa
         d = i.model_dump()
         p = pmap.get(i.passage_id)
         d["quote_status"] = verify_quote(i.quote, p["text"], retriever.chunks) if p else "bad_passage_id"
-        d["eyeball_numbers"] = eyeball_numbers(i.claim + " " + i.edge_condition, grounded)
+        d["eyeball_numbers"] = eyeball_numbers(i.claim + " " + i.edge_condition, grounded) if check_math else []
         d["auto_entail"] = None
         if auto_entail and d["quote_status"] == "verified":
             d["auto_entail"] = Entail.model_validate(critic.json(
