@@ -1,0 +1,11 @@
+When a sound wave meets a boundary between two media, the fraction of power that crosses depends on the ratio of their acoustic impedances. If the impedances differ by several orders of magnitude, almost all of the incident power is reflected and only a tiny fraction is transmitted. Air and dense ceramics are a standard example of such a mismatch.
+
+A matching layer can raise transmission across a mismatched boundary, but only over a narrow band of frequencies near the design value. Away from that band the benefit falls off quickly, so a single layer cannot rescue a broadband or steered beam.
+
+Sound absorption in air rises steeply with frequency. At ultrasonic frequencies the energy of a propagating beam decays noticeably over distances of a few metres, and the loss depends on temperature and humidity.
+
+Focusing an acoustic beam reduces geometric spreading only within the focal region. The ability to focus is limited by diffraction, so the aperture of the source must be large compared with the wavelength to hold a tight focus at long range.
+
+Human exposure guidance for airborne ultrasound is set in published standards and is expressed as sound pressure level limits that vary with frequency. Statements that a source is safe merely because it is inaudible are not supported by those standards.
+
+Energy conversion in piezoelectric devices is never perfect. Each conversion stage, from electrical to mechanical and back, contributes a loss factor, and the overall efficiency is the product of the individual factors.

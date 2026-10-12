@@ -1,0 +1,8 @@
+pydantic>=2.0
+google-genai
+anthropic
+streamlit
+python-docx
+pypdf
+sympy
+pint
