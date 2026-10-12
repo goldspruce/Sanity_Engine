@@ -298,16 +298,16 @@ def verdict(issues):
     if any(i["severity"] == "critical" for i in ok):
         return "FAIL"
     if any(i["severity"] == "major" for i in ok):
-        return "WEAK"
+        return "CHALLENGED"
     if any(i["severity"] == "critical" for i in unv):
-        return "WEAK (critical concern with unverified citation)"
+        return "CHALLENGED (critical concern with unverified citation)"
     return "SURVIVES (not endorsed)"
 
 
 VERDICT_EXPLANATIONS = {
     "FAIL": "The hypothesis is falsified by an established physical invariant or documented empirical limit verified in the literature.",
-    "WEAK": "The hypothesis faces significant theoretical or practical obstacles documented in the literature, but plausibly workable edge conditions exist.",
-    "WEAK (critical concern with unverified citation)": "A critical objection was raised, but the citation could not be verified verbatim in the corpus.",
+    "CHALLENGED": "The hypothesis faces significant theoretical or empirical challenges documented in the literature, but key edge conditions remain plausible and open to test.",
+    "CHALLENGED (critical concern with unverified citation)": "A critical objection was raised, but the citation could not be verified verbatim in the corpus.",
     "SURVIVES (not endorsed)": "The hypothesis was not falsified by any verified passage in the current corpus. This does NOT mean the hypothesis is endorsed or scientifically proven; rather, the current library contained no definitive counter-evidence to refute it (see Untested claims below)."
 }
 

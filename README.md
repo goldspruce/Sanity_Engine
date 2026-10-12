@@ -21,8 +21,8 @@ Rather than acting as a supportive brainstormer or allowing sycophantic hallucin
 3. **Rule-Based Verdicts (No LLM Discretion)**:
    - Verdicts are computed deterministically by fixed code rules:
      - Verified Critical Issue $\rightarrow$ **FAIL**
-     - Verified Major Issue $\rightarrow$ **WEAK**
-     - Unverified Critical Issue $\rightarrow$ **WEAK (critical concern with unverified citation)**
+     - Verified Major Issue $\rightarrow$ **CHALLENGED**
+     - Unverified Critical Issue $\rightarrow$ **CHALLENGED (critical concern with unverified citation)**
      - No verified critical/major issues $\rightarrow$ **SURVIVES (never means endorsed)**
 
 4. **Number Linting & Deterministic Physics Ledger**:
