@@ -55,7 +55,6 @@ if st.button("Run", disabled=not text):
         with st.spinner("Running..."):
             rep = engine.run(text, books or books_default(corpus), gen, crit, engine.LocalBM25(corpus), auto_entail=entail,
                              check_math=check_math, log=lambda m: None)
-        st.subheader(f"Verdict: {rep['verdict']}")
         st.markdown(engine.render(rep))
         st.download_button("Download report.md", engine.render(rep), "report.md")
         st.download_button("Download report.json", json.dumps(rep, indent=1), "report.json")

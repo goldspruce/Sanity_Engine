@@ -92,7 +92,7 @@ class GeminiLLM:
                 candidates.append(alt)
         last_err = None
         for model_name in candidates:
-            for attempt in range(3):
+            for attempt in range(4):
                 try:
                     r = self.client.models.generate_content(model=model_name, contents=user, config=cfg)
                     return json.loads(r.text)
@@ -100,7 +100,7 @@ class GeminiLLM:
                     last_err = e
                     if "404" in str(e):
                         break
-                    time.sleep(1.5 * (attempt + 1))
+                    time.sleep(2.0 * (attempt + 1))
         raise last_err
 
 
@@ -304,22 +304,49 @@ def verdict(issues):
     return "SURVIVES (not endorsed)"
 
 
+VERDICT_EXPLANATIONS = {
+    "FAIL": "The hypothesis is falsified by an established physical invariant or documented empirical limit verified in the literature.",
+    "WEAK": "The hypothesis faces significant theoretical or practical obstacles documented in the literature, but plausibly workable edge conditions exist.",
+    "WEAK (critical concern with unverified citation)": "A critical objection was raised, but the citation could not be verified verbatim in the corpus.",
+    "SURVIVES (not endorsed)": "The hypothesis was not falsified by any verified passage in the current corpus. This does NOT mean the hypothesis is endorsed or scientifically proven; rather, the current library contained no definitive counter-evidence to refute it (see Untested claims below)."
+}
+
+
 def render(rep):
-    L = [f"# Verdict: {rep['verdict']}", ""]
+    v = rep["verdict"]
+    exp = VERDICT_EXPLANATIONS.get(v, "")
+    L = [f"# Verdict: {v}"]
+    if exp:
+        L += [f"> **Plain-language explanation:** {exp}", ""]
+    else:
+        L += [""]
     if rep["degraded"]:
         L += ["**Degraded:** " + "; ".join(rep["degraded"]), ""]
     L += ["## Issue board"]
-    for i in rep["issues"]:
-        flag = "" if i["quote_status"] == "verified" else f" **[quote {i['quote_status']}]**"
-        eye = f" _(eyeball-check numbers: {i['eyeball_numbers']})_" if i["eyeball_numbers"] else ""
-        ent = f" _(auto-entail: {i['auto_entail']['label']})_" if i.get("auto_entail") else ""
-        L.append(f"- **{i['id']}** {i['severity']} / {i['category']} / {i['passage_id']}{flag}{eye}{ent}\n"
-                 f"  {i['claim']}\n  > {i['quote']}\n  _flips if:_ {i['edge_condition']}")
-    L += ["", "## Channel A vs B (reconcile)"]
+    if not rep["issues"]:
+        L += ["_No disqualifying issues or rule violations were found in the cited passages._", ""]
+    else:
+        for i in rep["issues"]:
+            flag = "" if i["quote_status"] == "verified" else f" **[quote {i['quote_status']}]**"
+            eye = f" _(eyeball-check numbers: {i['eyeball_numbers']})_" if i["eyeball_numbers"] else ""
+            ent = f" _(auto-entail: {i['auto_entail']['label']})_" if i.get("auto_entail") else ""
+            L.append(f"- **{i['id']}** {i['severity']} / {i['category']} / {i['passage_id']}{flag}{eye}{ent}\n"
+                     f"  {i['claim']}\n  > {i['quote']}\n  _flips if:_ {i['edge_condition']}")
+    L += ["", "## Channel A vs B (Reconciliation)",
+          "> **Channel A (Model Recall):** Theoretical principles and textbooks recalled from model memory (unverified).",
+          "> **Channel B (Corpus Retrieval):** Real text passages retrieved deterministically from your library (`corpus/`).",
+          "> **Reconciliation:**",
+          "> - `agree`: The recalled principle was confirmed by verified passages in your library.",
+          "> - `recall_only`: Recalled by model memory, but no supporting passage was found in your library (indicates a literature gap or unverified memory).",
+          "> - `retrieval_only`: Relevant literature was found by search that model recall did not anticipate.",
+          ""]
     for r in rep["reconcile"]:
         L.append(f"- **{r['bucket']}** ({r['item']['book']}): {r['item']['constraint']}"
                  + (f" -> {r['passage_id']}" if r["passage_id"] else " -> NOT found in corpus (gap, bad search terms, or invented)"))
     if rep["retrieval_only"]:
         L.append(f"- retrieval-only passages (recall silent): {', '.join(rep['retrieval_only'])}")
-    L += ["", "## Untested"] + [f"- {u}" for u in rep["untested_claims"]]
+    L += ["", "## Untested Claims",
+          "> Specific claims in the hypothesis where the current corpus lacked relevant experimental or theoretical literature:"]
+    for u in rep["untested_claims"]:
+        L.append(f"- {u}")
     return "\n".join(L)
