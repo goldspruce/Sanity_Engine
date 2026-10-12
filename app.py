@@ -54,20 +54,38 @@ elif link and not text:
 if text:
     text = st.text_area("Text that will be checked (edit if extraction dropped anything)", text, height=200, key="confirm")
 
-if st.button("Run", disabled=not text):
+if st.button("Run", disabled=not text, type="primary"):
     try:
         gen = backend(gen_name)
         crit = gen if critic_name == "same as generator" else backend(critic_name)
-        with st.spinner("Running..."):
+        with st.spinner("Running adversarial review..."):
             rep = engine.run(text, books or books_default(corpus), gen, crit, engine.LocalBM25(corpus), auto_entail=entail,
                              check_math=check_math, log=lambda m: None)
-        st.markdown(engine.render(rep))
-        st.download_button("Download report.md", engine.render(rep), "report.md")
-        st.download_button("Download report.json", json.dumps(rep, indent=1), "report.json")
-        if review:
-            d = tempfile.mkdtemp()
-            triage.build(rep, d)
-            for fn in ("triage.md", "responses.csv", "triage.json"):
-                st.download_button(f"Download {fn}", open(f"{d}/{fn}").read(), fn)
+            st.session_state["report"] = rep
+            if review:
+                d = tempfile.mkdtemp()
+                triage.build(rep, d)
+                st.session_state["triage_files"] = {
+                    fn: open(f"{d}/{fn}").read() for fn in ("triage.md", "responses.csv", "triage.json")
+                }
+            else:
+                st.session_state["triage_files"] = None
     except Exception as e:
         st.error(f"{type(e).__name__}: {e}")
+
+if st.session_state.get("report"):
+    rep = st.session_state["report"]
+    rendered = engine.render(rep)
+    st.markdown(rendered)
+    st.divider()
+    col1, col2 = st.columns(2)
+    with col1:
+        st.download_button("📥 Download report.md", rendered, "report.md", mime="text/markdown", key="dl_report_md")
+    with col2:
+        st.download_button("📥 Download report.json", json.dumps(rep, indent=1), "report.json", mime="application/json", key="dl_report_json")
+    if st.session_state.get("triage_files"):
+        st.subheader("Expert Triage Files")
+        t_cols = st.columns(3)
+        for idx, (fn, content) in enumerate(st.session_state["triage_files"].items()):
+            with t_cols[idx]:
+                st.download_button(f"📥 Download {fn}", content, fn, key=f"dl_{fn}")
