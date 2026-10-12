@@ -354,9 +354,17 @@ def render(rep):
     cited_sources = sorted({p["source"].replace(".txt", "").replace(".md", "").replace("_", " ") for p in rep.get("passages", [])})
     recalled_books = sorted({r["item"]["book"] for r in rep.get("reconcile", []) if r.get("item", {}).get("book")})
 
+    nb_url = os.environ.get("NOTEBOOKLM_URL", "").strip()
+    nb_link_msg = (
+        f"> 🔗 **Preloaded NotebookLM Workspace:** [{nb_url}]({nb_url})"
+        if nb_url
+        else "> 🔗 **Preloaded NotebookLM Workspace:** A direct shareable link with the complete textbook corpus preloaded is provided for reviewers and researchers."
+    )
+
     L += ["", "## 📚 Recommended Reading & NotebookLM Investigation",
           "> To investigate untested claims or examine biological/physical mechanisms further,",
           "> you can cross-examine these textbooks in a **Google NotebookLM** notebook for cited Q&A.",
+          nb_link_msg,
           ""]
     if cited_sources:
         L += ["### Directly Cited in Corpus Passages:"]
@@ -368,6 +376,6 @@ def render(rep):
         for b in recalled_books:
             L += [f"- **{b}**"]
         L += [""]
-    L += ["> 💡 *Tip: See `TEXTBOOKS.md` for full textbook catalog. Run `python pack_for_notebook.py --corpus corpus --out notebook_pack` to chunk your library into NotebookLM-ready uploads.*"]
+    L += ["> 💡 *Tip: See `TEXTBOOKS.md` for full textbook catalog and NotebookLM sharing details. Run `python pack_for_notebook.py --corpus corpus --out notebook_pack` to generate upload packages.*"]
 
     return "\n".join(L)

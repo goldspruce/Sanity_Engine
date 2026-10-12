@@ -123,14 +123,12 @@ Sanity Engine maintains an indexed library of 12 foundational textbooks across b
 See [TEXTBOOKS.md](TEXTBOOKS.md) for the complete catalog of titles and editions.
 
 ### Sharing and Querying Textbooks in Google NotebookLM
-To interactively explore the literature, verify untested claims, or review citations:
-1. **Slice the corpus into notebook-friendly parts**:
-   ```bash
-   .venv/bin/python pack_for_notebook.py --corpus corpus --out notebook_pack --max-words 200000
-   ```
-2. Open [Google NotebookLM](https://notebooklm.google.com) and create a notebook.
-3. Upload the files from `notebook_pack/` (or individual PDFs from `Textbooks/`).
-4. Ask questions directly against the exact literature indexed by the engine!
+- **🔗 Preloaded NotebookLM Link:** A ready-to-use NotebookLM workspace with the full textbook corpus preloaded is shared directly via link for reviewers and collaborators.
+- **Custom Uploads:** You can also slice the corpus into formatted chunks for custom notebooks:
+  ```bash
+  .venv/bin/python pack_for_notebook.py --corpus corpus --out notebook_pack --max-words 200000
+  ```
+  Then upload `notebook_pack/` directly to [Google NotebookLM](https://notebooklm.google.com) to ask questions against the indexed literature!
 
 ---
 
