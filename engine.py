@@ -315,7 +315,13 @@ VERDICT_EXPLANATIONS = {
 def render(rep):
     v = rep["verdict"]
     exp = VERDICT_EXPLANATIONS.get(v, "")
-    L = [f"# Verdict: {v}"]
+    hyp = rep.get("hypothesis", "").strip()
+
+    L = []
+    if hyp:
+        L += ["## 🔬 Hypothesis / Prompt", f"> {hyp}", ""]
+
+    L += [f"# Verdict: {v}"]
     if exp:
         L += [f"> **Plain-language explanation:** {exp}", ""]
     else:

@@ -58,8 +58,11 @@ def build_cards(rep, max_cards=12):
 def build(rep, outdir, max_cards=12):
     shown, overflow = build_cards(rep, max_cards)
     json.dump(dict(cards=shown, overflow=overflow), open(f"{outdir}/triage.json", "w"), indent=1)
-    L = ["# Expert triage (blind view)", "",
-         "Read REVIEWER_GUIDE.md first. Do NOT open report.md until all cards are answered.",
+    hyp = rep.get("hypothesis", "").strip()
+    L = ["# Expert triage (blind view)", ""]
+    if hyp:
+        L += ["## 🔬 Hypothesis Under Review", f"> {hyp}", ""]
+    L += ["Read REVIEWER_GUIDE.md first. Do NOT open report.md until all cards are answered.",
          "Record answers in responses.csv (or the Google Sheet copy). 'unclear' and 'out_of_expertise' are valid answers.", ""]
     for c in shown:
         L += [f"## {c['id']}  [{c['type']}]  rank {c['rank']}", f"**{c['question']}**", "",
@@ -108,7 +111,11 @@ def merge(outdir, responses_path=None):
     crit_open = [i for i in remaining if i["severity"] == "critical" and i["quote_status"] == "verified"
                  and not any(x["card"].get("issue_id") == i["id"] and x["response"] in ("serious", "supports")
                              for x in ruled)]
-    L = [f"# Final verdict: {adj}", f"Engine verdict before review: {rep['verdict']}", ""]
+    hyp = rep.get("hypothesis", "").strip()
+    L = ["# Final Adversarial Review Report", ""]
+    if hyp:
+        L += ["## 🔬 Hypothesis / Prompt", f"> {hyp}", ""]
+    L += [f"## Final verdict: {adj}", f"Engine verdict before review: {rep['verdict']}", ""]
     if crit_open and ruled:
         L += [f"**{len(crit_open)} critical issue(s) not confirmed by a reviewer:** {[i['id'] for i in crit_open]}", ""]
     if problems:
