@@ -124,17 +124,36 @@ Open your browser at `http://localhost:8501`. You can:
 
 ## Textbook Corpus & Google NotebookLM Integration
 
-Sanity Engine maintains an indexed library of 12 foundational textbooks across biomechanics, electrophysiology, molecular biology, biochemistry, dynamical systems, and physics. 
+Sanity Engine maintains an indexed library of 12 foundational canonical textbooks across electrophysiology, cell biology, biochemistry, dynamical systems, biomechanics, information theory, and physics.
 
-See [TEXTBOOKS.md](TEXTBOOKS.md) for the complete catalog of titles and editions.
+All files in `Textbooks/` and `corpus/` follow the standardized naming convention: `first author lastname_title_edition_year`:
 
-### Sharing and Querying Textbooks in Google NotebookLM
-- **🔗 Preloaded NotebookLM Link:** A ready-to-use NotebookLM workspace with the full textbook corpus preloaded is shared directly via link for reviewers and collaborators.
+| # | Standardized Filename (`author_title_edition_year`) | Title & Author(s) | Primary Domain |
+|:-:|:---|:---|:---|
+| **1** | `alberts_molecular_biology_of_the_cell_7ed_2022` | *Molecular Biology of the Cell* (Alberts et al., 7th ed.) | Cell biology, cross-bridges, motors |
+| **2** | `berg_random_walks_in_biology_1993` | *Random Walks in Biology* (Berg, 1993) | Diffusion, Brownian motion, motility |
+| **3** | `cover_elements_of_information_theory_2ed_2006` | *Elements of Information Theory* (Cover & Thomas, 2nd ed.) | Channel capacity, rate distortion, entropy |
+| **4** | `feynman_lectures_on_physics_vol1_1963` | *The Feynman Lectures on Physics: Vol 1* (Feynman et al., 1963) | Mechanics, radiation, heat, acoustics |
+| **5** | `feynman_lectures_on_physics_vol2_1964` | *The Feynman Lectures on Physics: Vol 2* (Feynman et al., 1964) | Electromagnetism, waves, dielectric media |
+| **6** | `johnston_foundations_of_cellular_neurophysiology_1ed_1995` | *Foundations of Cellular Neurophysiology* (Johnston & Wu, 1995) | Electrophysiology, cable theory, ion channels |
+| **7** | `kreyszig_advanced_engineering_mathematics_10ed_2011` | *Advanced Engineering Mathematics* (Kreyszig, 10th ed.) | Wave equations, PDEs, Fourier transforms |
+| **8** | `murray_mathematical_biology_an_introduction_2ed_1993` | *Mathematical Biology: An Introduction* (Murray, 2nd ed.) | Reaction-diffusion, population dynamics |
+| **9** | `nelson_lehninger_principles_of_biochemistry_8ed_2021` | *Lehninger: Principles of Biochemistry* (Nelson & Cox, 8th ed.) | Bioenergetics, ATP kinetics, metabolic flux |
+| **10** | `strogatz_nonlinear_dynamics_and_chaos_3ed_2024` | *Nonlinear Dynamics and Chaos* (Strogatz, 3rd ed., 2024) | Limit cycles, bifurcations, oscillators |
+| **11** | `winter_biomechanics_and_motor_control_of_human_movement_4ed_2009` | *Biomechanics and Motor Control* (Winter, 4th ed., 2009) | Kinematics, force-velocity relations, recruitment |
+| **12** | `winter_biomechanics_and_motor_control_of_human_movement_5ed_2020` | *Biomechanics and Motor Control* (Winter, 5th ed., 2020) | Joint kinetics, EMG, muscle power, SSC |
+
+See [TEXTBOOKS.md](TEXTBOOKS.md) for full descriptions and indexing instructions.
+
+### Google NotebookLM Integration
+To investigate untested claims or examine biological/physical mechanisms further, here is a link to a Google NotebookLM pre-loaded with these canonical textbooks.
+
+- **🔗 Preloaded Workspace:** A direct shareable link with the complete textbook corpus preloaded is provided for reviewers and researchers. (Configure via `NOTEBOOKLM_URL` in `.env`).
 - **Custom Uploads:** You can also slice the corpus into formatted chunks for custom notebooks:
   ```bash
   .venv/bin/python pack_for_notebook.py --corpus corpus --out notebook_pack --max-words 200000
   ```
-  Then upload `notebook_pack/` directly to [Google NotebookLM](https://notebooklm.google.com) to ask questions against the indexed literature!
+  Then upload `notebook_pack/` directly to [Google NotebookLM](https://notebooklm.google.com).
 
 ---
 

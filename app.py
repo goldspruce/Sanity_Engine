@@ -24,12 +24,39 @@ def gdoc_text(url):
         return r.read().decode("utf-8", "ignore")
 
 
-st.set_page_config(page_title="Adversarial hypothesis checker")
+st.set_page_config(page_title="Adversarial hypothesis checker", page_icon="🔬")
 st.title("Adversarial hypothesis checker")
+
+nb_url = os.environ.get("NOTEBOOKLM_URL", "").strip() or "https://notebooklm.google.com"
+st.markdown(f"> To investigate untested claims or examine biological/physical mechanisms further, you can cross-examine here is a [link to a Google NotebookLM pre-loaded with these canonical textbooks]({nb_url})")
+
+with st.expander("📚 Pre-Loaded Canonical Textbooks in Corpus & NotebookLM (12)", expanded=False):
+    st.markdown(f"🔗 **Google NotebookLM Workspace:** [{nb_url}]({nb_url})")
+    st.markdown("""
+    All reference textbooks are indexed in `corpus/` for deterministic BM25 retrieval and quote verification:
+    - **Alberts et al. (7th ed., 2022)**: `alberts_molecular_biology_of_the_cell_7ed_2022` *(Cell biology, cross-bridges, motors)*
+    - **Berg (1993)**: `berg_random_walks_in_biology_1993` *(Diffusion, Brownian motion, motility, low Reynolds number)*
+    - **Cover & Thomas (2nd ed., 2006)**: `cover_elements_of_information_theory_2ed_2006` *(Information theory, channel capacity, rate distortion)*
+    - **Feynman et al. (Vol. 1, 1963)**: `feynman_lectures_on_physics_vol1_1963` *(Mechanics, oscillations, radiation, heat, acoustics)*
+    - **Feynman et al. (Vol. 2, 1964)**: `feynman_lectures_on_physics_vol2_1964` *(Electromagnetism, wave propagation, dielectric media)*
+    - **Johnston & Wu (1st ed., 1995)**: `johnston_foundations_of_cellular_neurophysiology_1ed_1995` *(Cellular neurophysiology, cable theory, ion channels)*
+    - **Kreyszig (10th ed., 2011)**: `kreyszig_advanced_engineering_mathematics_10ed_2011` *(Wave equations, PDEs, Fourier/Laplace transforms)*
+    - **Murray (2nd ed., 1993)**: `murray_mathematical_biology_an_introduction_2ed_1993` *(Mathematical biology, reaction-diffusion, population dynamics)*
+    - **Nelson & Cox (8th ed., 2021)**: `nelson_lehninger_principles_of_biochemistry_8ed_2021` *(Biochemistry, ATP kinetics, bioenergetics, metabolic flux)*
+    - **Strogatz (3rd ed., 2024)**: `strogatz_nonlinear_dynamics_and_chaos_3ed_2024` *(Nonlinear dynamics, limit cycles, bifurcations, oscillators)*
+    - **Winter (4th ed., 2009)**: `winter_biomechanics_and_motor_control_of_human_movement_4ed_2009` *(Biomechanics, motor control, force-velocity relations)*
+    - **Winter (5th ed., 2020)**: `winter_biomechanics_and_motor_control_of_human_movement_5ed_2020` *(Joint kinetics, EMG, muscle power, stretch-shortening cycle)*
+    """)
+
 with st.sidebar:
     gen_name = st.selectbox("Generator model", ["gemini", "anthropic", "mock"])
     critic_name = st.selectbox("Reviewer model", ["same as generator", "gemini", "anthropic", "mock"])
     corpus = st.text_input("Corpus folder", "corpus")
+    if os.path.isdir(corpus):
+        with st.expander("📚 Books in Corpus"):
+            for bf in sorted(os.listdir(corpus)):
+                if bf.lower().endswith((".txt", ".md")):
+                    st.caption(f"• `{os.path.splitext(bf)[0]}`")
     books = st.text_input("Book names to focus on in model recall?", "",
                           help="Optional. Leave blank to default to all books in your corpus folder.")
     review = st.checkbox("Create expert triage cards (optional)")

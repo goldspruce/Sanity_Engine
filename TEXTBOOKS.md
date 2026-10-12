@@ -11,20 +11,20 @@ All books are ingested from `Textbooks/` into plain-text chunks in `corpus/` usi
 
 ## Catalog of Reference Textbooks
 
-| # | Textbook Title | Author(s) / Edition | Primary Domain | File in `Textbooks/` |
+| # | Textbook Title | Author(s) / Edition | Primary Domain | Standardized Filename (`Textbooks/` & `corpus/`) |
 |:-:|:---|:---|:---|:---|
-| **1** | **Biomechanics and Motor Control of Human Movement** | David A. Winter *(5th Edition)* | Human movement, joint kinetics, EMG, muscle power, stretch-shortening cycle | `winters-biomechanics-and-motor-control-of-human-movement-5nbsped-5th.pdf` |
-| **2** | **Biomechanics and Motor Control of Human Movement** | Winter / Robertson et al. | Motor control, kinematics, force-velocity relations, neural recruitment | `BIOMECHANICS_AND_MOTOR_CONTROL_OF_HUMAN.pdf` |
-| **3** | **Foundations of Cellular Neurophysiology** | Daniel Johnston & Samuel Miao-Sin Wu | Membrane electrophysiology, cable theory, Hodgkin-Huxley, synaptic transmission | `Wu_Foundations_of_cellular_neurophysiology_-_Daniel_Johnston_onlyedition.pdf` |
-| **4** | **Molecular Biology of the Cell** | Bruce Alberts et al. *(7th Edition)* | Cell biology, molecular motors, actin-myosin cross-bridges, signal transduction | `Alberts7th_molecular-biology-of-the-cell-7.pdf` |
-| **5** | **Lehninger: Principles of Biochemistry** | David L. Nelson & Michael M. Cox *(8th Edition, 2021)* | Bioenergetics, ATP kinetics, phosphocreatine buffering, metabolic flux | `Lehninger _ Principles of Biochemistry. Eighth Edition_2021.pdf` |
-| **6** | **The Feynman Lectures on Physics (Vol. 1)** | Richard P. Feynman, Robert B. Leighton, Matthew Sands | Classical mechanics, oscillations, radiation, acoustics, thermodynamics | `feynman-lectures-on-physics-volume-i-mainly-mechanics-radiation-and-heat.pdf` |
-| **7** | **The Feynman Lectures on Physics (Vol. 2)** | Richard P. Feynman, Robert B. Leighton, Matthew Sands | Electromagnetism, wave propagation, Maxwell equations, dielectric media | `Feynmanlectures-on-physics-vol-2.pdf` |
-| **8** | **Nonlinear Dynamics and Chaos** | Steven H. Strogatz *(2024 Edition)* | Dynamical systems, phase portraits, limit cycles, bifurcation, biological oscillators | `strogatz_2024_nonlinear-dynamics-and-chaos-with-applications-to-physics-biology-chemistry-and-engineering.pdf` |
-| **9** | **Mathematical Biology: An Introduction** | J.D. Murray *(2nd Edition)* | Reaction-diffusion, population dynamics, wave propagation in tissue | `An Introduction for Scientists and Engineers_murray_2nd.pdf` |
-| **10** | **Random Walks in Biology** | Howard C. Berg *(1993, Ch. 1–4)* | Diffusion, Brownian motion, low Reynolds number physics, motility | `caps_1_4_Berg_Random_Walks_in_Biology_1993 (1).pdf` |
-| **11** | **Elements of Information Theory** | Thomas M. Cover & Joy A. Thomas *(2nd Edition)* | Entropy, channel capacity, rate distortion, data processing inequality | `Elements of Information Theory cover thomas.pdf` |
-| **12** | **Advanced Engineering Mathematics** | Erwin Kreyszig *(10th Edition)* | Wave equations, Fourier/Laplace transforms, PDEs, complex analysis | `advanced-engineering-mathematics_by-erwin-kreyszig-__10th_edition-1.pdf` |
+| **1** | **Molecular Biology of the Cell** | Bruce Alberts et al. *(7th Edition, 2022)* | Cell biology, molecular motors, actin-myosin cross-bridges, signal transduction | `alberts_molecular_biology_of_the_cell_7ed_2022` |
+| **2** | **Random Walks in Biology** | Howard C. Berg *(Expanded Edition, 1993)* | Diffusion, Brownian motion, low Reynolds number physics, motility | `berg_random_walks_in_biology_1993` |
+| **3** | **Elements of Information Theory** | Thomas M. Cover & Joy A. Thomas *(2nd Edition, 2006)* | Entropy, channel capacity, rate distortion, data processing inequality | `cover_elements_of_information_theory_2ed_2006` |
+| **4** | **The Feynman Lectures on Physics (Vol. 1)** | Richard P. Feynman et al. *(1963)* | Classical mechanics, oscillations, radiation, acoustics, thermodynamics | `feynman_lectures_on_physics_vol1_1963` |
+| **5** | **The Feynman Lectures on Physics (Vol. 2)** | Richard P. Feynman et al. *(1964)* | Electromagnetism, wave propagation, Maxwell equations, dielectric media | `feynman_lectures_on_physics_vol2_1964` |
+| **6** | **Foundations of Cellular Neurophysiology** | Daniel Johnston & Samuel Miao-Sin Wu *(1st Edition, 1995)* | Membrane electrophysiology, cable theory, Hodgkin-Huxley, synaptic transmission | `johnston_foundations_of_cellular_neurophysiology_1ed_1995` |
+| **7** | **Advanced Engineering Mathematics** | Erwin Kreyszig *(10th Edition, 2011)* | Wave equations, Fourier/Laplace transforms, PDEs, complex analysis | `kreyszig_advanced_engineering_mathematics_10ed_2011` |
+| **8** | **Mathematical Biology: An Introduction** | J.D. Murray *(2nd Edition, 1993)* | Reaction-diffusion, population dynamics, wave propagation in tissue | `murray_mathematical_biology_an_introduction_2ed_1993` |
+| **9** | **Lehninger: Principles of Biochemistry** | David L. Nelson & Michael M. Cox *(8th Edition, 2021)* | Bioenergetics, ATP kinetics, phosphocreatine buffering, metabolic flux | `nelson_lehninger_principles_of_biochemistry_8ed_2021` |
+| **10** | **Nonlinear Dynamics and Chaos** | Steven H. Strogatz *(3rd Edition, 2024)* | Dynamical systems, phase portraits, limit cycles, bifurcation, biological oscillators | `strogatz_nonlinear_dynamics_and_chaos_3ed_2024` |
+| **11** | **Biomechanics and Motor Control of Human Movement** | David A. Winter *(4th Edition, 2009)* | Motor control, kinematics, force-velocity relations, neural recruitment | `winter_biomechanics_and_motor_control_of_human_movement_4ed_2009` |
+| **12** | **Biomechanics and Motor Control of Human Movement** | David A. Winter *(5th Edition, 2020)* | Human movement, joint kinetics, EMG, muscle power, stretch-shortening cycle | `winter_biomechanics_and_motor_control_of_human_movement_5ed_2020` |
 
 ---
 
