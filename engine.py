@@ -87,18 +87,18 @@ class GeminiLLM:
         cfg = types.GenerateContentConfig(system_instruction=system, temperature=temperature,
                                           response_mime_type="application/json", response_schema=schema)
         candidates = [self.model]
-        for alt in ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"]:
+        for alt in ["gemini-3.1-flash-lite", "gemini-flash-lite-latest", "gemini-3.5-flash", "gemini-3.8-flash"]:
             if alt not in candidates:
                 candidates.append(alt)
         last_err = None
         for model_name in candidates:
-            for attempt in range(4):
+            for attempt in range(3):
                 try:
                     r = self.client.models.generate_content(model=model_name, contents=user, config=cfg)
                     return json.loads(r.text)
                 except (errors.ServerError, errors.ClientError) as e:
                     last_err = e
-                    if "404" in str(e):
+                    if "404" in str(e) or "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
                         break
                     time.sleep(2.0 * (attempt + 1))
         raise last_err
