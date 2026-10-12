@@ -23,8 +23,7 @@ All books are ingested from `Textbooks/` into plain-text chunks in `corpus/` usi
 | **8** | **Mathematical Biology: An Introduction** | J.D. Murray *(2nd Edition, 1993)* | Reaction-diffusion, population dynamics, wave propagation in tissue | `murray_mathematical_biology_an_introduction_2ed_1993` |
 | **9** | **Lehninger: Principles of Biochemistry** | David L. Nelson & Michael M. Cox *(8th Edition, 2021)* | Bioenergetics, ATP kinetics, phosphocreatine buffering, metabolic flux | `nelson_lehninger_principles_of_biochemistry_8ed_2021` |
 | **10** | **Nonlinear Dynamics and Chaos** | Steven H. Strogatz *(3rd Edition, 2024)* | Dynamical systems, phase portraits, limit cycles, bifurcation, biological oscillators | `strogatz_nonlinear_dynamics_and_chaos_3ed_2024` |
-| **11** | **Biomechanics and Motor Control of Human Movement** | David A. Winter *(4th Edition, 2009)* | Motor control, kinematics, force-velocity relations, neural recruitment | `winter_biomechanics_and_motor_control_of_human_movement_4ed_2009` |
-| **12** | **Biomechanics and Motor Control of Human Movement** | David A. Winter *(5th Edition, 2020)* | Human movement, joint kinetics, EMG, muscle power, stretch-shortening cycle | `winter_biomechanics_and_motor_control_of_human_movement_5ed_2020` |
+| **11** | **Biomechanics and Motor Control of Human Movement** | David A. Winter *(5th Edition, 2020)* | Human movement, joint kinetics, EMG, muscle power, stretch-shortening cycle | `winter_biomechanics_and_motor_control_of_human_movement_5ed_2020` |
 
 ---
 

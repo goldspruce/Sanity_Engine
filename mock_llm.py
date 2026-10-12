@@ -56,6 +56,26 @@ class MockLLM:
             )
         if n == "Entail":
             return dict(label="supports", why="mock")
+        if n == "FollowUpPlan":
+            return dict(
+                new_claims=[dict(id="C1_F1", text="Quarter-wave impedance matching layer reduces boundary reflection.")],
+                adversarial_queries=[dict(text="impedance matching layer acoustic bandwidth limits", kind="limit"),
+                                     dict(text="absorption of ultrasound in air at long range", kind="limit")],
+                recall=[dict(constraint="Quarter-wave matching has narrow fractional bandwidth",
+                             book="feynman_lectures_on_physics_vol1_1963",
+                             search_terms="quarter wave matching transformer impedance bandwidth")]
+            )
+        if n == "FollowUpReview":
+            return dict(
+                viability_score=5,
+                score_rationale="Adding quarter-wave impedance matching eliminates the fatal boundary reflection (resolving issue I1), but atmospheric absorption at 120 kHz remains a major constraint.",
+                score_delta_explanation="+4 points (from 1/9 to 5/9): Impedance coupling resolves critical issue I1; the hypothesis is now viable under edge conditions of high transmit intensity or shorter distances.",
+                resolved_issue_ids=["I1"],
+                scientific_synthesis="Acoustic quarter-wave matching effectively bridges the impedance mismatch between air and piezoceramics, drastically improving interface transmission. However, atmospheric absorption at 120 kHz remains a significant barrier over 3 m.",
+                falsification_test="Calorimetric power measurement across an impedance-matched transducer pair at 120 kHz over 3 m.",
+                new_issues=[],
+                untested_claims=["Fractional bandwidth and thermal stability of the quarter-wave matching layer under continuous 5 W operation."]
+            )
 
     def text(self, system, user, temperature=0.3):
         return (

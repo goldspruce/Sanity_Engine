@@ -50,26 +50,37 @@ if __name__ == "__main__":
         n, o = triage.build(rep, a.out, a.max_cards)
         print(f"\n[triage] {n} cards queued, {o} overflow -> {a.out}/triage.md, responses.csv")
 
-    # Interactive follow-up session until user exits
+    # Interactive follow-up session with continuous research & report generation
     should_interact = a.interactive or (not a.batch and sys.stdin.isatty())
     if should_interact:
         print("\n" + "=" * 65)
-        print("💬 INTERACTIVE FOLLOW-UP SESSION")
+        print("💬 INTERACTIVE FOLLOW-UP SESSION WITH CONTINUOUS RESEARCH")
         print("Enter follow-up prompts, probes, or refined hypotheses.")
+        print("Each follow-up generates an additional verified report.")
         print("Type 'exit' or 'q' to end the session.")
         print("=" * 65)
-        history = []
+        current_rep = rep
+        turn_idx = 1
         while True:
             try:
-                line = input("\n[follow-up] > ").strip()
+                line = input(f"\n[follow-up turn {turn_idx}] > ").strip()
             except (EOFError, KeyboardInterrupt):
                 print("\nSession ended.")
                 break
             if not line or line.lower() in ("exit", "quit", "q"):
                 print("Session ended.")
                 break
-            ans = engine.follow_up(history, line, rep, crit)
-            print(f"\n{ans}\n")
-            history.append({"role": "user", "content": line})
-            history.append({"role": "assistant", "content": ans})
+            print(f"\n--> Researching follow-up turn {turn_idx} against literature...")
+            f_rep = engine.run_followup(
+                current_rep, line, a.books or books_default(a.corpus),
+                gen, crit, engine.LocalBM25(a.corpus, a.chunk_words),
+                turn_idx=turn_idx, auto_entail=a.auto_entail, check_math=a.check_math
+            )
+            f_md = engine.render_followup(f_rep)
+            json.dump(f_rep, open(f"{a.out}/report_followup_{turn_idx}.json", "w"), indent=1)
+            open(f"{a.out}/report_followup_{turn_idx}.md", "w").write(f_md)
+            print(f"[saved] -> {a.out}/report_followup_{turn_idx}.md, report_followup_{turn_idx}.json\n")
+            print(f_md)
+            current_rep = f_rep
+            turn_idx += 1
 

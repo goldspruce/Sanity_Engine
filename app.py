@@ -30,7 +30,7 @@ st.title("Adversarial hypothesis checker")
 nb_url = os.environ.get("NOTEBOOKLM_URL", "").strip() or "https://notebooklm.google.com"
 st.markdown(f"> To investigate untested claims or examine biological/physical mechanisms further, you can cross-examine here is a [link to a Google NotebookLM pre-loaded with these canonical textbooks]({nb_url})")
 
-with st.expander("📚 Pre-Loaded Canonical Textbooks in Corpus & NotebookLM (12)", expanded=False):
+with st.expander("📚 Pre-Loaded Canonical Textbooks in Corpus & NotebookLM (11)", expanded=False):
     st.markdown(f"🔗 **Google NotebookLM Workspace:** [{nb_url}]({nb_url})")
     st.markdown("""
     All reference textbooks are indexed in `corpus/` for deterministic BM25 retrieval and quote verification:
@@ -44,7 +44,6 @@ with st.expander("📚 Pre-Loaded Canonical Textbooks in Corpus & NotebookLM (12
     - **Murray (2nd ed., 1993)**: `murray_mathematical_biology_an_introduction_2ed_1993` *(Mathematical biology, reaction-diffusion, population dynamics)*
     - **Nelson & Cox (8th ed., 2021)**: `nelson_lehninger_principles_of_biochemistry_8ed_2021` *(Biochemistry, ATP kinetics, bioenergetics, metabolic flux)*
     - **Strogatz (3rd ed., 2024)**: `strogatz_nonlinear_dynamics_and_chaos_3ed_2024` *(Nonlinear dynamics, limit cycles, bifurcations, oscillators)*
-    - **Winter (4th ed., 2009)**: `winter_biomechanics_and_motor_control_of_human_movement_4ed_2009` *(Biomechanics, motor control, force-velocity relations)*
     - **Winter (5th ed., 2020)**: `winter_biomechanics_and_motor_control_of_human_movement_5ed_2020` *(Joint kinetics, EMG, muscle power, stretch-shortening cycle)*
     """)
 
@@ -65,6 +64,8 @@ with st.sidebar:
 
     if st.button("🔄 Reset / New Hypothesis", help="Clear current session and start a new hypothesis"):
         st.session_state["report"] = None
+        st.session_state["latest_report"] = None
+        st.session_state["followup_reports"] = []
         st.session_state["follow_up_history"] = []
         st.session_state["session_active"] = True
         st.rerun()
@@ -81,6 +82,8 @@ if not st.session_state.get("session_active", True):
     if st.button("🔄 Start New Session", type="primary"):
         st.session_state["session_active"] = True
         st.session_state["report"] = None
+        st.session_state["latest_report"] = None
+        st.session_state["followup_reports"] = []
         st.session_state["follow_up_history"] = []
         st.rerun()
 
@@ -105,6 +108,8 @@ if st.button("Run", disabled=not text, type="primary"):
             rep = engine.run(text, books or books_default(corpus), gen, crit, engine.LocalBM25(corpus), auto_entail=entail,
                              check_math=check_math, log=lambda m: None)
             st.session_state["report"] = rep
+            st.session_state["latest_report"] = rep
+            st.session_state["followup_reports"] = []
             st.session_state["follow_up_history"] = []
             st.session_state["session_active"] = True
             if review:
@@ -125,9 +130,9 @@ if st.session_state.get("report"):
     st.divider()
     col1, col2 = st.columns(2)
     with col1:
-        st.download_button("📥 Download report.md", rendered, "report.md", mime="text/markdown", key="dl_report_md")
+        st.download_button("📥 Download report.md (Base Hypothesis)", rendered, "report.md", mime="text/markdown", key="dl_report_md")
     with col2:
-        st.download_button("📥 Download report.json", json.dumps(rep, indent=1), "report.json", mime="application/json", key="dl_report_json")
+        st.download_button("📥 Download report.json (Base Hypothesis)", json.dumps(rep, indent=1), "report.json", mime="application/json", key="dl_report_json")
     if st.session_state.get("triage_files"):
         st.subheader("Expert Triage Files")
         t_cols = st.columns(3)
@@ -135,14 +140,35 @@ if st.session_state.get("report"):
             with t_cols[idx]:
                 st.download_button(f"📥 Download {fn}", content, fn, key=f"dl_{fn}")
 
-    # Iterative Follow-up Section
+    # Continuous Follow-Up Section
     st.divider()
-    st.subheader("💬 Iterative Follow-Up & Hypothesis Refinement")
-    st.caption("Ask questions about the cited passages, challenge the referee's critique, or test refined edge conditions. The referee will respond grounded in the literature and re-evaluate the 0–9 score. Type **exit** or click **🛑 End Session** in the sidebar to quit.")
+    st.subheader("💬 Continuous Follow-Up Research & Refinement")
+    st.caption("Ask questions, test edge conditions, or refine the hypothesis. The engine maintains continuous research across turns: querying literature, tracking resolved vs. persisting issues, and generating formal follow-up reports. Type **exit** or click **🛑 End Session** in the sidebar to finish.")
 
-    for msg in st.session_state.get("follow_up_history", []):
+    for idx, msg in enumerate(st.session_state.get("follow_up_history", [])):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
+            if msg.get("report") and msg.get("turn"):
+                turn_num = msg["turn"]
+                f_rep = msg["report"]
+                f_md = msg["content"]
+                c1, c2 = st.columns(2)
+                with c1:
+                    st.download_button(
+                        f"📥 Download report_followup_{turn_num}.md",
+                        f_md,
+                        f"report_followup_{turn_num}.md",
+                        mime="text/markdown",
+                        key=f"dl_f_{turn_num}_{idx}_md"
+                    )
+                with c2:
+                    st.download_button(
+                        f"📥 Download report_followup_{turn_num}.json",
+                        json.dumps(f_rep, indent=1),
+                        f"report_followup_{turn_num}.json",
+                        mime="application/json",
+                        key=f"dl_f_{turn_num}_{idx}_json"
+                    )
 
     if st.session_state.get("session_active", True):
         prompt = st.chat_input("Enter a follow-up prompt, probe, or refined hypothesis (or 'exit')...")
@@ -156,14 +182,30 @@ if st.session_state.get("report"):
                 try:
                     gen = backend(gen_name)
                     crit = gen if critic_name == "same as generator" else backend(critic_name)
-                    with st.spinner("Referee is evaluating follow-up against literature passages..."):
-                        ans = engine.follow_up(
-                            st.session_state["follow_up_history"][:-1],
+                    turn_idx = len(st.session_state.get("followup_reports", [])) + 1
+                    with st.spinner(f"Conducting continuous literature research for follow-up turn {turn_idx}..."):
+                        parent_to_use = st.session_state.get("latest_report") or rep
+                        f_rep = engine.run_followup(
+                            parent_to_use,
                             prompt,
-                            rep,
-                            crit
+                            books or books_default(corpus),
+                            gen,
+                            crit,
+                            engine.LocalBM25(corpus),
+                            turn_idx=turn_idx,
+                            auto_entail=entail,
+                            check_math=check_math,
+                            log=lambda m: None
                         )
-                    st.session_state["follow_up_history"].append({"role": "assistant", "content": ans})
+                    st.session_state.setdefault("followup_reports", []).append(f_rep)
+                    st.session_state["latest_report"] = f_rep
+                    f_md = engine.render_followup(f_rep)
+                    st.session_state["follow_up_history"].append({
+                        "role": "assistant",
+                        "content": f_md,
+                        "report": f_rep,
+                        "turn": turn_idx
+                    })
                     st.rerun()
                 except Exception as e:
                     st.error(f"Error evaluating follow-up: {e}")

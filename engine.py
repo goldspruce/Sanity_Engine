@@ -72,6 +72,21 @@ class Review(BaseModel):
     issues: list[Issue]
     untested_claims: list[str]
 
+class FollowUpPlan(BaseModel):
+    new_claims: list[Claim] = Field(default_factory=list)
+    adversarial_queries: list[Query] = Field(default_factory=list)
+    recall: list[RecallItem] = Field(default_factory=list)
+
+class FollowUpReview(BaseModel):
+    viability_score: int = Field(default=5, ge=0, le=9)
+    score_rationale: str = Field(default="")
+    score_delta_explanation: str = Field(default="")
+    resolved_issue_ids: list[str] = Field(default_factory=list)
+    scientific_synthesis: str = ""
+    falsification_test: str = ""
+    new_issues: list[Issue] = Field(default_factory=list)
+    untested_claims: list[str] = Field(default_factory=list)
+
 class Entail(BaseModel):
     label: Literal["supports", "partly", "not", "unclear"]
     why: str
@@ -242,14 +257,37 @@ The user will provide a follow-up prompt. This may be:
 
 Instructions:
 - Ground your response in the provided passages and established physical/biological principles.
-- If the user proposes a refined hypothesis or asks how a modification affects viability:
-  * Analyze what changes biophysically.
-  * Explicitly assess whether previous issues are resolved or persist.
-  * Provide an updated estimated score on the 0 to 9 scale (e.g. `### 📊 Updated Score: X/9`) with clear justification.
-- If the user asks a question or probes an issue/claim:
-  * Answer directly and rigorously, citing specific passages (P#) and textbooks.
-  * Maintain an objective, constructive-adversarial scientific tone.
+- Maintain an objective, constructive-adversarial scientific tone.
 """
+
+FOLLOWUP_PLAN_SYS = """You prepare an adversarial follow-up investigation for a scientific hypothesis refinement or probe.
+Context provided:
+- Original Hypothesis
+- Prior Verdict Score and Issues
+- The user's new follow-up prompt or refined hypothesis
+
+Your tasks:
+1) Identify any new testable claims introduced by the follow-up prompt (ids C1_F{turn}, C2_F{turn}, ...).
+2) Formulate 3-6 new adversarial search queries (kinds: impossibility, failure_mode, contradiction, limit) targeting the new claims, edge conditions, or specific questions raised. Never query for support. 3-10 words each.
+3) RECALL: list up to 4 hard constraints or textbook principles bearing on the follow-up from: {books}"""
+
+FOLLOWUP_REVIEW_SYS = """You are a rigorous scientific referee evaluating a follow-up refinement or probe of a hypothesis.
+Inputs:
+- ORIGINAL HYPOTHESIS & PREVIOUS VERDICT
+- PREVIOUS ISSUES (with their IDs and edge conditions)
+- FOLLOW-UP PROMPT / REFINED HYPOTHESIS
+- CUMULATIVE PASSAGES (both previous passages and newly retrieved passages)
+
+Deliverables:
+1. viability_score (integer 0 to 9): Assign the updated empirical viability score for the refined hypothesis.
+2. score_rationale: 1-2 sentences justifying the updated 0-9 score.
+3. score_delta_explanation: Explicitly explain how and why the score changed from the previous turn (or why it remained unchanged).
+4. resolved_issue_ids: List of issue IDs from previous turns that are now flipped or resolved by the proposed refinement/edge condition.
+5. scientific_synthesis: Cumulative narrative synthesis: what mechanisms in the refined hypothesis are now plausible, and where empirical friction remains.
+6. falsification_test: A concrete empirical test or measurement tailored to test the refined hypothesis.
+7. new_issues: Any NEW objections grounded in the newly retrieved or cumulative passages with VERBATIM quotes (6-40 words).
+8. untested_claims: Claims where the passages remain silent."""
+
 
 
 # ------------------------------------------------------------------ helpers
@@ -551,4 +589,213 @@ def follow_up(history, user_message, rep, llm):
 
     prompt = f"{ctx}{hist_text}USER FOLLOW-UP PROMPT:\n{user_message}"
     return llm.text(FOLLOW_UP_SYS, prompt, temperature=0.3)
+
+
+def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, turn_idx=1, auto_entail=False, check_math=False, log=print):
+    """Executes a continuous adversarial research pipeline on a follow-up prompt or refined hypothesis."""
+    log(f"[followup {turn_idx}] 1. Targeted adversarial plan for follow-up")
+    prior_hyp = parent_rep.get("hypothesis") or parent_rep.get("parent_hypothesis") or ""
+    prior_score = parent_rep.get("verdict", "")
+    prior_issues_str = json.dumps([
+        {"id": i["id"], "severity": i["severity"], "claim": i["claim"], "edge_condition": i.get("edge_condition", "")}
+        for i in parent_rep.get("issues", []) if i.get("status", "active") == "active"
+    ], indent=1)
+
+    plan_ctx = (
+        f"ORIGINAL HYPOTHESIS:\n{prior_hyp}\n\n"
+        f"PRIOR VERDICT SCORE: {prior_score}\n\n"
+        f"PRIOR ACTIVE ISSUES:\n{prior_issues_str}\n\n"
+        f"FOLLOW-UP PROMPT / REFINEMENT:\n{follow_up_prompt}\n"
+    )
+
+    f_plan = FollowUpPlan.model_validate(
+        gen.json(FOLLOWUP_PLAN_SYS.format(books=books, turn=turn_idx), plan_ctx, FollowUpPlan, 0.3)
+    )
+
+    log(f"[followup {turn_idx}] 2. Cumulative retrieval (Channel B) + reconcile")
+    passages = list(parent_rep.get("passages", []))
+    by_text = {p["text"]: p for p in passages}
+    new_passage_ids = []
+
+    def add_p(src, text, score, via):
+        if text in by_text:
+            p_obj = by_text[text]
+            v = p_obj.get("via", [])
+            if isinstance(v, list):
+                p_obj["via"] = set(v)
+            p_obj["via"].add(via)
+            return p_obj["id"]
+        pid = f"P{len(passages) + 1}"
+        p = dict(id=pid, source=src, text=text, score=round(score, 2), via={via})
+        passages.append(p)
+        by_text[text] = p
+        new_passage_ids.append(pid)
+        return pid
+
+    for q in f_plan.adversarial_queries:
+        for src, txt, sc in retriever.search(q.text, 2):
+            add_p(src, txt, sc, f"followup_{turn_idx}")
+
+    for r in f_plan.recall:
+        hits = retriever.search(r.search_terms, 1)
+        if hits and hits[0][2] >= 2.0:
+            add_p(hits[0][0], hits[0][1], hits[0][2], f"recall_{turn_idx}")
+
+    log(f"[followup {turn_idx}] 3. Continuous adversarial review with issue tracking")
+    review_ctx = (
+        f"ORIGINAL HYPOTHESIS:\n{prior_hyp}\n\n"
+        f"PREVIOUS VERDICT:\n{prior_score}\n\n"
+        f"PREVIOUS ACTIVE ISSUES:\n{prior_issues_str}\n\n"
+        f"FOLLOW-UP PROMPT / REFINEMENT:\n{follow_up_prompt}\n\n"
+        f"NEW CLAIMS:\n{json.dumps([c.model_dump() for c in f_plan.new_claims])}\n\n"
+        f"CUMULATIVE PASSAGES:\n{json.dumps([dict(id=p['id'], source=p['source'], text=p['text']) for p in passages], indent=1)}"
+    )
+
+    f_rev = FollowUpReview.model_validate(critic.json(FOLLOWUP_REVIEW_SYS, review_ctx, FollowUpReview, 0.0))
+
+    log(f"[followup {turn_idx}] 4. Quote verification on new issues")
+    pmap = {p["id"]: p for p in passages}
+    grounded = [prior_hyp, follow_up_prompt] + [p["text"] for p in passages]
+    new_issues = []
+    for i in f_rev.new_issues:
+        d = i.model_dump()
+        p = pmap.get(i.passage_id)
+        d["quote_status"] = verify_quote(i.quote, p["text"], retriever.chunks) if p else "bad_passage_id"
+        d["eyeball_numbers"] = eyeball_numbers(i.claim + " " + i.edge_condition, grounded) if check_math else []
+        d["auto_entail"] = None
+        if auto_entail and d["quote_status"] == "verified":
+            d["auto_entail"] = Entail.model_validate(critic.json(
+                ENTAIL_SYS, f"CLAIM: {i.claim}\nQUOTE: {i.quote}", Entail, 0.0)).model_dump()
+        new_issues.append(d)
+
+    resolved_set = set(f_rev.resolved_issue_ids)
+    cumulative_issues = []
+    for old_i in parent_rep.get("issues", []):
+        d = dict(old_i)
+        if d["id"] in resolved_set:
+            d["status"] = "resolved"
+        else:
+            d["status"] = d.get("status", "active")
+        cumulative_issues.append(d)
+
+    for ni in new_issues:
+        ni["status"] = "active"
+        cumulative_issues.append(ni)
+
+    active_issues = [i for i in cumulative_issues if i["status"] == "active"]
+
+    updated_verdict = verdict(active_issues, f_rev.viability_score, f_rev.score_rationale)
+    m = re.match(r"^(\d+)/9", updated_verdict)
+    score_val = int(m.group(1)) if m else f_rev.viability_score
+
+    norm_passages = []
+    for p in passages:
+        via = p.get("via", [])
+        if isinstance(via, set):
+            via = sorted(via)
+        norm_passages.append({**p, "via": via})
+
+    followup_rep = dict(
+        turn=turn_idx,
+        parent_hypothesis=prior_hyp,
+        follow_up_prompt=follow_up_prompt,
+        previous_verdict=prior_score,
+        verdict=updated_verdict,
+        score=score_val,
+        score_rationale=f_rev.score_rationale,
+        score_delta_explanation=f_rev.score_delta_explanation,
+        resolved_issue_ids=list(resolved_set),
+        scientific_synthesis=f_rev.scientific_synthesis,
+        falsification_test=f_rev.falsification_test,
+        new_issues=new_issues,
+        issues=cumulative_issues,
+        active_issues=active_issues,
+        passages=norm_passages,
+        new_passage_ids=new_passage_ids,
+        untested_claims=f_rev.untested_claims,
+    )
+    return followup_rep
+
+
+def render_followup(rep):
+    turn = rep.get("turn", 1)
+    v = rep["verdict"]
+    prev_v = rep.get("previous_verdict", "N/A")
+    m = re.match(r"^(\d+)/9", str(v))
+    score_val = int(m.group(1)) if m else rep.get("score", 5)
+    exp = score_explanation(score_val)
+    hyp = rep.get("parent_hypothesis", "").strip()
+    f_prompt = rep.get("follow_up_prompt", "").strip()
+
+    L = []
+    L += [f"# Follow-Up Adversarial Review Report (Turn {turn})", ""]
+    L += ["## 🔬 Research Lineage & Continuity",
+          f"- **Original Hypothesis:** {hyp}",
+          f"- **Follow-Up Prompt / Refinement:** {f_prompt}",
+          f"- **Score Trajectory:** `{prev_v}` ➔ `{v}`", ""]
+
+    L += [f"# Updated Verdict Score: {v}"]
+    if rep.get("score_delta_explanation"):
+        L += [f"> **Score Delta & Impact:** {rep['score_delta_explanation']}", ""]
+    if rep.get("score_rationale"):
+        L += [f"> **Referee assessment rationale:** {rep['score_rationale']}", ""]
+    L += [f"> **Plain-language explanation:** {exp}", ""]
+
+    synth = rep.get("scientific_synthesis", "").strip()
+    test = rep.get("falsification_test", "").strip()
+    if synth or test:
+        L += ["## 🧠 Updated Scientific Synthesis & Evaluation"]
+        if synth:
+            L += [f"> {synth}", ""]
+        if test:
+            L += [f"> 🧪 **Refined Decisive Falsification Test:** {test}", ""]
+
+    L += ["## Issue Board Status (Continuity Tracking)"]
+    resolved_ids = set(rep.get("resolved_issue_ids", []))
+    if resolved_ids:
+        L += [f"### ✅ Resolved Issues ({len(resolved_ids)}):",
+              "> The follow-up refinement or edge condition successfully resolved these prior objections:"]
+        for i in rep.get("issues", []):
+            if i["id"] in resolved_ids:
+                L.append(f"- **{i['id']}** [RESOLVED] {i['severity']} / {i['category']}: {i['claim']}\n  _edge condition fulfilled:_ {i.get('edge_condition', '')}")
+        L += [""]
+
+    active = [i for i in rep.get("issues", []) if i.get("status") == "active"]
+    if not active:
+        L += ["_No active disqualifying issues or rule violations remain in the cumulative cited passages._", ""]
+    else:
+        L += [f"### ⚠️ Active Issues ({len(active)}):"]
+        for i in active:
+            is_new = " *(new this turn)*" if i["id"] in [ni["id"] for ni in rep.get("new_issues", [])] else ""
+            flag = "" if i["quote_status"] == "verified" else f" **[quote {i['quote_status']}]**"
+            eye = f" _(eyeball-check numbers: {i['eyeball_numbers']})_" if i.get("eyeball_numbers") else ""
+            ent = f" _(auto-entail: {i['auto_entail']['label']})_" if i.get("auto_entail") else ""
+            L.append(f"- **{i['id']}** {i['severity']} / {i['category']} / {i['passage_id']}{is_new}{flag}{eye}{ent}\n"
+                     f"  {i['claim']}\n  > {i['quote']}\n  _flips if:_ {i['edge_condition']}")
+        L += [""]
+
+    new_pids = set(rep.get("new_passage_ids", []))
+    if new_pids:
+        L += ["## 📖 New Literature Retrieved in This Follow-Up",
+              "> Deterministic corpus search retrieved the following new passages to test the follow-up claims:"]
+        for p in rep.get("passages", []):
+            if p["id"] in new_pids:
+                excerpt = p["text"].replace("\n", " ")[:200] + "..." if len(p["text"]) > 200 else p["text"]
+                L.append(f"- **{p['id']}** ({p['source']}): \"{excerpt}\"")
+        L += [""]
+
+    if rep.get("untested_claims"):
+        L += ["## Untested Claims Remaining",
+              "> Specific claims where the corpus remains silent:"]
+        for u in rep["untested_claims"]:
+            L.append(f"- {u}")
+        L += [""]
+
+    nb_url = os.environ.get("NOTEBOOKLM_URL", "").strip() or "https://notebooklm.google.com"
+    L += ["## 📚 Recommended Reading & NotebookLM Investigation",
+          f"> To investigate untested claims or examine biological/physical mechanisms further, you can cross-examine here is a [link to a Google NotebookLM pre-loaded with these canonical textbooks]({nb_url})",
+          ""]
+
+    return "\n".join(L)
+
 

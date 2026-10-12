@@ -124,7 +124,7 @@ Open your browser at `http://localhost:8501`. You can:
 
 ## Textbook Corpus & Google NotebookLM Integration
 
-Sanity Engine maintains an indexed library of 12 foundational canonical textbooks across electrophysiology, cell biology, biochemistry, dynamical systems, biomechanics, information theory, and physics.
+Sanity Engine maintains an indexed library of 11 foundational canonical textbooks across electrophysiology, cell biology, biochemistry, dynamical systems, biomechanics, information theory, and physics.
 
 All files in `Textbooks/` and `corpus/` follow the standardized naming convention: `first author lastname_title_edition_year`:
 
@@ -140,8 +140,7 @@ All files in `Textbooks/` and `corpus/` follow the standardized naming conventio
 | **8** | `murray_mathematical_biology_an_introduction_2ed_1993` | *Mathematical Biology: An Introduction* (Murray, 2nd ed.) | Reaction-diffusion, population dynamics |
 | **9** | `nelson_lehninger_principles_of_biochemistry_8ed_2021` | *Lehninger: Principles of Biochemistry* (Nelson & Cox, 8th ed.) | Bioenergetics, ATP kinetics, metabolic flux |
 | **10** | `strogatz_nonlinear_dynamics_and_chaos_3ed_2024` | *Nonlinear Dynamics and Chaos* (Strogatz, 3rd ed., 2024) | Limit cycles, bifurcations, oscillators |
-| **11** | `winter_biomechanics_and_motor_control_of_human_movement_4ed_2009` | *Biomechanics and Motor Control* (Winter, 4th ed., 2009) | Kinematics, force-velocity relations, recruitment |
-| **12** | `winter_biomechanics_and_motor_control_of_human_movement_5ed_2020` | *Biomechanics and Motor Control* (Winter, 5th ed., 2020) | Joint kinetics, EMG, muscle power, SSC |
+| **11** | `winter_biomechanics_and_motor_control_of_human_movement_5ed_2020` | *Biomechanics and Motor Control* (Winter, 5th ed., 2020) | Joint kinetics, EMG, muscle power, SSC |
 
 See [TEXTBOOKS.md](TEXTBOOKS.md) for full descriptions and indexing instructions.
 
