@@ -10,7 +10,7 @@ from typing import Literal
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", message=".*urllib3.*")
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 def _load_dotenv():
@@ -65,6 +65,8 @@ class Issue(BaseModel):
     edge_condition: str  # what would flip it (qualitative)
 
 class Review(BaseModel):
+    viability_score: int = Field(default=5, ge=0, le=9)  # Referee assessment on 0-9 scale
+    score_rationale: str = Field(default="")             # 1-2 sentence justification for the assigned score
     scientific_synthesis: str = ""  # Narrative: what is biophysically/physically plausible vs what is empirically contested
     falsification_test: str = ""    # A concrete empirical experiment or clinical test to settle the claim
     issues: list[Issue]
@@ -105,6 +107,27 @@ class GeminiLLM:
                     time.sleep(2.0 * (attempt + 1))
         raise last_err
 
+    def text(self, system, user, temperature=0.3):
+        import time
+        from google.genai import types, errors
+        cfg = types.GenerateContentConfig(system_instruction=system, temperature=temperature)
+        candidates = [self.model]
+        for alt in ["gemini-3.1-flash-lite", "gemini-flash-lite-latest", "gemini-3.5-flash", "gemini-3.8-flash"]:
+            if alt not in candidates:
+                candidates.append(alt)
+        last_err = None
+        for model_name in candidates:
+            for attempt in range(3):
+                try:
+                    r = self.client.models.generate_content(model=model_name, contents=user, config=cfg)
+                    return r.text
+                except (errors.ServerError, errors.ClientError) as e:
+                    last_err = e
+                    if "404" in str(e) or "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                        break
+                    time.sleep(2.0 * (attempt + 1))
+        raise last_err
+
 
 class AnthropicLLM:
     """pip install anthropic ; env: ANTHROPIC_API_KEY, ANTHROPIC_MODEL"""
@@ -119,6 +142,11 @@ class AnthropicLLM:
                                         system=sys_, messages=[{"role": "user", "content": user}])
         txt = "".join(b.text for b in r.content if b.type == "text")
         return json.loads(txt[txt.find("{"): txt.rfind("}") + 1])
+
+    def text(self, system, user, temperature=0.3):
+        r = self.client.messages.create(model=self.model, max_tokens=4000, temperature=temperature,
+                                        system=system, messages=[{"role": "user", "content": user}])
+        return "".join(b.text for b in r.content if b.type == "text")
 
 
 # ------------------------------------------------------------------ Channel B: local BM25 retrieval
@@ -178,17 +206,50 @@ REVIEW_SYS = """You are a rigorous, constructive-adversarial scientific referee 
 Inputs: HYPOTHESIS, CLAIMS (C#), PASSAGES (P#, real text retrieved from textbooks).
 
 Deliverables:
-1. scientific_synthesis: Provide a 2-4 sentence narrative synthesis of the review: acknowledge what mechanisms in the hypothesis are biophysically or physically plausible, and clearly explain where the hypothesis faces empirical friction, causal ambiguity, or competing explanations in the literature.
-2. falsification_test: Describe a concrete, realistic empirical experiment, clinical study, or benchtop measurement that would decisively test or falsify this hypothesis.
-3. issues: Structured objections. Every issue must rest on ONE passage with a VERBATIM quote (6-40 words) copied exactly from that passage. Do not paraphrase inside `quote`. Do not introduce numbers not in the text.
+1. viability_score (integer 0 to 9): Assign an empirical viability / sanity score:
+   - 0: Flatly impossible or definitively falsified by established conservation laws or biophysical invariants.
+   - 1-3: Severely contradicted; core mechanisms directly conflict with verified literature passages.
+   - 4-6: Challenged; notable empirical friction, competing models, or rate/frequency trade-offs exist (the hypothesis requires specific edge conditions or constraints).
+   - 7-8: Plausible; largely consistent with textbook mechanisms, surviving with only minor caveats or scope limits.
+   - 9: Highly robust invariant; fully consistent with canonical principles and unrefuted.
+2. score_rationale: 1-2 concise sentences explaining why this score was assigned on the 0-9 scale.
+3. scientific_synthesis: Provide a 2-4 sentence narrative synthesis of the review: acknowledge what mechanisms in the hypothesis are biophysically or physically plausible, and clearly explain where the hypothesis faces empirical friction, causal ambiguity, or competing explanations in the literature.
+4. falsification_test: Describe a concrete, realistic empirical experiment, clinical study, or benchtop measurement that would decisively test or falsify this hypothesis.
+5. issues: Structured objections. Every issue must rest on ONE passage with a VERBATIM quote (6-40 words) copied exactly from that passage. Do not paraphrase inside `quote`. Do not introduce numbers not in the text.
    Severity:
-   - critical = the passage shows an established physical/biological invariant violated or mechanism impossible (results in FAIL).
-   - major = significant theoretical or empirical friction, but workable edge conditions exist (results in CHALLENGED).
+   - critical = the passage shows an established physical/biological invariant violated or mechanism impossible.
+   - major = significant theoretical or empirical friction, but workable edge conditions exist.
    - minor = peripheral objection, scope limitation, or slight discrepancy.
    edge_condition: what change to the hypothesis or experimental condition would flip the issue, stated qualitatively.
-4. untested_claims: Claims where the passages are silent and provide no definitive test. Never guess."""
+6. untested_claims: Claims where the passages are silent and provide no definitive test. Never guess."""
 
 ENTAIL_SYS = "Decide whether the QUOTE supports the CLAIM. Use only the quote. Answer supports / partly / not / unclear with a one-sentence reason."
+
+FOLLOW_UP_SYS = """You are a rigorous, constructive scientific referee in an interactive hypothesis evaluation session.
+Inputs available to you:
+- Original Hypothesis
+- Current Verdict Score (0 to 9 scale) and Plain-language classification
+- Scientific Synthesis of Plausible vs Contested Mechanisms
+- Decisive Falsification Test
+- Key Issues and Edge Conditions
+- Retrieved Textbook Passages (P#) from the literature
+- Untested Claims
+
+The user will provide a follow-up prompt. This may be:
+1. A refined or amended hypothesis with new constraints, biological subpopulations, or edge conditions.
+2. A direct scientific question or probing counter-argument regarding specific passages, issues, or claims.
+3. A request for experimental designs or literature verification.
+
+Instructions:
+- Ground your response in the provided passages and established physical/biological principles.
+- If the user proposes a refined hypothesis or asks how a modification affects viability:
+  * Analyze what changes biophysically.
+  * Explicitly assess whether previous issues are resolved or persist.
+  * Provide an updated estimated score on the 0 to 9 scale (e.g. `### 📊 Updated Score: X/9`) with clear justification.
+- If the user asks a question or probes an issue/claim:
+  * Answer directly and rigorously, citing specific passages (P#) and textbooks.
+  * Maintain an objective, constructive-adversarial scientific tone.
+"""
 
 
 # ------------------------------------------------------------------ helpers
@@ -293,48 +354,107 @@ def run(hyp, books, gen, critic, retriever, min_recall_score=2.0, auto_entail=Fa
     rep = dict(books=books, hypothesis=hyp, plan=plan.model_dump(),
                passages=[{**p, "via": sorted(p["via"])} for p in passages],
                reconcile=reconcile, retrieval_only=retrieval_only,
+               viability_score=getattr(rev, "viability_score", 5),
+               score_rationale=getattr(rev, "score_rationale", ""),
                scientific_synthesis=rev.scientific_synthesis,
                falsification_test=rev.falsification_test,
                issues=issues,
                untested_claims=rev.untested_claims, degraded=degraded)
-    rep["verdict"] = verdict(issues)
+    rep["verdict"] = verdict(issues, getattr(rev, "viability_score", None), getattr(rev, "score_rationale", ""))
+    m = re.match(r"^(\d+)/9", rep["verdict"])
+    rep["score"] = int(m.group(1)) if m else getattr(rev, "viability_score", 5)
     return rep
 
 
-def verdict(issues):
-    ok = [i for i in issues if i["quote_status"] == "verified"]
-    unv = [i for i in issues if i["quote_status"] != "verified"]
-    if any(i["severity"] == "critical" for i in ok):
-        return "FAIL"
-    if any(i["severity"] == "major" for i in ok):
-        return "CHALLENGED"
-    if any(i["severity"] == "critical" for i in unv):
-        return "CHALLENGED (critical concern with unverified citation)"
-    return "SURVIVES (not endorsed)"
+def score_band(score):
+    if score == 0:
+        return "FAIL (Definitively Falsified)"
+    elif 1 <= score <= 3:
+        return "FAIL / SEVERELY CONTRADICTED"
+    elif 4 <= score <= 6:
+        return "CHALLENGED (Empirical Friction / Edge Conditions Required)"
+    elif 7 <= score <= 8:
+        return "SURVIVES (Plausible / Minor Caveats)"
+    else:
+        return "SURVIVES (Highly Robust / Uncontested)"
 
 
-VERDICT_EXPLANATIONS = {
-    "FAIL": "The hypothesis is falsified by an established physical invariant or documented empirical limit verified in the literature.",
-    "CHALLENGED": "The hypothesis faces significant theoretical or empirical challenges documented in the literature, but key edge conditions remain plausible and open to test.",
-    "CHALLENGED (critical concern with unverified citation)": "A critical objection was raised, but the citation could not be verified verbatim in the corpus.",
-    "SURVIVES (not endorsed)": "The hypothesis was not falsified by any verified passage in the current corpus. This does NOT mean the hypothesis is endorsed or scientifically proven; rather, the current library contained no definitive counter-evidence to refute it (see Untested claims below)."
-}
+def score_explanation(score):
+    if score == 0:
+        return "The hypothesis violates established physical or biological invariants verified directly in the literature."
+    elif 1 <= score <= 3:
+        return "The hypothesis faces severe contradictions and critical failure modes documented in verified literature passages; core mechanisms appear unworkable without substantial revision."
+    elif 4 <= score <= 6:
+        return "The hypothesis faces notable empirical friction, counter-mechanisms, or conflicting findings in the literature. It is viable only under specific, constrained edge conditions or subpopulations."
+    elif 7 <= score <= 8:
+        return "The hypothesis is plausible and largely consistent with canonical literature. It survives adversarial challenge with only minor caveats or peripheral scope limits."
+    else:
+        return "The hypothesis is fully consistent with established principles in the current corpus; no disqualifying counter-evidence or contradictions were found."
+
+
+def verdict(issues, referee_score=None, referee_rationale=""):
+    ok_crit = sum(1 for i in issues if i["severity"] == "critical" and i["quote_status"] == "verified")
+    ok_maj = sum(1 for i in issues if i["severity"] == "major" and i["quote_status"] == "verified")
+    ok_min = sum(1 for i in issues if i["severity"] == "minor" and i["quote_status"] == "verified")
+    unv_crit = sum(1 for i in issues if i["severity"] == "critical" and i["quote_status"] != "verified")
+
+    if referee_score is not None:
+        try:
+            score = int(referee_score)
+        except (ValueError, TypeError):
+            score = 5
+        # Reconcile referee assessment against verified issues
+        if ok_crit >= 2:
+            score = min(score, 1)
+        elif ok_crit == 1:
+            score = min(score, 3)
+        elif ok_maj >= 2:
+            score = min(score, 4)
+        elif ok_maj == 1:
+            score = min(score, 5)
+        elif ok_min >= 1:
+            score = min(score, 7)
+        elif not issues:
+            score = max(score, 8)
+
+        if unv_crit >= 1 and ok_crit == 0:
+            score = min(score, 6)
+    else:
+        if ok_crit >= 2:
+            score = 1
+        elif ok_crit == 1:
+            score = 2
+        elif ok_maj >= 2:
+            score = 4
+        elif ok_maj == 1:
+            score = 5
+        elif ok_min >= 1:
+            score = 7
+        elif unv_crit >= 1:
+            score = 5
+        else:
+            score = 9
+
+    score = max(0, min(9, int(score)))
+    band = score_band(score)
+    return f"{score}/9 ({band})"
 
 
 def render(rep):
     v = rep["verdict"]
-    exp = VERDICT_EXPLANATIONS.get(v, "")
+    m = re.match(r"^(\d+)/9", str(v))
+    score_val = int(m.group(1)) if m else rep.get("score", 5)
+    exp = score_explanation(score_val)
     hyp = rep.get("hypothesis", "").strip()
 
     L = []
     if hyp:
         L += ["## 🔬 Hypothesis / Prompt", f"> {hyp}", ""]
 
-    L += [f"# Verdict: {v}"]
-    if exp:
-        L += [f"> **Plain-language explanation:** {exp}", ""]
-    else:
-        L += [""]
+    L += [f"# Verdict Score: {v}"]
+    if rep.get("score_rationale"):
+        L += [f"> **Referee assessment rationale:** {rep['score_rationale']}", ""]
+    L += [f"> **Plain-language explanation:** {exp}", ""]
 
     synth = rep.get("scientific_synthesis", "").strip()
     test = rep.get("falsification_test", "").strip()
@@ -403,3 +523,40 @@ def render(rep):
     L += ["> 💡 *Tip: See `TEXTBOOKS.md` for full textbook catalog and NotebookLM sharing details. Run `python pack_for_notebook.py --corpus corpus --out notebook_pack` to generate upload packages.*"]
 
     return "\n".join(L)
+
+
+def follow_up(history, user_message, rep, llm):
+    """Answers follow-up prompts or evaluates hypothesis refinements against the current review."""
+    hyp = rep.get("hypothesis", "")
+    verdict_str = rep.get("verdict", "")
+    synth = rep.get("scientific_synthesis", "")
+    test = rep.get("falsification_test", "")
+    issues_summary = "\n".join(
+        f"- {i['id']} ({i['severity']}): {i['claim']} [passage: {i['passage_id']}, quote: '{i['quote']}'] (flips if: {i['edge_condition']})"
+        for i in rep.get("issues", [])
+    )
+    passages_summary = "\n".join(
+        f"- {p['id']} ({p['source']}): {p['text']}"
+        for p in rep.get("passages", [])
+    )
+    untested_summary = "\n".join(f"- {u}" for u in rep.get("untested_claims", []))
+
+    ctx = (
+        f"ORIGINAL HYPOTHESIS:\n{hyp}\n\n"
+        f"CURRENT VERDICT SCORE: {verdict_str}\n\n"
+        f"SCIENTIFIC SYNTHESIS:\n{synth}\n\n"
+        f"DECISIVE FALSIFICATION TEST:\n{test}\n\n"
+        f"KEY ISSUES:\n{issues_summary or '(None)'}\n\n"
+        f"RETRIEVED PASSAGES:\n{passages_summary or '(None)'}\n\n"
+        f"UNTESTED CLAIMS:\n{untested_summary or '(None)'}\n\n"
+    )
+
+    hist_text = ""
+    if history:
+        hist_text = "CONVERSATION HISTORY:\n" + "\n".join(
+            f"{m['role'].upper()}: {m['content']}" for m in history
+        ) + "\n\n"
+
+    prompt = f"{ctx}{hist_text}USER FOLLOW-UP PROMPT:\n{user_message}"
+    return llm.text(FOLLOW_UP_SYS, prompt, temperature=0.3)
+

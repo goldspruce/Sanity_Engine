@@ -47,6 +47,8 @@ class MockLLM:
                 quote="The aperture must always exceed fifty wavelengths for any focal range.",  # planted fabricated quote
                 edge_condition="Array aperture large versus wavelength."))
             return dict(
+                viability_score=1,
+                score_rationale="The steep impedance mismatch at the air-ceramic boundary reflects >99.9% of power, preventing 5 W delivery over a 3-meter air path.",
                 scientific_synthesis="While ultrasonic acoustic focusing across 3 m is theoretically feasible, the steep impedance mismatch between air and piezoceramics reflects >99.99% of energy, and atmospheric attenuation at 120 kHz severely degrades transmission.",
                 falsification_test="Direct calorimetric or electrical power measurement across an air-ceramic interface at 120 kHz over a 3-meter path.",
                 issues=issues,
@@ -54,3 +56,14 @@ class MockLLM:
             )
         if n == "Entail":
             return dict(label="supports", why="mock")
+
+    def text(self, system, user, temperature=0.3):
+        return (
+            "### 🔬 Follow-up Evaluation (Mock Model)\n\n"
+            "**Analysis:** Evaluating the proposed follow-up against the literature passages.\n\n"
+            "- **Mechanism Impact:** Addressing acoustic impedance coupling via an impedance-matching quarter-wave layer or fluid immersion significantly reduces reflection loss.\n"
+            "- **Passage Grounding:** As noted in P1, power transmission depends directly on the ratio of acoustic impedances.\n\n"
+            "### 📊 Score Impact\n"
+            "- **Updated Estimated Score: 5/9 (CHALLENGED)**\n"
+            "- **Rationale:** Adding impedance matching removes the fatal boundary reflection, though atmospheric attenuation at 120 kHz remains a major constraint."
+        )

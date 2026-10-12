@@ -36,11 +36,26 @@ with st.sidebar:
     entail = st.checkbox("Auto entailment pre-check")
     check_math = st.checkbox("Math / number verification (optional)", value=False)
 
+    if st.button("🔄 Reset / New Hypothesis", help="Clear current session and start a new hypothesis"):
+        st.session_state["report"] = None
+        st.session_state["follow_up_history"] = []
+        st.session_state["session_active"] = True
+        st.rerun()
+
     st.divider()
     if st.button("🛑 End Session (Exit)", help="Stop the local server and exit Python process"):
+        st.session_state["session_active"] = False
         st.warning("Session ended. Server stopped. You can safely close this browser tab.")
         time.sleep(0.5)
         os._exit(0)
+
+if not st.session_state.get("session_active", True):
+    st.warning("🛑 Session has ended. You can review past results below, or restart a new session.")
+    if st.button("🔄 Start New Session", type="primary"):
+        st.session_state["session_active"] = True
+        st.session_state["report"] = None
+        st.session_state["follow_up_history"] = []
+        st.rerun()
 
 text = st.text_area("Hypothesis", height=200)
 up = st.file_uploader("...or upload .docx / .txt / .md", type=["docx", "txt", "md"])
@@ -63,6 +78,8 @@ if st.button("Run", disabled=not text, type="primary"):
             rep = engine.run(text, books or books_default(corpus), gen, crit, engine.LocalBM25(corpus), auto_entail=entail,
                              check_math=check_math, log=lambda m: None)
             st.session_state["report"] = rep
+            st.session_state["follow_up_history"] = []
+            st.session_state["session_active"] = True
             if review:
                 d = tempfile.mkdtemp()
                 triage.build(rep, d)
@@ -90,3 +107,37 @@ if st.session_state.get("report"):
         for idx, (fn, content) in enumerate(st.session_state["triage_files"].items()):
             with t_cols[idx]:
                 st.download_button(f"📥 Download {fn}", content, fn, key=f"dl_{fn}")
+
+    # Iterative Follow-up Section
+    st.divider()
+    st.subheader("💬 Iterative Follow-Up & Hypothesis Refinement")
+    st.caption("Ask questions about the cited passages, challenge the referee's critique, or test refined edge conditions. The referee will respond grounded in the literature and re-evaluate the 0–9 score. Type **exit** or click **🛑 End Session** in the sidebar to quit.")
+
+    for msg in st.session_state.get("follow_up_history", []):
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    if st.session_state.get("session_active", True):
+        prompt = st.chat_input("Enter a follow-up prompt, probe, or refined hypothesis (or 'exit')...")
+        if prompt:
+            if prompt.strip().lower() in ("exit", "quit", "q", ":q"):
+                st.session_state["session_active"] = False
+                st.warning("Session ended. You can safely close this browser tab or restart a session.")
+                st.rerun()
+            else:
+                st.session_state.setdefault("follow_up_history", []).append({"role": "user", "content": prompt})
+                try:
+                    gen = backend(gen_name)
+                    crit = gen if critic_name == "same as generator" else backend(critic_name)
+                    with st.spinner("Referee is evaluating follow-up against literature passages..."):
+                        ans = engine.follow_up(
+                            st.session_state["follow_up_history"][:-1],
+                            prompt,
+                            rep,
+                            crit
+                        )
+                    st.session_state["follow_up_history"].append({"role": "assistant", "content": ans})
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error evaluating follow-up: {e}")
+

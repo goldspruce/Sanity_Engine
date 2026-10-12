@@ -21,6 +21,8 @@ if __name__ == "__main__":
     ap.add_argument("--auto-entail", action="store_true")
     ap.add_argument("--check-math", action="store_true", default=False, help="Enable number/math check on critique")
     ap.add_argument("--review", action="store_true", help="OPTIONAL: write expert triage cards")
+    ap.add_argument("--batch", action="store_true", help="Non-interactive batch mode: exit after rendering report")
+    ap.add_argument("--interactive", action="store_true", help="Force interactive follow-up loop even if redirected")
     ap.add_argument("--max-cards", type=int, default=12)
     ap.add_argument("--out", default="out")
     ap.add_argument("--merge", metavar="CASE_DIR", help="fold responses.csv into report_final.md")
@@ -47,3 +49,27 @@ if __name__ == "__main__":
     if a.review:
         n, o = triage.build(rep, a.out, a.max_cards)
         print(f"\n[triage] {n} cards queued, {o} overflow -> {a.out}/triage.md, responses.csv")
+
+    # Interactive follow-up session until user exits
+    should_interact = a.interactive or (not a.batch and sys.stdin.isatty())
+    if should_interact:
+        print("\n" + "=" * 65)
+        print("💬 INTERACTIVE FOLLOW-UP SESSION")
+        print("Enter follow-up prompts, probes, or refined hypotheses.")
+        print("Type 'exit' or 'q' to end the session.")
+        print("=" * 65)
+        history = []
+        while True:
+            try:
+                line = input("\n[follow-up] > ").strip()
+            except (EOFError, KeyboardInterrupt):
+                print("\nSession ended.")
+                break
+            if not line or line.lower() in ("exit", "quit", "q"):
+                print("Session ended.")
+                break
+            ans = engine.follow_up(history, line, rep, crit)
+            print(f"\n{ans}\n")
+            history.append({"role": "user", "content": line})
+            history.append({"role": "assistant", "content": ans})
+

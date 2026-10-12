@@ -18,18 +18,24 @@ Rather than acting as a supportive brainstormer or allowing sycophantic hallucin
    - Python code verifies that the quote is an exact substring of the retrieved passage.
    - Any hallucinated, misattributed, or modified quotes are caught and **disqualified from affecting the verdict**.
 
-3. **Rule-Based Verdicts (No LLM Discretion)**:
-   - Verdicts are computed deterministically by fixed code rules:
-     - Verified Critical Issue $\rightarrow$ **FAIL**
-     - Verified Major Issue $\rightarrow$ **CHALLENGED**
-     - Unverified Critical Issue $\rightarrow$ **CHALLENGED (critical concern with unverified citation)**
-     - No verified critical/major issues $\rightarrow$ **SURVIVES (never means endorsed)**
+3. **Grounded 0–9 Verdict Scoring Scale**:
+   - The referee assesses an empirical viability score from **0 to 9**, grounded against verified literature quotes:
+     - **9/9**: **SURVIVES (Highly Robust / Uncontested)** — Unrefuted invariant, fully consistent with canonical principles.
+     - **7–8/9**: **SURVIVES (Plausible / Minor Caveats)** — Theoretically sound, only minor caveats or peripheral scope limits.
+     - **4–6/9**: **CHALLENGED (Empirical Friction / Edge Conditions Required)** — Notable empirical friction, conflicting studies, or rate/frequency trade-offs (requires specific edge conditions).
+     - **1–3/9**: **FAIL / SEVERELY CONTRADICTED** — Verified critical objections or severe empirical contradictions.
+     - **0/9**: **FAIL (Definitively Falsified)** — Direct violation of fundamental conservation laws or biophysical invariants.
 
-4. **Number Linting & Deterministic Physics Ledger**:
+4. **Iterative Follow-Up Prompts & Conversational Probing**:
+   - Users can iterate with follow-up prompts, challenge critiques, or propose refined hypotheses without losing state.
+   - The referee responds grounded in the literature and re-evaluates the 0–9 score.
+   - Sessions continue until the user chooses to exit (via `exit` command, "🛑 End Session" button, or closing).
+
+5. **Number Linting & Deterministic Physics Ledger**:
    - Numbers appearing in critique objections that do not trace back to the hypothesis, the cited passages, or the math ledger are flagged as `"eyeball-check needed"`.
    - `physics_tools.py` provides a deterministic calculation ledger using **SymPy** and **Pint** for acoustic transmission, quarter-wave matching, atmospheric absorption, diffraction limits, and efficiency cascades.
 
-5. **Cross-Family Model Decorrelation**:
+6. **Cross-Family Model Decorrelation**:
    - Supports Gemini as the generator (`--gen gemini` via the modern `google-genai` SDK) paired with a different model family as the hostile critic (`--critic anthropic`) to eliminate correlated sycophancy and blind spots.
 
 ---
