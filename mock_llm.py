@@ -46,6 +46,11 @@ class MockLLM:
                 claim="Long-range focus needs a very large aperture.", passage_id=foc["id"],
                 quote="The aperture must always exceed fifty wavelengths for any focal range.",  # planted fabricated quote
                 edge_condition="Array aperture large versus wavelength."))
-            return dict(issues=issues, untested_claims=["Rectification efficiency of the PZT receiver (no passage tests it)"])
+            return dict(
+                scientific_synthesis="While ultrasonic acoustic focusing across 3 m is theoretically feasible, the steep impedance mismatch between air and piezoceramics reflects >99.99% of energy, and atmospheric attenuation at 120 kHz severely degrades transmission.",
+                falsification_test="Direct calorimetric or electrical power measurement across an air-ceramic interface at 120 kHz over a 3-meter path.",
+                issues=issues,
+                untested_claims=["Rectification efficiency of the PZT receiver (no passage tests it)"]
+            )
         if n == "Entail":
             return dict(label="supports", why="mock")

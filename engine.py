@@ -65,6 +65,8 @@ class Issue(BaseModel):
     edge_condition: str  # what would flip it (qualitative)
 
 class Review(BaseModel):
+    scientific_synthesis: str = ""  # Narrative: what is biophysically/physically plausible vs what is empirically contested
+    falsification_test: str = ""    # A concrete empirical experiment or clinical test to settle the claim
     issues: list[Issue]
     untested_claims: list[str]
 
@@ -172,15 +174,19 @@ PLAN_SYS = """You prepare an adversarial review of a scientific hypothesis. You 
 3) RECALL: from your memory of these textbooks: {books}
    list up to 8 hard constraints or principles that bear on the claims. This is UNVERIFIED memory. For each give the best-guess book and 3-8 search_terms: keywords likely to appear in that book's own text (not a paraphrase of the claim). No page numbers, no quotes."""
 
-REVIEW_SYS = """You are a skeptical, hostile domain expert refereeing a hypothesis. Your incentive is to find fatal flaws.
+REVIEW_SYS = """You are a rigorous, constructive-adversarial scientific referee evaluating a hypothesis against literature passages.
 Inputs: HYPOTHESIS, CLAIMS (C#), PASSAGES (P#, real text retrieved from textbooks).
-Rules:
-1. Every issue must rest on ONE passage: give its passage_id and a VERBATIM quote (6-40 words) copied exactly from that passage. Do not paraphrase inside `quote`. Do not use outside memory as evidence.
-2. If you suspect a problem but no passage supports it, put it in untested_claims. Never guess.
-3. Do not introduce numbers that are not in the hypothesis or passages. If a number matters, say 'eyeball-check needed' instead of computing.
-4. Severity: critical = the passage shows the mechanism unworkable or an invariant violated; major = large penalty with plausible workaround; minor = otherwise.
-5. edge_condition: what change to the hypothesis would flip the issue, stated qualitatively.
-6. Also list any hypothesis claim that no passage tests in untested_claims."""
+
+Deliverables:
+1. scientific_synthesis: Provide a 2-4 sentence narrative synthesis of the review: acknowledge what mechanisms in the hypothesis are biophysically or physically plausible, and clearly explain where the hypothesis faces empirical friction, causal ambiguity, or competing explanations in the literature.
+2. falsification_test: Describe a concrete, realistic empirical experiment, clinical study, or benchtop measurement that would decisively test or falsify this hypothesis.
+3. issues: Structured objections. Every issue must rest on ONE passage with a VERBATIM quote (6-40 words) copied exactly from that passage. Do not paraphrase inside `quote`. Do not introduce numbers not in the text.
+   Severity:
+   - critical = the passage shows an established physical/biological invariant violated or mechanism impossible (results in FAIL).
+   - major = significant theoretical or empirical friction, but workable edge conditions exist (results in CHALLENGED).
+   - minor = peripheral objection, scope limitation, or slight discrepancy.
+   edge_condition: what change to the hypothesis or experimental condition would flip the issue, stated qualitatively.
+4. untested_claims: Claims where the passages are silent and provide no definitive test. Never guess."""
 
 ENTAIL_SYS = "Decide whether the QUOTE supports the CLAIM. Use only the quote. Answer supports / partly / not / unclear with a one-sentence reason."
 
@@ -286,7 +292,10 @@ def run(hyp, books, gen, critic, retriever, min_recall_score=2.0, auto_entail=Fa
 
     rep = dict(books=books, hypothesis=hyp, plan=plan.model_dump(),
                passages=[{**p, "via": sorted(p["via"])} for p in passages],
-               reconcile=reconcile, retrieval_only=retrieval_only, issues=issues,
+               reconcile=reconcile, retrieval_only=retrieval_only,
+               scientific_synthesis=rev.scientific_synthesis,
+               falsification_test=rev.falsification_test,
+               issues=issues,
                untested_claims=rev.untested_claims, degraded=degraded)
     rep["verdict"] = verdict(issues)
     return rep
@@ -326,6 +335,15 @@ def render(rep):
         L += [f"> **Plain-language explanation:** {exp}", ""]
     else:
         L += [""]
+
+    synth = rep.get("scientific_synthesis", "").strip()
+    test = rep.get("falsification_test", "").strip()
+    if synth or test:
+        L += ["## 🧠 Scientific Synthesis & Evaluation"]
+        if synth:
+            L += [f"> {synth}", ""]
+        if test:
+            L += [f"> 🧪 **Decisive Falsification Test:** {test}", ""]
     if rep["degraded"]:
         L += ["**Degraded:** " + "; ".join(rep["degraded"]), ""]
     L += ["## Issue board"]
