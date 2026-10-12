@@ -27,8 +27,15 @@ if __name__ == "__main__":
     ap.add_argument("--responses", default=None)
     a = ap.parse_args()
     if a.merge:
-        print(triage.merge(a.merge, a.responses)); sys.exit()
-    hyp = open(a.hypothesis).read()
+        print(triage.merge(a.merge, a.responses))
+        sys.exit()
+    if not a.hypothesis:
+        print("Error: Please provide a hypothesis file path or text string.")
+        sys.exit(1)
+    if os.path.isfile(a.hypothesis):
+        hyp = open(a.hypothesis, encoding="utf-8").read()
+    else:
+        hyp = a.hypothesis
     gen = backend(a.gen); crit = backend(a.critic) if a.critic else gen
     rep = engine.run(hyp, a.books or books_default(a.corpus), gen, crit,
                      engine.LocalBM25(a.corpus, a.chunk_words), auto_entail=a.auto_entail,
