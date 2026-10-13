@@ -144,9 +144,9 @@ All files in `Textbooks/` and `corpus/` follow the standardized naming conventio
 See [TEXTBOOKS.md](TEXTBOOKS.md) for full descriptions and indexing instructions.
 
 ### Google NotebookLM Integration
-To investigate untested claims or examine biological/physical mechanisms further, here is a link to a Google NotebookLM pre-loaded with these canonical textbooks.
+To investigate untested claims or examine biological/physical mechanisms further, here is a link to a Google NotebookLM pre-loaded with these canonical textbooks:
 
-- **🔗 Preloaded Workspace:** A direct shareable link with the complete textbook corpus preloaded is provided for reviewers and researchers. (Configure via `NOTEBOOKLM_URL` in `.env`).
+- **🔗 Preloaded Workspace:** [Google NotebookLM Textbook Workspace](https://notebook.google.com/notebook/3eed2329-aeef-4e67-81ef-c5bc2c06f5bd) with the complete textbook corpus preloaded for immediate cited Q&A and verification. (Configurable via `NOTEBOOKLM_URL` in `.env`).
 - **Custom Uploads:** You can also slice the corpus into formatted chunks for custom notebooks:
   ```bash
   .venv/bin/python pack_for_notebook.py --corpus corpus --out notebook_pack --max-words 200000

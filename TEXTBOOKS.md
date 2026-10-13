@@ -30,11 +30,12 @@ All books are ingested from `Textbooks/` into plain-text chunks in `corpus/` usi
 ## Using with Google NotebookLM
 
 ### 🔗 Preloaded NotebookLM Workspace (Zero Setup)
-For team members, peer reviewers, and researchers, a **preloaded Google NotebookLM workspace** containing the complete textbook library is shared directly via link.
+For team members, peer reviewers, and researchers, a **preloaded Google NotebookLM workspace** containing the complete textbook library is shared directly via link:
 
 > **Accessing the Preloaded Workspace:**
-> - Reviewers can open the shared NotebookLM link directly to begin cited Q&A, generate Audio Overviews, and verify claims across all 11 textbooks with zero file uploading or configuration.
-> - To customize the URL displayed in generated reports, add `NOTEBOOKLM_URL="https://notebooklm.google.com/notebook/your-shared-id"` in your `.env` file.
+> - 🔗 **Direct Shared Workspace:** [Google NotebookLM Textbook Library](https://notebook.google.com/notebook/3eed2329-aeef-4e67-81ef-c5bc2c06f5bd)
+> - Reviewers can open this link directly to begin cited Q&A, generate Audio Overviews, and verify claims across all 11 textbooks with zero file uploading or configuration.
+> - To customize the URL displayed in generated reports, set `NOTEBOOKLM_URL` in your `.env` file.
 
 ---
 

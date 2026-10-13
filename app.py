@@ -29,7 +29,7 @@ def safe_json_dumps(obj, indent=1):
 st.set_page_config(page_title="Sanity Engine", layout="wide")
 st.title("Sanity Engine")
 
-nb_url = os.getenv("NOTEBOOKLM_URL", "https://notebooklm.google.com")
+nb_url = os.getenv("NOTEBOOKLM_URL", "https://notebook.google.com/notebook/3eed2329-aeef-4e67-81ef-c5bc2c06f5bd")
 
 with st.expander("📚 Pre-Loaded Canonical Textbooks in Corpus & NotebookLM (11)", expanded=False):
     st.markdown(f"🔗 **Google NotebookLM Workspace:** [{nb_url}]({nb_url})")
