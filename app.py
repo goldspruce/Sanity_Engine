@@ -229,5 +229,12 @@ if st.session_state.get("report"):
                     })
                     st.rerun()
                 except Exception as e:
-                    st.error(f"Error evaluating follow-up: {e}")
+                    # Clean up the pending user prompt from history so it doesn't leave an orphaned message
+                    if st.session_state.get("follow_up_history") and st.session_state["follow_up_history"][-1].get("role") == "user":
+                        st.session_state["follow_up_history"].pop()
+                    import traceback
+                    traceback.print_exc()
+                    st.error(f"Error evaluating follow-up turn {turn_idx}: {e}")
+                    with st.expander("🔍 Show Detailed Error Diagnostics", expanded=True):
+                        st.exception(e)
 

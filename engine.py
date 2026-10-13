@@ -37,22 +37,69 @@ _load_dotenv()
 
 # ------------------------------------------------------------------ schemas
 class Claim(BaseModel):
-    id: str
-    text: str
+    id: str = "C1"
+    text: str = ""
+
+    @model_validator(mode="before")
+    @classmethod
+    def clean(cls, data):
+        if isinstance(data, dict):
+            return {
+                "id": str(data.get("id") or "C1"),
+                "text": str(data.get("text") or "")
+            }
+        return data
 
 class Query(BaseModel):
-    text: str
-    kind: Literal["impossibility", "failure_mode", "contradiction", "limit"]
+    text: str = ""
+    kind: Literal["impossibility", "failure_mode", "contradiction", "limit"] = "limit"
+
+    @model_validator(mode="before")
+    @classmethod
+    def clean(cls, data):
+        if isinstance(data, dict):
+            k = str(data.get("kind") or "limit").lower().strip()
+            if k not in ("impossibility", "failure_mode", "contradiction", "limit"):
+                if "impos" in k: k = "impossibility"
+                elif "fail" in k: k = "failure_mode"
+                elif "contra" in k: k = "contradiction"
+                else: k = "limit"
+            return {
+                "text": str(data.get("text") or ""),
+                "kind": k
+            }
+        return data
 
 class RecallItem(BaseModel):
-    constraint: str      # the limit/principle, from memory (unverified)
-    book: str            # best-guess source book
-    search_terms: str    # keywords likely to appear in the book text
+    constraint: str = ""      # the limit/principle, from memory (unverified)
+    book: str = ""            # best-guess source book
+    search_terms: str = ""    # keywords likely to appear in the book text
+
+    @model_validator(mode="before")
+    @classmethod
+    def clean(cls, data):
+        if isinstance(data, dict):
+            return {
+                "constraint": str(data.get("constraint") or ""),
+                "book": str(data.get("book") or ""),
+                "search_terms": str(data.get("search_terms") or "")
+            }
+        return data
 
 class AttackPlan(BaseModel):
-    claims: list[Claim]
-    queries: list[Query]
-    recall: list[RecallItem]
+    claims: list[Claim] = Field(default_factory=list)
+    queries: list[Query] = Field(default_factory=list)
+    recall: list[RecallItem] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def clean(cls, data):
+        if isinstance(data, dict):
+            out = dict(data)
+            for f in ("claims", "queries", "recall"):
+                if out.get(f) is None: out[f] = []
+            return out
+        return data
 
 class GreenFlag(BaseModel):
     id: str = "G1"
@@ -61,8 +108,21 @@ class GreenFlag(BaseModel):
     passage_id: str = ""      # P# if grounded in a passage
     quote: str = ""           # Verbatim quote if grounded
 
+    @model_validator(mode="before")
+    @classmethod
+    def clean(cls, data):
+        if isinstance(data, dict):
+            return {
+                "id": str(data.get("id") or "G1"),
+                "mechanism": str(data.get("mechanism") or ""),
+                "rationale": str(data.get("rationale") or ""),
+                "passage_id": str(data.get("passage_id") or ""),
+                "quote": str(data.get("quote") or "")
+            }
+        return data
+
 class Issue(BaseModel):
-    id: str
+    id: str = "I1"
     flag: Literal["red", "yellow"] = "yellow"
     severity: Literal["critical", "major", "minor"] = "major"
     category: str = "Mechanism"
@@ -77,10 +137,28 @@ class Issue(BaseModel):
     @classmethod
     def normalize_flags(cls, data):
         if isinstance(data, dict):
-            if "severity" in data and "flag" not in data:
-                data["flag"] = "red" if data["severity"] == "critical" else "yellow"
-            elif "flag" in data and "severity" not in data:
-                data["severity"] = "critical" if data["flag"] == "red" else "major"
+            out = dict(data)
+            out["id"] = str(out.get("id") or "I1")
+            flag = str(out.get("flag") or "").lower().strip()
+            sev = str(out.get("severity") or "").lower().strip()
+            if flag in ("red", "yellow"):
+                out["flag"] = flag
+            elif sev == "critical":
+                out["flag"] = "red"
+            else:
+                out["flag"] = "yellow"
+
+            if sev in ("critical", "major", "minor"):
+                out["severity"] = sev
+            else:
+                out["severity"] = "critical" if out["flag"] == "red" else "major"
+
+            for k in ("category", "claim_id", "claim", "passage_id", "quote", "edge_condition"):
+                out[k] = str(out.get(k) or "")
+
+            stat = str(out.get("status") or "active").lower().strip()
+            out["status"] = stat if stat in ("active", "resolved") else "active"
+            return out
         return data
 
 class Review(BaseModel):
@@ -91,10 +169,32 @@ class Review(BaseModel):
     issues: list[Issue] = Field(default_factory=list)          # Red and Yellow flags
     untested_claims: list[str] = Field(default_factory=list)
 
+    @model_validator(mode="before")
+    @classmethod
+    def clean(cls, data):
+        if isinstance(data, dict):
+            out = dict(data)
+            for k in ("diagnostic_stance", "scientific_synthesis", "falsification_test"):
+                out[k] = str(out.get(k) or "")
+            for k in ("green_flags", "issues", "untested_claims"):
+                if out.get(k) is None: out[k] = []
+            return out
+        return data
+
 class FollowUpPlan(BaseModel):
     new_claims: list[Claim] = Field(default_factory=list)
     adversarial_queries: list[Query] = Field(default_factory=list)
     recall: list[RecallItem] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def clean(cls, data):
+        if isinstance(data, dict):
+            out = dict(data)
+            for k in ("new_claims", "adversarial_queries", "recall"):
+                if out.get(k) is None: out[k] = []
+            return out
+        return data
 
 class FollowUpReview(BaseModel):
     diagnostic_stance: str = ""
@@ -106,9 +206,31 @@ class FollowUpReview(BaseModel):
     falsification_test: str = ""
     untested_claims: list[str] = Field(default_factory=list)
 
+    @model_validator(mode="before")
+    @classmethod
+    def clean(cls, data):
+        if isinstance(data, dict):
+            out = dict(data)
+            for k in ("diagnostic_stance", "continuity_assessment", "scientific_synthesis", "falsification_test"):
+                out[k] = str(out.get(k) or "")
+            for k in ("resolved_issue_ids", "green_flags", "new_issues", "untested_claims"):
+                if out.get(k) is None: out[k] = []
+            return out
+        return data
+
 class Entail(BaseModel):
-    label: Literal["supports", "partly", "not", "unclear"]
-    why: str
+    label: Literal["supports", "partly", "not", "unclear"] = "unclear"
+    why: str = ""
+
+    @model_validator(mode="before")
+    @classmethod
+    def clean(cls, data):
+        if isinstance(data, dict):
+            lbl = str(data.get("label") or "unclear").lower().strip()
+            if lbl not in ("supports", "partly", "not", "unclear"):
+                lbl = "unclear"
+            return {"label": lbl, "why": str(data.get("why") or "")}
+        return data
 
 
 # ------------------------------------------------------------------ LLM backends
@@ -117,7 +239,7 @@ class GeminiLLM:
     def __init__(self, model=None):
         from google import genai
         self.client = genai.Client()
-        self.model = model or os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")
+        self.model = model or os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
 
     def json(self, system, user, schema, temperature=0.0):
         import time
@@ -125,7 +247,7 @@ class GeminiLLM:
         cfg = types.GenerateContentConfig(system_instruction=system, temperature=temperature,
                                           response_mime_type="application/json", response_schema=schema)
         candidates = [self.model]
-        for alt in ["gemini-3.1-flash-lite", "gemini-flash-lite-latest", "gemini-3.5-flash", "gemini-3.8-flash"]:
+        for alt in ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-3.1-flash-lite", "gemini-flash-lite-latest", "gemini-3.5-flash", "gemini-3.8-flash"]:
             if alt not in candidates:
                 candidates.append(alt)
         last_err = None
@@ -133,12 +255,19 @@ class GeminiLLM:
             for attempt in range(3):
                 try:
                     r = self.client.models.generate_content(model=model_name, contents=user, config=cfg)
-                    return json.loads(r.text)
-                except (errors.ServerError, errors.ClientError) as e:
+                    txt = r.text or ""
+                    if "```" in txt:
+                        txt = re.sub(r"^```(?:json)?\s*", "", txt, flags=re.MULTILINE)
+                        txt = re.sub(r"\s*```$", "", txt, flags=re.MULTILINE)
+                    txt = txt.strip()
+                    if not txt:
+                        raise ValueError("Empty response from Gemini")
+                    return json.loads(txt)
+                except (errors.ServerError, errors.ClientError, json.JSONDecodeError, ValueError, TypeError) as e:
                     last_err = e
-                    if "404" in str(e) or "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                    if "404" in str(e):
                         break
-                    time.sleep(2.0 * (attempt + 1))
+                    time.sleep(3.0 * (attempt + 1))
         raise last_err
 
     def text(self, system, user, temperature=0.3):
@@ -146,7 +275,7 @@ class GeminiLLM:
         from google.genai import types, errors
         cfg = types.GenerateContentConfig(system_instruction=system, temperature=temperature)
         candidates = [self.model]
-        for alt in ["gemini-3.1-flash-lite", "gemini-flash-lite-latest", "gemini-3.5-flash", "gemini-3.8-flash"]:
+        for alt in ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-3.1-flash-lite", "gemini-flash-lite-latest", "gemini-3.5-flash", "gemini-3.8-flash"]:
             if alt not in candidates:
                 candidates.append(alt)
         last_err = None
@@ -154,12 +283,12 @@ class GeminiLLM:
             for attempt in range(3):
                 try:
                     r = self.client.models.generate_content(model=model_name, contents=user, config=cfg)
-                    return r.text
+                    return r.text or ""
                 except (errors.ServerError, errors.ClientError) as e:
                     last_err = e
-                    if "404" in str(e) or "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                    if "404" in str(e):
                         break
-                    time.sleep(2.0 * (attempt + 1))
+                    time.sleep(3.0 * (attempt + 1))
         raise last_err
 
 
@@ -499,9 +628,9 @@ def render(rep):
     counts = rep.get("counts") or count_flags(rep.get("issues", []), rep.get("green_flags", []))
     badge = rep.get("badge") or diagnostic_badge(counts)
     classification = rep.get("classification") or diagnostic_classification(counts)
-    stance = rep.get("diagnostic_stance", "").strip()
+    stance = (rep.get("diagnostic_stance") or "").strip()
     explanation = diagnostic_explanation(classification)
-    hyp = rep.get("hypothesis", "").strip()
+    hyp = (rep.get("hypothesis") or "").strip()
 
     L = []
     if hyp:
@@ -513,8 +642,8 @@ def render(rep):
         L += [f"> **Diagnostic Stance:** {stance}", ""]
     L += [f"> **Diagnostic Analysis:** {explanation}", ""]
 
-    synth = rep.get("scientific_synthesis", "").strip()
-    test = rep.get("falsification_test", "").strip()
+    synth = (rep.get("scientific_synthesis") or "").strip()
+    test = (rep.get("falsification_test") or "").strip()
     if synth or test:
         L += ["## 🧠 Scientific Synthesis & Evaluation"]
         if synth:
@@ -662,7 +791,13 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
     prior_badge = parent_rep.get("badge") or parent_rep.get("verdict", "")
     prior_active_issues = [i for i in parent_rep.get("issues", []) if i.get("status", "active") == "active"]
     prior_issues_str = json.dumps([
-        {"id": i["id"], "flag": i.get("flag", "yellow"), "severity": i["severity"], "claim": i["claim"], "edge_condition": i.get("edge_condition", "")}
+        {
+            "id": i.get("id", "I"),
+            "flag": i.get("flag", "yellow"),
+            "severity": i.get("severity", "major"),
+            "claim": i.get("claim", ""),
+            "edge_condition": i.get("edge_condition", "")
+        }
         for i in prior_active_issues
     ], indent=1)
 
@@ -728,18 +863,19 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
         d = i.model_dump()
         p = pmap.get(i.passage_id)
         d["quote_status"] = verify_quote(i.quote, p["text"], retriever.chunks) if p else "bad_passage_id"
-        d["eyeball_numbers"] = eyeball_numbers(i.claim + " " + i.edge_condition, grounded) if check_math else []
+        d["eyeball_numbers"] = eyeball_numbers((i.claim or "") + " " + (i.edge_condition or ""), grounded) if check_math else []
         d["auto_entail"] = None
         if auto_entail and d["quote_status"] == "verified":
             d["auto_entail"] = Entail.model_validate(critic.json(
                 ENTAIL_SYS, f"CLAIM: {i.claim}\nQUOTE: {i.quote}", Entail, 0.0)).model_dump()
         new_issues.append(d)
 
-    resolved_set = set(f_rev.resolved_issue_ids)
+    prior_resolved = set(parent_rep.get("resolved_issue_ids", []))
+    resolved_set = prior_resolved | set(f_rev.resolved_issue_ids or [])
     cumulative_issues = []
     for old_i in parent_rep.get("issues", []):
         d = dict(old_i)
-        if d["id"] in resolved_set:
+        if d.get("id") in resolved_set:
             d["status"] = "resolved"
         else:
             d["status"] = d.get("status", "active")
@@ -750,22 +886,25 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
         cumulative_issues.append(ni)
 
     # Merge green flags across turns
-    parent_greens = parent_rep.get("green_flags", [])
+    parent_greens = [dict(g) for g in parent_rep.get("green_flags", [])]
     new_greens = []
     for g in getattr(f_rev, "green_flags", []):
-        gd = g.model_dump()
+        gd = g.model_dump() if hasattr(g, "model_dump") else dict(g)
         if gd.get("passage_id") and gd.get("quote"):
             p = pmap.get(gd["passage_id"])
-            gd["quote_status"] = verify_quote(gd["quote"], p["text"], retriever.chunks) if p else "bad_passage_id"
+            gd["quote_status"] = verify_quote(gd.get("quote", ""), p["text"], retriever.chunks) if p else "bad_passage_id"
         else:
             gd["quote_status"] = "unquoted"
         new_greens.append(gd)
 
     cumulative_greens = list(parent_greens)
-    known_green_mech = {g.get("mechanism", "").lower() for g in parent_greens}
+    known_green_mech = {(g.get("mechanism") or "").strip().lower() for g in parent_greens if (g.get("mechanism") or "").strip()}
     for ng in new_greens:
-        if ng.get("mechanism", "").lower() not in known_green_mech:
+        mech = (ng.get("mechanism") or "").strip().lower()
+        if not mech or mech not in known_green_mech:
             cumulative_greens.append(ng)
+            if mech:
+                known_green_mech.add(mech)
 
     active_issues = [i for i in cumulative_issues if i["status"] == "active"]
     counts = count_flags(active_issues, cumulative_greens)
@@ -812,11 +951,11 @@ def render_followup(rep):
     badge = rep.get("badge") or diagnostic_badge(rep.get("counts", count_flags(rep.get("active_issues", rep.get("issues", [])), rep.get("green_flags", []))))
     prev_badge = rep.get("previous_badge") or rep.get("previous_verdict", "N/A")
     classification = rep.get("classification") or diagnostic_classification(rep.get("counts", count_flags(rep.get("active_issues", rep.get("issues", [])), rep.get("green_flags", []))))
-    stance = rep.get("diagnostic_stance", "").strip()
-    continuity = rep.get("continuity_assessment", "").strip()
+    stance = (rep.get("diagnostic_stance") or "").strip()
+    continuity = (rep.get("continuity_assessment") or "").strip()
     explanation = diagnostic_explanation(classification)
-    hyp = rep.get("parent_hypothesis", "").strip()
-    f_prompt = rep.get("follow_up_prompt", "").strip()
+    hyp = (rep.get("parent_hypothesis") or "").strip()
+    f_prompt = (rep.get("follow_up_prompt") or "").strip()
 
     L = []
     L += [f"# Follow-Up Adversarial Review Report (Turn {turn})", ""]
@@ -833,8 +972,8 @@ def render_followup(rep):
         L += [f"> **Continuity & Flag Trajectory Assessment:** {continuity}", ""]
     L += [f"> **Diagnostic Analysis:** {explanation}", ""]
 
-    synth = rep.get("scientific_synthesis", "").strip()
-    test = rep.get("falsification_test", "").strip()
+    synth = (rep.get("scientific_synthesis") or "").strip()
+    test = (rep.get("falsification_test") or "").strip()
     if synth or test:
         L += ["## 🧠 Updated Scientific Synthesis & Evaluation"]
         if synth:
