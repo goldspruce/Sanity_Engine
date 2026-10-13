@@ -18,8 +18,8 @@ def safe_json_dump(obj, fp, indent=1):
     return json.dump(obj, fp, indent=indent, default=default)
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(description="Adversarial hypothesis checker")
-    ap.add_argument("hypothesis", nargs="?")
+    ap = argparse.ArgumentParser(description="Adversarial hypothesis & prompt checker")
+    ap.add_argument("hypothesis", nargs="?", help="Original prompt file path or text string")
     ap.add_argument("--gen", default="gemini", choices=["gemini", "anthropic", "mock"])
     ap.add_argument("--critic", default=None, help="second model family for the review step (default = --gen)")
     ap.add_argument("--corpus", default="corpus")
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     ap.add_argument("--chunk-words", type=int, default=180)
     ap.add_argument("--auto-entail", action="store_true")
     ap.add_argument("--check-math", action="store_true", default=False, help="Enable number/math check on critique")
-    ap.add_argument("--review", action="store_true", help="OPTIONAL: write expert triage cards")
+    ap.add_argument("--review", action="store_true", help="OPTIONAL: write expert review cards (Original Prompt & follow-ups)")
     ap.add_argument("--batch", action="store_true", help="Non-interactive batch mode: exit after rendering report")
     ap.add_argument("--interactive", action="store_true", help="Force interactive follow-up loop even if redirected")
     ap.add_argument("--max-cards", type=int, default=12)
@@ -39,7 +39,7 @@ if __name__ == "__main__":
         print(triage.merge(a.merge, a.responses))
         sys.exit()
     if not a.hypothesis:
-        print("Error: Please provide a hypothesis file path or text string.")
+        print("Error: Please provide an original prompt file path or text string.")
         sys.exit(1)
     if os.path.isfile(a.hypothesis):
         hyp = open(a.hypothesis, encoding="utf-8").read()
@@ -50,12 +50,15 @@ if __name__ == "__main__":
                      engine.LocalBM25(a.corpus, a.chunk_words), auto_entail=a.auto_entail,
                      check_math=a.check_math)
     os.makedirs(a.out, exist_ok=True)
+    safe_json_dump(rep, open(f"{a.out}/report_original.json", "w"), indent=1)
     safe_json_dump(rep, open(f"{a.out}/report.json", "w"), indent=1)
-    open(f"{a.out}/report.md", "w").write(engine.render(rep))
-    print(engine.render(rep))
+    rendered = engine.render(rep)
+    open(f"{a.out}/report_original.md", "w").write(rendered)
+    open(f"{a.out}/report.md", "w").write(rendered)
+    print(rendered)
     if a.review:
-        n, o = triage.build(rep, a.out, a.max_cards)
-        print(f"\n[triage] {n} cards queued, {o} overflow -> {a.out}/triage.md, responses.csv")
+        res = triage.build(rep, a.out, a.max_cards, label="Original Prompt", prefix="cards_original")
+        print(f"\n[cards] {len(res['shown'])} review cards queued for Original Prompt -> {a.out}/cards_original.md, {a.out}/responses_original.csv")
 
     # Interactive follow-up session with continuous research & report generation
     should_interact = a.interactive or (not a.batch and sys.stdin.isatty())
@@ -63,7 +66,7 @@ if __name__ == "__main__":
         print("\n" + "=" * 65)
         print("💬 INTERACTIVE FOLLOW-UP SESSION WITH CONTINUOUS RESEARCH")
         print("Enter follow-up prompts, probes, or refined hypotheses.")
-        print("Each follow-up generates an additional verified report.")
+        print("Each follow-up generates an additional verified report & review cards.")
         print("Type 'exit' or 'q' to end the session.")
         print("=" * 65)
         current_rep = rep
@@ -77,7 +80,7 @@ if __name__ == "__main__":
             if not line or line.lower() in ("exit", "quit", "q"):
                 print("Session ended.")
                 break
-            print(f"\n--> Researching follow-up #{turn_idx} against literature...")
+            print(f"\n--> Researching Follow-up #{turn_idx} against literature...")
             f_rep = engine.run_followup(
                 current_rep, line, a.books or books_default(a.corpus),
                 gen, crit, engine.LocalBM25(a.corpus, a.chunk_words),
@@ -86,8 +89,10 @@ if __name__ == "__main__":
             f_md = engine.render_followup(f_rep)
             safe_json_dump(f_rep, open(f"{a.out}/report_followup_{turn_idx}.json", "w"), indent=1)
             open(f"{a.out}/report_followup_{turn_idx}.md", "w").write(f_md)
-            print(f"[saved] -> {a.out}/report_followup_{turn_idx}.md, report_followup_{turn_idx}.json\n")
+            print(f"[saved] -> {a.out}/report_followup_{turn_idx}.md, report_followup_{turn_idx}.json")
+            if a.review:
+                f_cards = triage.build(f_rep, a.out, a.max_cards, label=f"Follow-up #{turn_idx}", prefix=f"cards_followup_{turn_idx}")
+                print(f"[cards] {len(f_cards['shown'])} review cards queued for Follow-up #{turn_idx} -> {a.out}/cards_followup_{turn_idx}.md, {a.out}/responses_followup_{turn_idx}.csv\n")
             print(f_md)
             current_rep = f_rep
             turn_idx += 1
-

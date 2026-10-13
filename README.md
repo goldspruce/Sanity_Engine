@@ -155,18 +155,22 @@ To investigate untested claims or examine biological/physical mechanisms further
 
 ---
 
-## Expert Triage Workflow (`triage.py`)
+## Expert Review Cards Workflow (`triage.py`)
 
-When `--review` is passed, the engine generates:
-1. `out/triage.md`: Blind review cards without revealing the final verdict, categorized by:
-   - **I (Issue)**: Is this a real flaw, and how serious?
-   - **R (Recall gap)**: Model recalled a limit not found in corpus. Is it real?
+When `--review` is passed (or the checkbox is enabled in Streamlit), the engine generates blind review cards and response sheets for both the **Original Prompt** and every **Follow-up**:
+1. **Original Prompt Cards** (`cards_original.md` / `responses_original.csv`):
+   - **I (Issue)**: Is this a real flaw in the prompt/hypothesis, and how serious?
+   - **R (Recall gap)**: Model recalled a constraint not found in the corpus. Is it real?
    - **E (Entailment)**: Does the cited passage genuinely support the objection?
-   - **U (Untested)**: Can a domain expert settle this untested link?
-2. `out/responses.csv`: Form for recording expert ratings.
+   - **U (Untested)**: Can a domain expert settle this untested mechanism?
+2. **Follow-up Cards** (`cards_followup_{N}.md` / `responses_followup_{N}.csv`):
+   - **I (New Issue)**: Is this newly spotted red or yellow flag a real objection?
+   - **E (New Entailment)**: Does the newly cited passage support the critique?
+   - **S (Resolution Verification)**: The follow-up proposed an edge condition to resolve a prior objection. Is it genuinely resolved?
+   - **U (Untested Claims)**: Untested claims introduced in this follow-up.
 
 Merge rulings back into the final report:
 ```bash
-.venv/bin/python run.py --merge cases/ubeam --responses cases/ubeam/responses.csv
+.venv/bin/python run.py --merge cases/ubeam --responses cases/ubeam/responses_original.csv
 ```
-This produces `cases/ubeam/report_final.md` with expert-adjusted verdicts.
+This produces `cases/ubeam/report_final.md` with expert-adjusted diagnostic badges.

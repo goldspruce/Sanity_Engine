@@ -634,7 +634,7 @@ def render(rep):
 
     L = []
     if hyp:
-        L += ["## 🔬 Hypothesis / Prompt", f"> {hyp}", ""]
+        L += ["## 🔬 Original Prompt", f"> {hyp}", ""]
 
     L += [f"# Diagnostic Radar: {badge}"]
     L += [f"> **Classification:** {classification}", ""]
@@ -958,10 +958,10 @@ def render_followup(rep):
     f_prompt = (rep.get("follow_up_prompt") or "").strip()
 
     L = []
-    L += [f"# Follow-Up Adversarial Review Report (Follow-Up #{turn})", ""]
+    L += [f"# Follow-Up Adversarial Review Report (Follow-up #{turn})", ""]
     L += ["## 🔬 Research Lineage & Continuity",
-          f"- **Original Hypothesis:** {hyp}",
-          f"- **Follow-Up Prompt / Refinement:** {f_prompt}",
+          f"- **Original Prompt:** {hyp}",
+          f"- **Follow-up #{turn} Prompt:** {f_prompt}",
           f"- **Flag Trajectory:** `{prev_badge}` ➔ `{badge}`", ""]
 
     L += [f"# Updated Diagnostic Radar: {badge}"]

@@ -1,28 +1,23 @@
-"""Local browser UI:  pip install streamlit python-docx ;  streamlit run app.py
-Paste text, upload .docx/.txt/.md, or give a Google Doc link shared as 'anyone with the link can view'."""
-import io, json, os, re, tempfile, time, urllib.request
+import os, sys, json, time, urllib.parse, urllib.request, re, io
+from dotenv import load_dotenv
+load_dotenv()
+import docx
 import streamlit as st
 import engine, triage
-from run import backend, books_default
 
-
-def docx_text(data):
-    import docx
-    d = docx.Document(io.BytesIO(data))
-    parts = [p.text for p in d.paragraphs if p.text.strip()]
-    for t in d.tables:
-        for row in t.rows:
-            parts.append(" | ".join(c.text.strip() for c in row.cells))
-    return "\n\n".join(parts)
-
+def docx_text(b):
+    d = docx.Document(io.BytesIO(b) if hasattr(b, 'read') else io.BytesIO(b))
+    return "\n\n".join(p.text for p in d.paragraphs if p.text.strip())
 
 def gdoc_text(url):
-    m = re.search(r"/document/d/([\w-]+)", url)
+    m = re.search(r"/d/([a-zA-Z0-9-_]+)", url)
     if not m:
-        raise ValueError("Not a Google Doc link")
-    with urllib.request.urlopen(f"https://docs.google.com/document/d/{m.group(1)}/export?format=txt", timeout=30) as r:
+        raise ValueError("Could not find a valid Google Doc ID in the link.")
+    gid = m.group(1)
+    req = urllib.request.Request(f"https://docs.google.com/document/d/{gid}/export?format=txt",
+                                 headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req) as r:
         return r.read().decode("utf-8", "ignore")
-
 
 def safe_json_dumps(obj, indent=1):
     def default(o):
@@ -31,12 +26,10 @@ def safe_json_dumps(obj, indent=1):
         return str(o)
     return json.dumps(obj, indent=indent, default=default)
 
+st.set_page_config(page_title="Sanity Engine", layout="wide")
+st.title("Sanity Engine")
 
-st.set_page_config(page_title="Adversarial hypothesis checker", page_icon="🔬")
-st.title("Adversarial hypothesis checker")
-
-nb_url = os.environ.get("NOTEBOOKLM_URL", "").strip() or "https://notebooklm.google.com"
-st.markdown(f"> To investigate untested claims or examine biological/physical mechanisms further, you can cross-examine here is a [link to a Google NotebookLM pre-loaded with these canonical textbooks]({nb_url})")
+nb_url = os.getenv("NOTEBOOKLM_URL", "https://notebooklm.google.com")
 
 with st.expander("📚 Pre-Loaded Canonical Textbooks in Corpus & NotebookLM (11)", expanded=False):
     st.markdown(f"🔗 **Google NotebookLM Workspace:** [{nb_url}]({nb_url})")
@@ -60,21 +53,22 @@ with st.sidebar:
     critic_name = st.selectbox("Reviewer model", ["same as generator", "gemini", "anthropic", "mock"])
     corpus = st.text_input("Corpus folder", "corpus")
     if os.path.isdir(corpus):
-        with st.expander("📚 Books in Corpus"):
+        with st.expander(f"Books in `{corpus}/`", expanded=False):
             for bf in sorted(os.listdir(corpus)):
                 if bf.lower().endswith((".txt", ".md")):
                     st.caption(f"• `{os.path.splitext(bf)[0]}`")
     books = st.text_input("Book names to focus on in model recall?", "",
                           help="Optional. Leave blank to default to all books in your corpus folder.")
-    review = st.checkbox("Create expert triage cards (optional)")
+    review = st.checkbox("Create expert review cards (Original Prompt & Follow-ups)", value=True)
     entail = st.checkbox("Auto entailment pre-check")
     check_math = st.checkbox("Math / number verification (optional)", value=False)
 
-    if st.button("🔄 Reset / New Hypothesis", help="Clear current session and start a new hypothesis"):
+    if st.button("🔄 Reset / New Prompt", help="Clear current session and start with a new original prompt"):
         st.session_state["report"] = None
         st.session_state["latest_report"] = None
         st.session_state["followup_reports"] = []
         st.session_state["follow_up_history"] = []
+        st.session_state["original_cards"] = None
         st.session_state["session_active"] = True
         st.rerun()
 
@@ -93,9 +87,10 @@ if not st.session_state.get("session_active", True):
         st.session_state["latest_report"] = None
         st.session_state["followup_reports"] = []
         st.session_state["follow_up_history"] = []
+        st.session_state["original_cards"] = None
         st.rerun()
 
-text = st.text_area("Hypothesis", height=200)
+text = st.text_area("Original Prompt", height=200)
 up = st.file_uploader("...or upload .docx / .txt / .md", type=["docx", "txt", "md"])
 link = st.text_input("...or Google Doc link (must be viewable by anyone with the link)")
 if up:
@@ -108,11 +103,20 @@ elif link and not text:
 if text:
     text = st.text_area("Text that will be checked (edit if extraction dropped anything)", text, height=200, key="confirm")
 
+def backend(name):
+    if name == "mock":
+        from mock_llm import MockLLM
+        return MockLLM()
+    return {"gemini": engine.GeminiLLM, "anthropic": engine.AnthropicLLM}[name]()
+
+def books_default(corpus):
+    return "; ".join(sorted({os.path.splitext(f)[0] for f in os.listdir(corpus) if f.lower().endswith((".txt", ".md"))})) or "(none listed)"
+
 if st.button("Run", disabled=not text, type="primary"):
     try:
         gen = backend(gen_name)
         crit = gen if critic_name == "same as generator" else backend(critic_name)
-        with st.spinner("Running adversarial review..."):
+        with st.spinner("Running adversarial review on Original Prompt..."):
             rep = engine.run(text, books or books_default(corpus), gen, crit, engine.LocalBM25(corpus), auto_entail=entail,
                              check_math=check_math, log=lambda m: None)
             st.session_state["report"] = rep
@@ -121,13 +125,10 @@ if st.button("Run", disabled=not text, type="primary"):
             st.session_state["follow_up_history"] = []
             st.session_state["session_active"] = True
             if review:
-                d = tempfile.mkdtemp()
-                triage.build(rep, d)
-                st.session_state["triage_files"] = {
-                    fn: open(f"{d}/{fn}").read() for fn in ("triage.md", "responses.csv", "triage.json")
-                }
+                t_res = triage.build(rep, label="Original Prompt", prefix="cards_original")
+                st.session_state["original_cards"] = t_res["files"]
             else:
-                st.session_state["triage_files"] = None
+                st.session_state["original_cards"] = None
     except Exception as e:
         st.error(f"{type(e).__name__}: {e}")
 
@@ -142,28 +143,35 @@ if st.session_state.get("report"):
     rendered = engine.render(rep)
     st.markdown(rendered)
     st.divider()
+    st.subheader("📥 Downloads & Review Cards — Original Prompt")
     col1, col2 = st.columns(2)
     with col1:
-        st.download_button("📥 Download report.md (Base Hypothesis)", rendered, "report.md", mime="text/markdown", key="dl_report_md")
+        st.download_button("📥 Download report_original.md", rendered, "report_original.md", mime="text/markdown", key="dl_report_md")
     with col2:
-        st.download_button("📥 Download report.json (Base Hypothesis)", safe_json_dumps(rep, indent=1), "report.json", mime="application/json", key="dl_report_json")
-    if st.session_state.get("triage_files"):
-        st.subheader("Expert Triage Files")
-        t_cols = st.columns(3)
-        for idx, (fn, content) in enumerate(st.session_state["triage_files"].items()):
-            with t_cols[idx]:
-                st.download_button(f"📥 Download {fn}", content, fn, key=f"dl_{fn}")
+        st.download_button("📥 Download report_original.json", safe_json_dumps(rep, indent=1), "report_original.json", mime="application/json", key="dl_report_json")
+    
+    if st.session_state.get("original_cards"):
+        st.markdown("##### 🃏 Expert Review Cards — Original Prompt")
+        orig_files = st.session_state["original_cards"]
+        c_cols = st.columns(len(orig_files))
+        for idx, (fn, content) in enumerate(orig_files.items()):
+            with c_cols[idx]:
+                st.download_button(f"📥 Download {fn}", content, fn, key=f"dl_orig_{fn}")
+        with st.expander("🔍 Preview Review Cards (Original Prompt)", expanded=False):
+            st.markdown(orig_files.get("cards_original.md", ""))
 
     # Continuous Follow-Up Section
     st.divider()
     st.subheader("💬 Continuous Follow-Up Research & Refinement")
-    st.caption("Ask questions, test edge conditions, or refine the hypothesis. The engine maintains continuous research across follow-up inquiries: querying literature, tracking resolved vs. persisting flags, and generating formal follow-up reports. Type **exit** or click **🛑 End Session** in the sidebar to finish.")
+    st.caption("Ask questions, test edge conditions, or refine the prompt. The engine maintains continuous research across follow-up inquiries: querying literature, tracking resolved vs. persisting flags, generating verified reports, and producing expert review cards for each follow-up. Type **exit** or click **🛑 End Session** in the sidebar to finish.")
 
     for idx, msg in enumerate(st.session_state.get("follow_up_history", [])):
         with st.chat_message(msg["role"]):
             if msg.get("report") and msg.get("turn"):
+                turn_num = msg["turn"]
                 f_rep = msg["report"]
                 f_counts = f_rep.get("counts") or engine.count_flags(f_rep.get("active_issues", f_rep.get("issues", [])), f_rep.get("green_flags", []))
+                st.markdown(f"### 📄 Follow-up #{turn_num} Evaluation")
                 fcol_r, fcol_y, fcol_g = st.columns(3)
                 fcol_r.metric("🚩 Red Flags", f_counts.get("red", 0))
                 fcol_y.metric("🟨 Yellow Flags", f_counts.get("yellow", 0))
@@ -190,6 +198,16 @@ if st.session_state.get("report"):
                         mime="application/json",
                         key=f"dl_f_{turn_num}_{idx}_json"
                     )
+                if msg.get("cards"):
+                    f_card_files = msg["cards"].get("files", {})
+                    if f_card_files:
+                        st.markdown(f"##### 🃏 Expert Review Cards — Follow-up #{turn_num}")
+                        fc_cols = st.columns(len(f_card_files))
+                        for c_idx, (fn, content) in enumerate(f_card_files.items()):
+                            with fc_cols[c_idx]:
+                                st.download_button(f"📥 Download {fn}", content, fn, key=f"dl_f_cards_{turn_num}_{idx}_{fn}")
+                        with st.expander(f"🔍 Preview Review Cards (Follow-up #{turn_num})", expanded=False):
+                            st.markdown(f_card_files.get(f"cards_followup_{turn_num}.md", ""))
 
     if st.session_state.get("session_active", True):
         prompt = st.chat_input("Enter a follow-up prompt, probe, or refined hypothesis (or 'exit')...")
@@ -204,7 +222,7 @@ if st.session_state.get("report"):
                     gen = backend(gen_name)
                     crit = gen if critic_name == "same as generator" else backend(critic_name)
                     turn_idx = len(st.session_state.get("followup_reports", [])) + 1
-                    with st.spinner(f"Conducting continuous literature research for follow-up #{turn_idx}..."):
+                    with st.spinner(f"Conducting continuous literature research for Follow-up #{turn_idx}..."):
                         parent_to_use = st.session_state.get("latest_report") or rep
                         f_rep = engine.run_followup(
                             parent_to_use,
@@ -218,6 +236,9 @@ if st.session_state.get("report"):
                             check_math=check_math,
                             log=lambda m: None
                         )
+                        f_cards = None
+                        if review:
+                            f_cards = triage.build(f_rep, label=f"Follow-up #{turn_idx}", prefix=f"cards_followup_{turn_idx}")
                     st.session_state.setdefault("followup_reports", []).append(f_rep)
                     st.session_state["latest_report"] = f_rep
                     f_md = engine.render_followup(f_rep)
@@ -225,7 +246,8 @@ if st.session_state.get("report"):
                         "role": "assistant",
                         "content": f_md,
                         "report": f_rep,
-                        "turn": turn_idx
+                        "turn": turn_idx,
+                        "cards": f_cards
                     })
                     st.rerun()
                 except Exception as e:
@@ -237,4 +259,3 @@ if st.session_state.get("report"):
                     st.error(f"Error evaluating follow-up #{turn_idx}: {e}")
                     with st.expander("🔍 Show Detailed Error Diagnostics", expanded=True):
                         st.exception(e)
-

@@ -21,9 +21,10 @@ Each card has a type. Answer from the evidence on the card and the books, not fr
 
 | Type | Question | Allowed responses |
 |---|---|---|
-| I (issue) | Is this a real flaw in the hypothesis, and how serious? | `serious`, `minor`, `not_flaw`, `unclear` |
+| I (issue) | Is this a real flaw in the hypothesis/prompt, and how serious? | `serious`, `minor`, `not_flaw`, `unclear` |
 | E (entailment) | Does the quoted passage actually support the claim? | `supports`, `partly`, `not`, `unclear` |
 | R (recall) | A model recalled this limit but search did not find it. Is it real, and is it in the books? | `in_books` (say where in `note`), `real_not_in_books`, `not_real`, `unclear` |
+| S (resolution) | Follow-up claims this prior issue is resolved via edge condition. Is it genuinely resolved? | `resolved`, `partly_resolved`, `still_active`, `unclear` |
 | U (untested) | No passage tested this. Can you settle it from knowledge? | `settled` (give the answer in `note`), `open_gap`, `out_of_expertise` |
 
 Rules:
