@@ -10,6 +10,13 @@ def backend(name):
 def books_default(corpus):
     return "; ".join(sorted({os.path.splitext(f)[0] for f in os.listdir(corpus) if f.lower().endswith((".txt", ".md"))})) or "(none listed)"
 
+def safe_json_dump(obj, fp, indent=1):
+    def default(o):
+        if isinstance(o, (set, tuple)):
+            return list(o)
+        return str(o)
+    return json.dump(obj, fp, indent=indent, default=default)
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="Adversarial hypothesis checker")
     ap.add_argument("hypothesis", nargs="?")
@@ -43,7 +50,7 @@ if __name__ == "__main__":
                      engine.LocalBM25(a.corpus, a.chunk_words), auto_entail=a.auto_entail,
                      check_math=a.check_math)
     os.makedirs(a.out, exist_ok=True)
-    json.dump(rep, open(f"{a.out}/report.json", "w"), indent=1)
+    safe_json_dump(rep, open(f"{a.out}/report.json", "w"), indent=1)
     open(f"{a.out}/report.md", "w").write(engine.render(rep))
     print(engine.render(rep))
     if a.review:
@@ -77,7 +84,7 @@ if __name__ == "__main__":
                 turn_idx=turn_idx, auto_entail=a.auto_entail, check_math=a.check_math
             )
             f_md = engine.render_followup(f_rep)
-            json.dump(f_rep, open(f"{a.out}/report_followup_{turn_idx}.json", "w"), indent=1)
+            safe_json_dump(f_rep, open(f"{a.out}/report_followup_{turn_idx}.json", "w"), indent=1)
             open(f"{a.out}/report_followup_{turn_idx}.md", "w").write(f_md)
             print(f"[saved] -> {a.out}/report_followup_{turn_idx}.md, report_followup_{turn_idx}.json\n")
             print(f_md)

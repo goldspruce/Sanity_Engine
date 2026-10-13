@@ -24,6 +24,14 @@ def gdoc_text(url):
         return r.read().decode("utf-8", "ignore")
 
 
+def safe_json_dumps(obj, indent=1):
+    def default(o):
+        if isinstance(o, (set, tuple)):
+            return list(o)
+        return str(o)
+    return json.dumps(obj, indent=indent, default=default)
+
+
 st.set_page_config(page_title="Adversarial hypothesis checker", page_icon="🔬")
 st.title("Adversarial hypothesis checker")
 
@@ -138,7 +146,7 @@ if st.session_state.get("report"):
     with col1:
         st.download_button("📥 Download report.md (Base Hypothesis)", rendered, "report.md", mime="text/markdown", key="dl_report_md")
     with col2:
-        st.download_button("📥 Download report.json (Base Hypothesis)", json.dumps(rep, indent=1), "report.json", mime="application/json", key="dl_report_json")
+        st.download_button("📥 Download report.json (Base Hypothesis)", safe_json_dumps(rep, indent=1), "report.json", mime="application/json", key="dl_report_json")
     if st.session_state.get("triage_files"):
         st.subheader("Expert Triage Files")
         t_cols = st.columns(3)
@@ -177,7 +185,7 @@ if st.session_state.get("report"):
                 with c2:
                     st.download_button(
                         f"📥 Download report_followup_{turn_num}.json",
-                        json.dumps(f_rep, indent=1),
+                        safe_json_dumps(f_rep, indent=1),
                         f"report_followup_{turn_num}.json",
                         mime="application/json",
                         key=f"dl_f_{turn_num}_{idx}_json"

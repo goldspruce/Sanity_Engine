@@ -678,20 +678,21 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
     )
 
     log(f"[followup {turn_idx}] 2. Cumulative retrieval (Channel B) + reconcile")
-    passages = list(parent_rep.get("passages", []))
+    # Clone passages so parent_rep is NEVER mutated in-place
+    passages = [{**p, "via": list(p.get("via", []))} for p in parent_rep.get("passages", [])]
     by_text = {p["text"]: p for p in passages}
     new_passage_ids = []
 
     def add_p(src, text, score, via):
         if text in by_text:
             p_obj = by_text[text]
-            v = p_obj.get("via", [])
-            if isinstance(v, list):
-                p_obj["via"] = set(v)
-            p_obj["via"].add(via)
+            v = list(p_obj.get("via", []))
+            if via not in v:
+                v.append(via)
+            p_obj["via"] = v
             return p_obj["id"]
         pid = f"P{len(passages) + 1}"
-        p = dict(id=pid, source=src, text=text, score=round(score, 2), via={via})
+        p = dict(id=pid, source=src, text=text, score=round(score, 2), via=[via])
         passages.append(p)
         by_text[text] = p
         new_passage_ids.append(pid)
@@ -774,9 +775,11 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
     norm_passages = []
     for p in passages:
         via = p.get("via", [])
-        if isinstance(via, set):
-            via = sorted(via)
-        norm_passages.append({**p, "via": via})
+        if isinstance(via, (set, list)):
+            via = sorted(set(via))
+        else:
+            via = [via]
+        norm_passages.append({**p, "via": list(via)})
 
     followup_rep = dict(
         turn=turn_idx,
