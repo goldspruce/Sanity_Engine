@@ -42,17 +42,17 @@ with st.expander("📚 Pre-Loaded Canonical Textbooks in Corpus & NotebookLM (11
     st.markdown(f"🔗 **Google NotebookLM Workspace:** [{nb_url}]({nb_url})")
     st.markdown("""
     All reference textbooks are indexed in `corpus/` for deterministic BM25 retrieval and quote verification:
-    - **Alberts et al. (7th ed., 2022)**: `alberts_molecular_biology_of_the_cell_7ed_2022` *(Cell biology, cross-bridges, motors)*
-    - **Berg (1993)**: `berg_random_walks_in_biology_1993` *(Diffusion, Brownian motion, motility, low Reynolds number)*
-    - **Cover & Thomas (2nd ed., 2006)**: `cover_elements_of_information_theory_2ed_2006` *(Information theory, channel capacity, rate distortion)*
-    - **Feynman et al. (Vol. 1, 1963)**: `feynman_lectures_on_physics_vol1_1963` *(Mechanics, oscillations, radiation, heat, acoustics)*
-    - **Feynman et al. (Vol. 2, 1964)**: `feynman_lectures_on_physics_vol2_1964` *(Electromagnetism, wave propagation, dielectric media)*
-    - **Johnston & Wu (1st ed., 1995)**: `johnston_foundations_of_cellular_neurophysiology_1ed_1995` *(Cellular neurophysiology, cable theory, ion channels)*
-    - **Kreyszig (10th ed., 2011)**: `kreyszig_advanced_engineering_mathematics_10ed_2011` *(Wave equations, PDEs, Fourier/Laplace transforms)*
-    - **Murray (2nd ed., 1993)**: `murray_mathematical_biology_an_introduction_2ed_1993` *(Mathematical biology, reaction-diffusion, population dynamics)*
-    - **Nelson & Cox (8th ed., 2021)**: `nelson_lehninger_principles_of_biochemistry_8ed_2021` *(Biochemistry, ATP kinetics, bioenergetics, metabolic flux)*
-    - **Strogatz (3rd ed., 2024)**: `strogatz_nonlinear_dynamics_and_chaos_3ed_2024` *(Nonlinear dynamics, limit cycles, bifurcations, oscillators)*
-    - **Winter (5th ed., 2020)**: `winter_biomechanics_and_motor_control_of_human_movement_5ed_2020` *(Joint kinetics, EMG, muscle power, stretch-shortening cycle)*
+    - **Alberts et al. (7th ed., 2022)**: `Alberts_Molecular_Biology_of_the_Cell_7ed_2022` *(Cell biology, cross-bridges, motors)*
+    - **Berg (1993)**: `Berg_Random_Walks_in_Biology_1993` *(Diffusion, Brownian motion, motility, low Reynolds number)*
+    - **Cover & Thomas (2nd ed., 2006)**: `Cover_Elements_of_Information_Theory_2ed_2006` *(Information theory, channel capacity, rate distortion)*
+    - **Feynman et al. (Vol. 1, 1963)**: `Feynman_Lectures_on_Physics_Vol1_1963` *(Mechanics, oscillations, radiation, heat, acoustics)*
+    - **Feynman et al. (Vol. 2, 1964)**: `Feynman_Lectures_on_Physics_Vol2_1964` *(Electromagnetism, wave propagation, dielectric media)*
+    - **Johnston & Wu (1st ed., 1995)**: `Johnston_Foundations_of_Cellular_Neurophysiology_1ed_1995` *(Cellular neurophysiology, cable theory, ion channels)*
+    - **Kreyszig (10th ed., 2011)**: `Kreyszig_Advanced_Engineering_Mathematics_10ed_2011` *(Wave equations, PDEs, Fourier/Laplace transforms)*
+    - **Murray (2nd ed., 1993)**: `Murray_Mathematical_Biology_an_Introduction_2ed_1993` *(Mathematical biology, reaction-diffusion, population dynamics)*
+    - **Nelson & Cox (8th ed., 2021)**: `Nelson_Lehninger_Principles_of_Biochemistry_8ed_2021` *(Biochemistry, ATP kinetics, bioenergetics, metabolic flux)*
+    - **Strogatz (3rd ed., 2024)**: `Strogatz_Nonlinear_Dynamics_and_Chaos_3ed_2024` *(Nonlinear dynamics, limit cycles, bifurcations, oscillators)*
+    - **Winter (5th ed., 2020)**: `Winter_Biomechanics_and_Motor_Control_of_Human_Movement_5ed_2020` *(Joint kinetics, EMG, muscle power, stretch-shortening cycle)*
     """)
 
 with st.sidebar:
@@ -157,7 +157,7 @@ if st.session_state.get("report"):
     # Continuous Follow-Up Section
     st.divider()
     st.subheader("💬 Continuous Follow-Up Research & Refinement")
-    st.caption("Ask questions, test edge conditions, or refine the hypothesis. The engine maintains continuous research across turns: querying literature, tracking resolved vs. persisting flags, and generating formal follow-up reports. Type **exit** or click **🛑 End Session** in the sidebar to finish.")
+    st.caption("Ask questions, test edge conditions, or refine the hypothesis. The engine maintains continuous research across follow-up inquiries: querying literature, tracking resolved vs. persisting flags, and generating formal follow-up reports. Type **exit** or click **🛑 End Session** in the sidebar to finish.")
 
     for idx, msg in enumerate(st.session_state.get("follow_up_history", [])):
         with st.chat_message(msg["role"]):
@@ -204,7 +204,7 @@ if st.session_state.get("report"):
                     gen = backend(gen_name)
                     crit = gen if critic_name == "same as generator" else backend(critic_name)
                     turn_idx = len(st.session_state.get("followup_reports", [])) + 1
-                    with st.spinner(f"Conducting continuous literature research for follow-up turn {turn_idx}..."):
+                    with st.spinner(f"Conducting continuous literature research for follow-up #{turn_idx}..."):
                         parent_to_use = st.session_state.get("latest_report") or rep
                         f_rep = engine.run_followup(
                             parent_to_use,
@@ -234,7 +234,7 @@ if st.session_state.get("report"):
                         st.session_state["follow_up_history"].pop()
                     import traceback
                     traceback.print_exc()
-                    st.error(f"Error evaluating follow-up turn {turn_idx}: {e}")
+                    st.error(f"Error evaluating follow-up #{turn_idx}: {e}")
                     with st.expander("🔍 Show Detailed Error Diagnostics", expanded=True):
                         st.exception(e)
 

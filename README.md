@@ -27,7 +27,7 @@ Rather than acting as a supportive brainstormer or allowing sycophantic hallucin
 
 4. **Iterative Follow-Up Prompts & Conversational Probing**:
    - Users can iterate with follow-up prompts, challenge critiques, or propose refined hypotheses without losing state.
-   - The referee maintains research continuity: tracking resolved flags vs. active flags across turns and querying newly relevant literature.
+   - The referee maintains research continuity: tracking resolved flags vs. active flags across follow-up inquiries and querying newly relevant literature.
    - Sessions continue until the user chooses to exit (via `exit` command, "🛑 End Session" button, or closing).
 
 5. **Number Linting & Deterministic Physics Ledger**:
@@ -125,21 +125,21 @@ Open your browser at `http://localhost:8501`. You can:
 
 Sanity Engine maintains an indexed library of 11 foundational canonical textbooks across electrophysiology, cell biology, biochemistry, dynamical systems, biomechanics, information theory, and physics.
 
-All files in `Textbooks/` and `corpus/` follow the standardized naming convention: `first author lastname_title_edition_year`:
+All files in `Textbooks/` and `corpus/` follow the standardized naming convention: `Author_Title_Edition_Year`:
 
-| # | Standardized Filename (`author_title_edition_year`) | Title & Author(s) | Primary Domain |
+| # | Standardized Filename (`Author_Title_Edition_Year`) | Title & Author(s) | Primary Domain |
 |:-:|:---|:---|:---|
-| **1** | `alberts_molecular_biology_of_the_cell_7ed_2022` | *Molecular Biology of the Cell* (Alberts et al., 7th ed.) | Cell biology, cross-bridges, motors |
-| **2** | `berg_random_walks_in_biology_1993` | *Random Walks in Biology* (Berg, 1993) | Diffusion, Brownian motion, motility |
-| **3** | `cover_elements_of_information_theory_2ed_2006` | *Elements of Information Theory* (Cover & Thomas, 2nd ed.) | Channel capacity, rate distortion, entropy |
-| **4** | `feynman_lectures_on_physics_vol1_1963` | *The Feynman Lectures on Physics: Vol 1* (Feynman et al., 1963) | Mechanics, radiation, heat, acoustics |
-| **5** | `feynman_lectures_on_physics_vol2_1964` | *The Feynman Lectures on Physics: Vol 2* (Feynman et al., 1964) | Electromagnetism, waves, dielectric media |
-| **6** | `johnston_foundations_of_cellular_neurophysiology_1ed_1995` | *Foundations of Cellular Neurophysiology* (Johnston & Wu, 1995) | Electrophysiology, cable theory, ion channels |
-| **7** | `kreyszig_advanced_engineering_mathematics_10ed_2011` | *Advanced Engineering Mathematics* (Kreyszig, 10th ed.) | Wave equations, PDEs, Fourier transforms |
-| **8** | `murray_mathematical_biology_an_introduction_2ed_1993` | *Mathematical Biology: An Introduction* (Murray, 2nd ed.) | Reaction-diffusion, population dynamics |
-| **9** | `nelson_lehninger_principles_of_biochemistry_8ed_2021` | *Lehninger: Principles of Biochemistry* (Nelson & Cox, 8th ed.) | Bioenergetics, ATP kinetics, metabolic flux |
-| **10** | `strogatz_nonlinear_dynamics_and_chaos_3ed_2024` | *Nonlinear Dynamics and Chaos* (Strogatz, 3rd ed., 2024) | Limit cycles, bifurcations, oscillators |
-| **11** | `winter_biomechanics_and_motor_control_of_human_movement_5ed_2020` | *Biomechanics and Motor Control* (Winter, 5th ed., 2020) | Joint kinetics, EMG, muscle power, SSC |
+| **1** | `Alberts_Molecular_Biology_of_the_Cell_7ed_2022` | *Molecular Biology of the Cell* (Alberts et al., 7th ed.) | Cell biology, cross-bridges, motors |
+| **2** | `Berg_Random_Walks_in_Biology_1993` | *Random Walks in Biology* (Berg, 1993) | Diffusion, Brownian motion, motility |
+| **3** | `Cover_Elements_of_Information_Theory_2ed_2006` | *Elements of Information Theory* (Cover & Thomas, 2nd ed.) | Channel capacity, rate distortion, entropy |
+| **4** | `Feynman_Lectures_on_Physics_Vol1_1963` | *The Feynman Lectures on Physics: Vol 1* (Feynman et al., 1963) | Mechanics, radiation, heat, acoustics |
+| **5** | `Feynman_Lectures_on_Physics_Vol2_1964` | *The Feynman Lectures on Physics: Vol 2* (Feynman et al., 1964) | Electromagnetism, waves, dielectric media |
+| **6** | `Johnston_Foundations_of_Cellular_Neurophysiology_1ed_1995` | *Foundations of Cellular Neurophysiology* (Johnston & Wu, 1995) | Electrophysiology, cable theory, ion channels |
+| **7** | `Kreyszig_Advanced_Engineering_Mathematics_10ed_2011` | *Advanced Engineering Mathematics* (Kreyszig, 10th ed.) | Wave equations, PDEs, Fourier transforms |
+| **8** | `Murray_Mathematical_Biology_an_Introduction_2ed_1993` | *Mathematical Biology: An Introduction* (Murray, 2nd ed.) | Reaction-diffusion, population dynamics |
+| **9** | `Nelson_Lehninger_Principles_of_Biochemistry_8ed_2021` | *Lehninger: Principles of Biochemistry* (Nelson & Cox, 8th ed.) | Bioenergetics, ATP kinetics, metabolic flux |
+| **10** | `Strogatz_Nonlinear_Dynamics_and_Chaos_3ed_2024` | *Nonlinear Dynamics and Chaos* (Strogatz, 3rd ed., 2024) | Limit cycles, bifurcations, oscillators |
+| **11** | `Winter_Biomechanics_and_Motor_Control_of_Human_Movement_5ed_2020` | *Biomechanics and Motor Control* (Winter, 5th ed., 2020) | Joint kinetics, EMG, muscle power, SSC |
 
 See [TEXTBOOKS.md](TEXTBOOKS.md) for full descriptions and indexing instructions.
 

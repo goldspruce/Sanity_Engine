@@ -73,7 +73,7 @@ class MockLLM:
                 adversarial_queries=[dict(text="impedance matching layer acoustic bandwidth limits", kind="limit"),
                                      dict(text="absorption of ultrasound in air at long range", kind="limit")],
                 recall=[dict(constraint="Quarter-wave matching has narrow fractional bandwidth",
-                             book="feynman_lectures_on_physics_vol1_1963",
+                             book="Feynman_Lectures_on_Physics_Vol1_1963",
                              search_terms="quarter wave matching transformer impedance bandwidth")]
             )
         if n == "FollowUpReview":

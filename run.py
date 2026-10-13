@@ -70,14 +70,14 @@ if __name__ == "__main__":
         turn_idx = 1
         while True:
             try:
-                line = input(f"\n[follow-up turn {turn_idx}] > ").strip()
+                line = input(f"\n[follow-up #{turn_idx}] > ").strip()
             except (EOFError, KeyboardInterrupt):
                 print("\nSession ended.")
                 break
             if not line or line.lower() in ("exit", "quit", "q"):
                 print("Session ended.")
                 break
-            print(f"\n--> Researching follow-up turn {turn_idx} against literature...")
+            print(f"\n--> Researching follow-up #{turn_idx} against literature...")
             f_rep = engine.run_followup(
                 current_rep, line, a.books or books_default(a.corpus),
                 gen, crit, engine.LocalBM25(a.corpus, a.chunk_words),

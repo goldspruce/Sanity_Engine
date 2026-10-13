@@ -198,7 +198,7 @@ class FollowUpPlan(BaseModel):
 
 class FollowUpReview(BaseModel):
     diagnostic_stance: str = ""
-    continuity_assessment: str = "" # How the follow-up changes the flag profile from previous turn
+    continuity_assessment: str = "" # How the follow-up changes the flag profile from previous inquiries
     resolved_issue_ids: list[str] = Field(default_factory=list) # Prior issue IDs now resolved/flipped
     green_flags: list[GreenFlag] = Field(default_factory=list)
     new_issues: list[Issue] = Field(default_factory=list)
@@ -427,7 +427,7 @@ Inputs:
 Deliverables:
 1. diagnostic_stance: Updated 1-2 sentence executive diagnostic of the refined hypothesis.
 2. continuity_assessment: Explicitly explain how the follow-up changes the flag profile (e.g., "Issue I1 resolved: adding quarter-wave impedance matching removes the red flag boundary reflection; yellow flag attenuation remains active").
-3. resolved_issue_ids: List of issue IDs from previous turns that are now resolved or flipped by the follow-up.
+3. resolved_issue_ids: List of issue IDs from previous inquiries that are now resolved or flipped by the follow-up.
 4. green_flags: Updated or newly confirmed biophysical anchors and synergies.
 5. scientific_synthesis: Cumulative narrative synthesis of plausible vs contested mechanisms.
 6. falsification_test: A concrete empirical test tailored to the refined hypothesis.
@@ -786,7 +786,7 @@ def follow_up(history, user_message, rep, llm):
 
 def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, turn_idx=1, auto_entail=False, check_math=False, log=print):
     """Executes a continuous adversarial research pipeline on a follow-up prompt or refined hypothesis."""
-    log(f"[followup {turn_idx}] 1. Targeted adversarial plan for follow-up")
+    log(f"[follow-up #{turn_idx}] 1. Targeted adversarial plan for follow-up")
     prior_hyp = parent_rep.get("hypothesis") or parent_rep.get("parent_hypothesis") or ""
     prior_badge = parent_rep.get("badge") or parent_rep.get("verdict", "")
     prior_active_issues = [i for i in parent_rep.get("issues", []) if i.get("status", "active") == "active"]
@@ -812,7 +812,7 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
         gen.json(FOLLOWUP_PLAN_SYS.format(books=books, turn=turn_idx), plan_ctx, FollowUpPlan, 0.3)
     )
 
-    log(f"[followup {turn_idx}] 2. Cumulative retrieval (Channel B) + reconcile")
+    log(f"[follow-up #{turn_idx}] 2. Cumulative retrieval (Channel B) + reconcile")
     # Clone passages so parent_rep is NEVER mutated in-place
     passages = [{**p, "via": list(p.get("via", []))} for p in parent_rep.get("passages", [])]
     by_text = {p["text"]: p for p in passages}
@@ -842,7 +842,7 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
         if hits and hits[0][2] >= 2.0:
             add_p(hits[0][0], hits[0][1], hits[0][2], f"recall_{turn_idx}")
 
-    log(f"[followup {turn_idx}] 3. Continuous adversarial review with issue tracking")
+    log(f"[follow-up #{turn_idx}] 3. Continuous adversarial review with issue tracking")
     review_ctx = (
         f"ORIGINAL HYPOTHESIS:\n{prior_hyp}\n\n"
         f"PREVIOUS DIAGNOSTIC FLAGS:\n{prior_badge}\n\n"
@@ -854,7 +854,7 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
 
     f_rev = FollowUpReview.model_validate(critic.json(FOLLOWUP_REVIEW_SYS, review_ctx, FollowUpReview, 0.0))
 
-    log(f"[followup {turn_idx}] 4. Quote verification on new issues & green flags")
+    log(f"[follow-up #{turn_idx}] 4. Quote verification on new issues & green flags")
     pmap = {p["id"]: p for p in passages}
     grounded = [prior_hyp, follow_up_prompt] + [p["text"] for p in passages]
 
@@ -885,7 +885,7 @@ def run_followup(parent_rep, follow_up_prompt, books, gen, critic, retriever, tu
         ni["status"] = "active"
         cumulative_issues.append(ni)
 
-    # Merge green flags across turns
+    # Merge green flags across follow-up inquiries
     parent_greens = [dict(g) for g in parent_rep.get("green_flags", [])]
     new_greens = []
     for g in getattr(f_rev, "green_flags", []):
@@ -958,7 +958,7 @@ def render_followup(rep):
     f_prompt = (rep.get("follow_up_prompt") or "").strip()
 
     L = []
-    L += [f"# Follow-Up Adversarial Review Report (Turn {turn})", ""]
+    L += [f"# Follow-Up Adversarial Review Report (Follow-Up #{turn})", ""]
     L += ["## 🔬 Research Lineage & Continuity",
           f"- **Original Hypothesis:** {hyp}",
           f"- **Follow-Up Prompt / Refinement:** {f_prompt}",
@@ -1020,7 +1020,7 @@ def render_followup(rep):
         L += ["_No active yellow flags remain._", ""]
     else:
         for i in active_yellow:
-            is_new = " *(new this turn)*" if i["id"] in [ni["id"] for ni in rep.get("new_issues", [])] else ""
+            is_new = " *(new in this follow-up)*" if i["id"] in [ni["id"] for ni in rep.get("new_issues", [])] else ""
             flag_warn = "" if i.get("quote_status") == "verified" else f" **[quote {i.get('quote_status')}]**"
             eye = f" _(eyeball-check numbers: {i['eyeball_numbers']})_" if i.get("eyeball_numbers") else ""
             ent = f" _(auto-entail: {i['auto_entail']['label']})_" if i.get("auto_entail") else ""
@@ -1034,7 +1034,7 @@ def render_followup(rep):
         L += ["_No active red flags remain._", ""]
     else:
         for i in active_red:
-            is_new = " *(new this turn)*" if i["id"] in [ni["id"] for ni in rep.get("new_issues", [])] else ""
+            is_new = " *(new in this follow-up)*" if i["id"] in [ni["id"] for ni in rep.get("new_issues", [])] else ""
             flag_warn = "" if i.get("quote_status") == "verified" else f" **[quote {i.get('quote_status')}]**"
             eye = f" _(eyeball-check numbers: {i['eyeball_numbers']})_" if i.get("eyeball_numbers") else ""
             ent = f" _(auto-entail: {i['auto_entail']['label']})_" if i.get("auto_entail") else ""

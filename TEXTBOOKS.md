@@ -13,17 +13,17 @@ All books are ingested from `Textbooks/` into plain-text chunks in `corpus/` usi
 
 | # | Textbook Title | Author(s) / Edition | Primary Domain | Standardized Filename (`Textbooks/` & `corpus/`) |
 |:-:|:---|:---|:---|:---|
-| **1** | **Molecular Biology of the Cell** | Bruce Alberts et al. *(7th Edition, 2022)* | Cell biology, molecular motors, actin-myosin cross-bridges, signal transduction | `alberts_molecular_biology_of_the_cell_7ed_2022` |
-| **2** | **Random Walks in Biology** | Howard C. Berg *(Expanded Edition, 1993)* | Diffusion, Brownian motion, low Reynolds number physics, motility | `berg_random_walks_in_biology_1993` |
-| **3** | **Elements of Information Theory** | Thomas M. Cover & Joy A. Thomas *(2nd Edition, 2006)* | Entropy, channel capacity, rate distortion, data processing inequality | `cover_elements_of_information_theory_2ed_2006` |
-| **4** | **The Feynman Lectures on Physics (Vol. 1)** | Richard P. Feynman et al. *(1963)* | Classical mechanics, oscillations, radiation, acoustics, thermodynamics | `feynman_lectures_on_physics_vol1_1963` |
-| **5** | **The Feynman Lectures on Physics (Vol. 2)** | Richard P. Feynman et al. *(1964)* | Electromagnetism, wave propagation, Maxwell equations, dielectric media | `feynman_lectures_on_physics_vol2_1964` |
-| **6** | **Foundations of Cellular Neurophysiology** | Daniel Johnston & Samuel Miao-Sin Wu *(1st Edition, 1995)* | Membrane electrophysiology, cable theory, Hodgkin-Huxley, synaptic transmission | `johnston_foundations_of_cellular_neurophysiology_1ed_1995` |
-| **7** | **Advanced Engineering Mathematics** | Erwin Kreyszig *(10th Edition, 2011)* | Wave equations, Fourier/Laplace transforms, PDEs, complex analysis | `kreyszig_advanced_engineering_mathematics_10ed_2011` |
-| **8** | **Mathematical Biology: An Introduction** | J.D. Murray *(2nd Edition, 1993)* | Reaction-diffusion, population dynamics, wave propagation in tissue | `murray_mathematical_biology_an_introduction_2ed_1993` |
-| **9** | **Lehninger: Principles of Biochemistry** | David L. Nelson & Michael M. Cox *(8th Edition, 2021)* | Bioenergetics, ATP kinetics, phosphocreatine buffering, metabolic flux | `nelson_lehninger_principles_of_biochemistry_8ed_2021` |
-| **10** | **Nonlinear Dynamics and Chaos** | Steven H. Strogatz *(3rd Edition, 2024)* | Dynamical systems, phase portraits, limit cycles, bifurcation, biological oscillators | `strogatz_nonlinear_dynamics_and_chaos_3ed_2024` |
-| **11** | **Biomechanics and Motor Control of Human Movement** | David A. Winter *(5th Edition, 2020)* | Human movement, joint kinetics, EMG, muscle power, stretch-shortening cycle | `winter_biomechanics_and_motor_control_of_human_movement_5ed_2020` |
+| **1** | **Molecular Biology of the Cell** | Bruce Alberts et al. *(7th Edition, 2022)* | Cell biology, molecular motors, actin-myosin cross-bridges, signal transduction | `Alberts_Molecular_Biology_of_the_Cell_7ed_2022` |
+| **2** | **Random Walks in Biology** | Howard C. Berg *(Expanded Edition, 1993)* | Diffusion, Brownian motion, low Reynolds number physics, motility | `Berg_Random_Walks_in_Biology_1993` |
+| **3** | **Elements of Information Theory** | Thomas M. Cover & Joy A. Thomas *(2nd Edition, 2006)* | Entropy, channel capacity, rate distortion, data processing inequality | `Cover_Elements_of_Information_Theory_2ed_2006` |
+| **4** | **The Feynman Lectures on Physics (Vol. 1)** | Richard P. Feynman et al. *(1963)* | Classical mechanics, oscillations, radiation, acoustics, thermodynamics | `Feynman_Lectures_on_Physics_Vol1_1963` |
+| **5** | **The Feynman Lectures on Physics (Vol. 2)** | Richard P. Feynman et al. *(1964)* | Electromagnetism, wave propagation, Maxwell equations, dielectric media | `Feynman_Lectures_on_Physics_Vol2_1964` |
+| **6** | **Foundations of Cellular Neurophysiology** | Daniel Johnston & Samuel Miao-Sin Wu *(1st Edition, 1995)* | Membrane electrophysiology, cable theory, Hodgkin-Huxley, synaptic transmission | `Johnston_Foundations_of_Cellular_Neurophysiology_1ed_1995` |
+| **7** | **Advanced Engineering Mathematics** | Erwin Kreyszig *(10th Edition, 2011)* | Wave equations, Fourier/Laplace transforms, PDEs, complex analysis | `Kreyszig_Advanced_Engineering_Mathematics_10ed_2011` |
+| **8** | **Mathematical Biology: An Introduction** | J.D. Murray *(2nd Edition, 1993)* | Reaction-diffusion, population dynamics, wave propagation in tissue | `Murray_Mathematical_Biology_an_Introduction_2ed_1993` |
+| **9** | **Lehninger: Principles of Biochemistry** | David L. Nelson & Michael M. Cox *(8th Edition, 2021)* | Bioenergetics, ATP kinetics, phosphocreatine buffering, metabolic flux | `Nelson_Lehninger_Principles_of_Biochemistry_8ed_2021` |
+| **10** | **Nonlinear Dynamics and Chaos** | Steven H. Strogatz *(3rd Edition, 2024)* | Dynamical systems, phase portraits, limit cycles, bifurcation, biological oscillators | `Strogatz_Nonlinear_Dynamics_and_Chaos_3ed_2024` |
+| **11** | **Biomechanics and Motor Control of Human Movement** | David A. Winter *(5th Edition, 2020)* | Human movement, joint kinetics, EMG, muscle power, stretch-shortening cycle | `Winter_Biomechanics_and_Motor_Control_of_Human_Movement_5ed_2020` |
 
 ---
 
@@ -33,7 +33,7 @@ All books are ingested from `Textbooks/` into plain-text chunks in `corpus/` usi
 For team members, peer reviewers, and researchers, a **preloaded Google NotebookLM workspace** containing the complete textbook library is shared directly via link.
 
 > **Accessing the Preloaded Workspace:**
-> - Reviewers can open the shared NotebookLM link directly to begin cited Q&A, generate Audio Overviews, and verify claims across all 12 textbooks with zero file uploading or configuration.
+> - Reviewers can open the shared NotebookLM link directly to begin cited Q&A, generate Audio Overviews, and verify claims across all 11 textbooks with zero file uploading or configuration.
 > - To customize the URL displayed in generated reports, add `NOTEBOOKLM_URL="https://notebooklm.google.com/notebook/your-shared-id"` in your `.env` file.
 
 ---
