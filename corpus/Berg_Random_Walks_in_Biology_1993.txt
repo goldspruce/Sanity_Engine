@@ -1,0 +1,1985 @@
+--- Page 1 ---
+Random Walks in Biology
+Howard C. Berg
+Princeton University Press
+
+--- Page 2 ---
+Chapter 1
+Diffusion: Microscopic Theory
+Diffusion is the random migration of molecules or small
+particles arising from motion due to thermal energy. A
+particle at absolute temperature T has, on the average, a
+kinetic energy associated with movement along each axis
+of kT/2, where k is Boltzmann's constant. Einstein
+showed in 1905 that this is true regardless of the size of the
+particle, even for particles large enough to be seen under a
+microscope, i.e., particles that exhibit Brownian move-
+ment. A particle of mass m and velocity u, on the x axis
+has a kinetic energy mi,2/2. This quantity fluctuates, but
+on the average ‹mi}/2) = KT/2, where ‹ › denotes an
+average over time or over an ensemble of similar particles.
+From this relationship we compute the mean-square
+velocity,
+(V,2> = k1/m,
+(1.1)
+and the root-mean-square velocity,
+(1.2)
+We can use Eq.1.2 to estimate the instantaneous velocity
+of a small particle, for example, a molecule of the protein
+lysozyme. Lysozyme has a molecular weight 1.4 × 104g.
+This is the mass of one mole, or 6.0 × 102 molecules; the
+mass of one molecule is m = 2.3 × 10-20 g. The value of
+kT at 300°K (27°C) is 4.14 × 10-14g cm/sec?. Therefore,
+(v,})1/2 = 1.3 × 10ª cm/sec. This is a sizeable speed. If
+there were no obstructions, the molecule would cross a
+typical classroom in about 1 second. Since the protein is
+not in a vacuum but is immersed in an aqueous medium, it
+does not go very far before it bumps into molecules of
+
+--- Page 3 ---
+6- Diffusion: Microscopic Theory
+-
+•.
+or
+::
+::
+•
+Fig. 1.1. Particles confined initially in a small region of space (a)
+diffuse symmetrically outward (b) or outward and downward (c) if
+subjected to an externally applied force, F.
+water. As a result, it is forced to wander around: to
+execute a random walk. If a number of such particles were
+confined initially in a small region of space, as shown in
+Fig. 1.la, they would wander about in all directions and
+spread out, as shown in Fig. 1.1b. This is simple diffusion.
+If a force were applied externally, such as that due to
+gravity, the particles would spread out and move down-
+ward, as shown in Fig. 1.1c. This is diffusion with drift. In
+this chapter, we analyze simple diffusion from a micro-
+scopic point of view. We look at the subject more broadly
+in Chapters 2 and 3. Diffusion with drift is considered in
+Chapter 4.
+One-dimensional random walk
+In order to characterize diffusive spreading, it is con-
+venient to reduce the problem to its barest essentials, and
+to consider the motion of particles along one axis only,
+say the x axis, as shown in Fig. 1.2. The particles start at
+time t = 0 at position x = 0 and execute a random walk
+according to the following rules:
+1) Each particle steps to the right or to the left once
+every + seconds, moving at velocity Iüx a distance
+
+--- Page 4 ---
+Diffusion: Microscopic Theory -7
+- 38
+-28
+- 8
+8
+28
+38
+Fig. 1.2. Particles executing a one-dimensional random walk start at
+the origin, 0, and move in steps of length, occupying positions 0,
++б, + 28, + 38,....
+§ = IVy. For simplicity, we treat r and 8 as constants. In
+practice, they will depend on the size of the particle, the
+structure of the liquid, and the absolute temperature T.
+2) The probability of going to the right at each step is
+1/2, and the probability of going to the left at each step is
+1/2. The particles, by interacting with the molecules of
+water, forget what they did on the previous leg of their
+journey. Successive steps are statistically independent.
+The walk is not biased.
+3) Each particle moves independently of all the other
+particles. The particles do not interact with one another.
+In practice, this will be true provided that the suspension
+of particles is reasonably dilute.
+These rules have two striking consequences. The first is
+that the particles go nowhere on the average. The second
+is that their root-mean-square displacement is propor-
+tional not to the time, but to the square-root of the time.
+It is possible to establish these propositions by using an
+iterative procedure. Consider an ensemble of N particles.
+Let x;(n) be the position of the ith particle after the nth
+step. According to rule 1, the position of a particle after
+the nth step differs from its position after the (n - 1)th
+step by ‡ô:
+x;(n) = x,(n- 1) ‡ 8.
+(1.3)
+According to rules 2 and 3, the + sign will apply to
+roughly half of the particles, the - sign to the other half.
+The mean displacement of the particles after the nth step
+can be found by summing over the particle index i and
+
+--- Page 5 ---
+8- Diffusion: Microscopic Theory
+dividing by N:
+N
+‹x (n)> =
+x;(n).
+(1.4)
+N
+i=1
+On expressing x; (n) in terms of x, (n - 1), Eq. 1.3, we find
+1
+N
+E
+|x,(n - 1) + 8]
+1
+=-
+x;(n - 1) = ‹x(n - 1)). (1.5)
+NEI
+The second term in the brackets averages to zero, because
+its sign is positive for roughly half of the particles, nega-
+tive for the other half. Eq.1.S tells us that the mean posi-
+tion of the particles does not change from step to step.
+Since the particles all start at the origin, where the mean
+position is zero, the mean position remains zero. This is
+the first proposition. The spreading of the particles is
+symmetrical about the origin, as shown in Fig. 1.3.
+6
+Fig. 1.3. The probability of finding particles at different points x at
+times / = 1, 4, and 16. The particles start out at position x = 0 at time
+1 = D. The standard deviations (root-mean-square widths) of the dis-
+tributions increase with the square-root of the time. Their peak
+heights decrease with the square-root of the time. See Eq. 1.22.
+
+--- Page 6 ---
+Diffusion: Microscopic Theory -9
+How much do the particles spread? A convenient
+measure of spreading is the root-mean-square displace-
+ment {x(n))/2. Here we average the square of the dis-
+placement rather than the displacement itself. Since the
+square of a negative number is positive, the result must be
+finite; it cannot be zero. To find ‹x'(n)>, we write x; (n) in
+terms of x, (n - 1), as in Eq. 1.3, and take the square:
+x}(n) = x}(n - 1) + 28x, (n - 1) + 82.
+(1.6)
+Then we compute the mean,
+(1.7)
+N
+i- 1
+which is
+1
+‹x'(n)>= .
+[x}(n - 1) + 28x;(n - 1) + 8]
+N
+i*1
+= {x'(n -1)> +87.
+(1.8)
+As before, the second term in the brackets averages to
+zero; its sign is positive for roughly half of the particles,
+negative for the other half. Since x, (0) = 0 for all particles
+i, {x(0)) = O. Thus, (x(1)> = 82, {x4(2)> = 282
+and ‹x'(n)) = nổ. We conclude that the mean-square
+displacement increases with the step number n, the root-
+mean-square displacement with the square-root of n.
+According to rule 1, the particles execute n steps in a time
+t = пт; n is proportional to t. It follows that the mean-
+square displacement is proportional to t, the root-mean-
+square displacement to the square-root of t. This is the
+second proposition. The spreading increases as the
+square-root of the time, as shown in Fig. 1.3.
+To see this more explicity, note that n = t/t, so that
+<x*(1)) = (t/t)8° = (8/7)t,
+(1.9)
+
+--- Page 7 ---
+10-Diffusion: Microscopic Theory
+where we write x(1) rather than x(n) to denote the fact that
+* now is being considered as a function of t. For con-
+venience, we define a diffusion coefficient, D = 8/27, in
+units cm/sec. The reason for the factor 1/2 will become
+clear in Chapter 2. This gives us
+(x'> = 2Dt
+(1.10)
+and
+{*2>1/2 = (2D1)?,
+(1.11)
+where, for simplicity, we drop the explicit functional
+reference (t). The diffusion coefficient, D, characterizes
+the migration of particles of a given kind in a given
+medium at a given temperature. In general, it depends on
+the size of the particle, the structure of the medium, and
+the absolute temperature. For a small molecule in water at
+room temperature, D = 10-5 cm/sec.
+A particle with a diffusion coefficient of this order of
+magnitude diffuses a distance x = 104 cm (the width of a
+bacterium) in a time t=x/2D = 5 × 104 sec, or about
+half a millisecond. It diffuses a distance x = 1 cm (the
+width of a test tube) in a time t = x/2D = 5 × 10ª sec, or
+about 14 hours. The difference is dramatic. In order for a
+particle to wander twice as far, it takes 4 times as long. In
+order for it to wander 10 times as far, it takes 100 times as
+long. Therefore, there is no such thing as a diffusion velo-
+city; displacement is not proportional to time but rather
+to the square-root of the time. What happens if we try to
+define a diffusion velocity by dividing the root-mean-
+square displacement by the time? The result is an explicit
+function of the time. Dividing both sides of Eq. 1.11 by t,
+we find
+{x2)1/2
+/2D:1/2
+(1.12)
+t
+
+--- Page 8 ---
+Diffusion: Microscopic Theory-11
+Thus, the shorter the period of observation, i, the larger
+the apparent velocity. For values of f smaller than 1, the
+apparent velocity is larger than 8/т = Ux, the instanta-
+neous velocity of the particle. This is an absurd result.
+In Chapter 2 we will speak of adsorption rates or diffu-
+sion currents. These expressions refer to the number of
+particles that are adsorbed at, or cross, a given boundary
+in unit time. They are bulk properties of an ensemble of
+particles, proportional to their number. They are not
+rates that tell us how long it takes a particle, by diffusion,
+to go from here to there. This time depends on the square
+of the distance, as defined by Eq. 1.10. When next you
+come across the expression "diffusion rate," think twice!
+This phrase is ambiguous, at best, and often used in-
+correctiy.
+Two-and three-dimensional random walks
+Rules 1 to 3 apply in each dimension. In addition, we
+assert that motions in the x, y, and z directions are statis-
+tically independent. If (x2) = 2Dr, then (y2y = 2Dtand
+{22) = 2Dt. In two dimensions, the square of the dis-
+tance from the origin to the point (x,y) is r? = x2 + y2;
+therefore,
+<r> = 4Dt.
+(1.13)
+In three dimensions, p' = x? + y? + z°, and
+<r?> = 6Dt.
+(1.14)
+A computer simulation of a two-dimensional random
+walk is shown in Fig. 1.4. Steps in the x and y directions
+were made at the same times, so the particle always moved
+diagonally. The simulation makes graphic a remarkable
+feature of the random walk, discussed further in Chap-
+ter 3. Since explorations over short distances can be
+made in much shorter times than explorations over long
+
+--- Page 9 ---
+12-Difffusion: Microscopic Theory
+Fig. 1.4. An x, y plot of a two-dimensional random walk of n =
+18,050 steps. The computer pen started at the upper left corner of the
+track and worked its way to the upper right edge of the track. It
+repeatedly traversed regions that are completely black. It moved, as
+the crow flies, 196 step lengths. The expected root-mean-square dis-
+placement is (2n)/2 = 190 step lengths.
+distances, the particle tends to explore a given region
+of space rather thoroughly. It tends to return to the same
+point many times before finally wandering away. When it
+does wander away, it chooses new regions to explore
+blindly. A particle moving at random has no tendency to
+move toward regions of space that it has not occupied
+before; it has absolutely no inkling of the past. Its track
+does not fill up the space uniformly.
+The binomial distribution
+We have learned so far that particles undergoing free
+diffusion have a zero mean displacement and a root-
+mean-square displacement that is proportional to the
+square-root of the time. What else can we say about the
+shape of the distribution of particles? To find out, we
+have to work out the probabilities that the particles step
+different distances to the right or to the left. While doing
+
+--- Page 10 ---
+Diffusion: Microscopic Theory-13
+so, it is convenient to generalize the one-dimensional ran-
+dom walk and suppose that a particle steps to the right
+with a probability p and to the left with a probability q.
+Since the probability of stepping one way or the other is 1,
+q = 1 - p. The probability that such a particle steps
+exactly k times to the right in n trials is given by the
+binomial distribution
+P(k;n,p) =
+(1.15)
+This equation is derived in Appendix A; see Eqs. A.17,
+A.18. The displacement of the particle in n trials, x(n), is
+equal to the number of steps to the right less the number
+of steps to the left times the step length, 8:
+х(n) = [k - (n - k)]ô = (2k - n)б.
+(1.16)
+Since we know the distribution of k, we know the distri-
+bution of x. The two distributions have the same shapes.
+The probability machine shown in Fig. A.3 converts one
+into the other.
+The mean displacement of the particle is
+<(n1)> = (2<k> - n)ô,
+(1.17)
+where
+(К) = пр;
+(1.18)
+see Eq. A.22. The mean-square displacement is
+<x (n)> = <[(2k - n)б]?>
+= (4<k2) - 4(K)n+ n82,
+(1.19)
+where
+(кг) = (пр)? + пра;
+(1.20)
+see Eq. A.23. For the case p = 9 = 1/2, Eqs. 1.17 and
+1.19 yield (x(n)› = 0 and ‹x'(n)> = nỗ'
+, as expected.
+
+--- Page 11 ---
+14- Diffusion: Microscopic Theory
+The Gaussian distribution
+A small particle, such as lysozyme, steps an enormous
+number of times every second. Given the instantaneous
+velocity estimated from Eg. 1.2, Ux = 8/t = 103 cm/sec,
+and a diffusion constant, D = 8/2 = 10-6 cm/sec, we
+can compute the step length, 6, and the step rate, 1/т. The
+step length is 2D/v, = (10 cm/sec)/(103 cm/sec) =
+10-9 cm, and the step rate is ux/ô = (10 cm/sec)/
+(10-9 cm) = 10'2 sec!.
+• Of these n = 10'2 steps taken each
+second, np = 0.5 × 10"2 are taken to the right. The stan-
+dard deviation in this number is (npq)'2 = 0.5 × 106; see
+Eq. A.25. So, to a precision of about a part in a million,
+half of the steps taken each second are made to the right
+and half to the left. What happens to the distribution of x
+in this limit? As stated in Appendix A, when n and np are
+both very large, the binomial distribution, P(k;n,p), is
+equivalent to
+(1.21)
+where P(k) dk is the probability of finding a value of k
+between k+ dk, #= (k) = np, and o' = npa; see
+Eq. A.27. This is the Gaussian or normal distribution. By
+substituting x=(2k-n)d, dx = 28dk, p=4 = 1/2,
+t = n/т, and D = 8/2r, we obtain
+P(x)dx =
+(1.22)
+where P(x)dx is the probability of finding a particle
+between x and x + dx. This is the function plotted in Fig.
+1.3. The variance of this distribution is of = 2Dt; its
+standard deviation is ox = (2D1) /2.
+The Gaussian or normal distribution is the distribution
+encountered most frequently in discussions of propaga-
+tion of errors. It is tabulated, for example, in the Hand-
+
+--- Page 12 ---
+Diffusion: Microscopic Theory--15
+book of Chemistry and Physics, as the "normal curve of
+error"; see Fig. A.5. About 68% of the area of the curve
+is within one standard deviation of the origin. Thus, if
+the root-mean-square displacement of the particles is
+(2 Dr)'/2, the chances are 0.32 that a particle has wandered
+that far or farther. The chances are 0.045 that it has
+wandered twice as far or farther and 0.0026 that it has
+wandered three times as far or farther. These numbers are
+the areas under the curve for /x, = 0x, 20x, and 30x,
+respectively.
+Visualizing the Gaussian distribution: It is instructive
+to generate the distributions shown in Fig. 1.3 experimen-
+tally. This can be done by layering aqueous solutions of a
+dye, such as fluorescein or methylene blue, into water.
+For a first try, layer the dye at the center of a vertical
+column of water in a graduated cylinder. The dye
+promptly sinks to the bottom! It does so because it has a
+higher specific gravity than the surrounding medium. For
+a second try, match the specific gravity of the medium to
+the dye by adding sucrose to the water. Now the dye drifts
+about and becomes uniformly dispersed in a matter of
+minutes or hours. It does so because there is nothing
+to stabilize the system against convective flow. Any
+variation in temperature that increases the specific gravity
+of regions of the fluid that are higher in the column rela-
+tive to those that are lower drives this flow. For a final try,
+layer the dye into a column of water containing more
+sucrose at the bottom than at the top, i.e., into a sucrose
+density gradient; a 0-to-2% w/v solution will do. Match
+the specific gravity of the solution of the dye to that at
+the midpoint of the gradient and layer it there. Now,
+patterns of the sort shown in Fig. 1.3 will evolve over a
+period of many days. The diffusion coefficients of fluo-
+rescein, methylene blue, and sucrose are all about
+
+--- Page 13 ---
+16- Diffusion: Microscopic Theory
+5 x 10-6 cm/sec. A sucrose gradient x = 10 cm high
+will survive for a period of time of order 1 = x/2D =
+10' sec, or about 4 months. The dye will generate a Gaus-
+sian distribution with a standard deviation ox = 2.5 cm in
+a time t = 0x/2D = 6 × 105 sec, or in about 1 week. Try
+it!
+It is evident from this experiment that diffusive trans-
+port takes a long time when distances are large. Here is
+another example: The diffusion coefficient of a small
+molecule in air is about 10-' cm/sec. If one relied on diffu-
+sion to carry molecules of perfume across a crowded
+room, delays of the order of 1 month would be required.
+Evidently, the makers of scent owe their livelihood to
+close encounters, wind, and/or convective flow.
+
+--- Page 14 ---
+Chapter 2
+Diffusion: Macroscopic Theory
+Fick's equations
+Most discussions of diffusion start with Fick's equa-
+tions, differential equations that describe the spatial and
+temporal variation of nonuniform distributions of parti-
+cles. I find it more illuminating to derive these equations
+from the model of the random walk. Suppose we know
+the number of particles at each point along the x axis at
+time t, as shown in Fig. 2.1. How many particles will
+move across unit area in unit time from the point x to the
+point * + 8? What is the net flux in the x direction, Jy? At
+time t + r, i.e., after the next step, half the particles at *
+will have stepped across the dashed line from left to right,
+and half the particles at x + & will have stepped across the
+dashed line from right to left. The net number crossing to
+the right will be
+- [IN(r+ 8) - N(DI.
+To obtain the net flux, we divide by the area normal to the
+N(x)
+N(x+8)
+L
+x
+x + 8
+Fig. 2.1. At time i, there are N(x) particles at position x, N(x + 8)
+particles at position x + d. At time t + , half of each set will have
+stepped to the right and half to the left.
+
+--- Page 15 ---
+18-Diffusion: Macroscopic Theory
+x axis, A, and by the time interval, ,
+Sx = - [IN(x + 8) - N(x)I/A.
+Multiplying by 8/8 and rearranging, we obtain
+1x = -=
+81]N(x + 8)
+_ N(x)!
+A8
+The quantity 8/2t is the diffusion coefficient, D.
+N(x + 8)/Aô is the number of particles per unit volume
+at the point * +ô, i.e., the concentration C(* + 5).
+N(x)/Aô is the concentration C(x). Therefore,
+Jx=-D÷IC(x - C(x)I.
+But & is very small. In the limit 8 → 0, by the definition
+of a partial derivative, as explained in Appendix B, we
+obtain
+дс
+Jx = - D
+(2.1)
+дх
+This is Fick's first equation. It states that the net flux
+(at x and i) is proportional to the slope of the concentra-
+tion function (at x and i); the constant of proportionality
+is -D. If the particles are uniformly distributed, the
+slope is 0, i.e., aC/ax = 0, and Jx = 0. If J, is 0, the distri-
+bution will not change with time; the system is at equilib-
+rium. If the slope is constant, i.e., if aC/ax is constant, J
+is constant. This occurs when C is a linear function of x,
+as shown in Fig. 2.2. In practice, a gradient of this kind
+can be maintained only if there is a source for particles at
+one point and an adsorber for particles at another, e.g., in
+a pipe connecting reservoirs held at fixed concentrations
+C! and C2.
+
+--- Page 16 ---
+Diffusion: Macroscopic Theory-19
+Ja = 02-9
+--
+b
+Fig. 2.2. The flux due to a linear concentration gradient
+(C, - C,)/b. There is a net movement of particles from right to left,
+solely because there are more particles at the right than at the left.
+When we derived Eq. 1.10, we defined D = 8/2t. The
+reason for the 1/2 is now clear; it makes Fick's first equa-
+tion more tidy. Note that if C is expressed in parti-
+cles/cm, Ix is in particles/cm'sec. If C is expressed in
+moles/cm, Jy is in moles/em'sec.
+Fick's second equation follows from the first, provided
+that the total number of particles is conserved, i.e., that
+the particles are neither created nor destroyed. Consider
+the box shown in Fig. 2.3. In a period of time 7, Jx(x) Ar
+particles will enter from the left and Jx (* + 8)Ar particles
+will leave from the right. The volume of the box is As. If
+particles are neither created nor destroyed, the number of
+particles per unit volume in the box must increase at the
+rate
+{10(+7-C()1=-I1s(x+8)-118147/48
+=
+б
+
+--- Page 17 ---
+20-Diffusion: Macroscopic Theory
+- area A
+- 1x 1x+8, 2)
+xx+8
+Fig. 2.3. Fluxes through the faces of a thin box extending from posi-
+tion x to position x + ô. The area of each face is A. The faces are
+normal to the x axis.
+In the limit + → 0 and 8 → 0, this means that
+ac
+at
+--
+(2.2)
+дх
+or, given Eq. 2.1, that
+= D
+ax'•
+(2.3)
+This is Fick's second equation. It states that the time rate
+of change in concentration (at x and t) is proportional to
+the curvature of the concentration function (at x and /);
+the constant of proportionality is D. If the slope is con-
+stant, 2°C/ax? = 0, and the concentration is stationary:
+just as many particles diffuse in from the region of higher
+concentration as diffuse out to the region of lower concen-
+tration. Eq. 2.3 tells us how a nonuniform distribution of
+particles will redistribute itself in time. If we know the ini-
+tial distribution and other boundary conditions, we can
+figure out all later distributions.
+
+--- Page 18 ---
+Diflusion: Macroscopic Theory-21
+In three dimensions we have Ix = - DaC/ax, Jy =
+- DaC/ay, and J, = - DaC/az. These are components
+of a flux vector,
+J = - D grad C.
+(2.4)
+The concentration changes with time as
+(2.5)
+at
+where 72 is the three-dimensional Laplacian, a/ax? +
+а/ду? + 2/дz'.
+If the problem is spherically symmetric, the flux is
+radial,
+J, = - DaC/ar,
+(2.6)
+and
+at =D par
+(2.7)
+Time-dependent solutions to Fick's equations
+One way to find solutions to Fick's equations is to look
+them up! An excellent source is Carslaw and Jaeger
+(1959), a book dealing with the conduction of heat in
+solids. The heat equation has the same form as the diffu-
+sion equation. In the notation of Carslaw and Jaeger,
+ди
+where v is the temperature and k is the thermal diffusivity.
+So, take their results and read C for y and D for . Sources
+that do not require such translation include Crank (1975)
+and Jost (1960). But this strategy requires luck. If you
+happen to find a discussion of just the problem that you
+
+--- Page 19 ---
+22- Diffusion: Macroscopic Theory
+are trying to solve, well and good. If not, you will soon be
+lost in a morass of complex equations. Here are some
+"trivial" examples.
+Diffusion from a micropipette: A micropipette filled
+with an aqueous solution of a green fluorescent dye is
+inserted into a large body of water. At time t = 0, parti-
+cles of the dye are injected into the water at the rate i per
+sec for an infinitesimal period of time dt. The total num-
+ber of particles injected is N = idt. With these boundary
+conditions, Eq. 2.7 has the solution
+C(r,t) =
+(47D1)75073/4D1
+(2.8)
+This is a three-dimensional Gaussian distribution; com-
+pare Eq. 1.22. Looking through a microscope, one sees
+the sudden appearance of a green spot that spreads
+rapidly outward and fades away. The concentration
+remains highest at the tip of the pipette, but it decreases
+there as the three-halves power of the time. An observer
+at radius r sees a wave that peaks at t = r/6D at a con-
+centration C = 0.0736 N/r3. He finds that the concen-
+tration rises most rapidly at time t = r2/16.325 D at a rate
+ac/at = 1.054 ND/rs.
+The wave due to a pulse of length to can be found by
+integrating Eq. 2.8 with respect to time. For t = to,
+C(r,t) = -
+- erfc -
+4T Dr
+(4D1)1/2'
+(2.9)
+where erfe x is the error function complement, 1 - erf x,
+and erf x is the error function, defined by the integral
+2
+erf x =
+e-" du.
+(2.10)
+This function is tabulated, just like sin x or cos x; see, for
+
+--- Page 20 ---
+Diffusion: Macroscopic Theory-23
+example, Chapter 7 of Abramowitz and Stegun (1972)
+or Appendix II of Carslaw and Jaeger (1959). Note that
+erf 0 = 0, erf ∞ = 1, and erf (- x) = - erf x. If the
+pulse is long enough, the concentration approaches the
+steady-state value
+i
+C(r,1) =
+4T Dr
+(2.11)
+For 1> to,
+C(r,r) =
+(2.12)
+Figure 2.4 shows the concentration observed at r=
+10-3 cm for a pulse of constant injection rate i and length
+to = 1 sec for particles of diffusion coefficient D = 10-5
+3 × 10-6
+, 10-6
+, 3 × 10-7, 10-, and 3 × 10-8 cm/sec. If the
+diffusion coefficient is large, the particles diffuse beyond
+the observer while the pulse is still on, and the peak con-
+centration is given by Eq. 2.11. If the diffusion coefficient
+is small, the events occur on a time scale that is long com-
+pared to the length of the pulse, and the peak concen-
+tration approaches C = 0.0736 ito/r, as required by Eq.
+2.8. For other examples of diffusion from constrictions,
+see Jaeger (1965).
+Diffusion in a pipe: In principle, one could measure
+diffusion coefficients with experiments of the kind illus-
+trated in Fig. 2.4, but in practice it is easier to work in one
+dimension and to follow the spread of a narrow band of
+particles, as shown in Fig. 1.3. Alternatively, one can ex-
+pose a column of solution at concentration C, to one at
+concentration 0 and watch the migration of particles from
+one to the other. In this case, the initial conditions are
+
+--- Page 21 ---
+24-Diffusion: Macroscopic Theory
+1,0
+0.8
+0.6
+C (r)
+0.4
+0,2-
+10
+* (sec)
+Fig. 2.4. Concentration (in arbitrary units) as a function of time at a
+distance r = 10-3 cm from a point-source in an infinite medium emit-
+ting particles at a constant rate from t = 0 to lo = 1 sec, for particies
+with diffusion coefficient, D(in cm/sec): (a) 10, (b) 3 × 10%, (c)
+10, (d) 3 × 10-7, (e) 107, and (f) 3 x 10-8. See Egs. 2.9 and 2.12,
+C = C, for x> 0 and C = 0forx<0, and Eq. 2.3 has the
+solution
+(2.13)
+Since erf 0 = 0, Eq. 2.13 implies that the concentration of
+particles at x = 0 falls abruptly to Co/2 and remains at
+that value. This behavior is shown in Fig. 2.5. By taking
+derivatives of C(x,f) with respect to x or t, we obtain
+дс
+-=_
+дх
+(2.14)
+and
+х дс
+-=-.
+(2.15)
+Equation 2.14 is similar to Eq. 1.22. Thus, D can be mea-
+
+--- Page 22 ---
+Diffusion: Macroscopic Theory-25
+•Co
+Fig. 2.5. Concentration as a function of position at times t = 0, 1, 4,
+and 16 for diffusion from a column of liquid initially containing parti-
+cles at a concentration Co (right) into a column of liquid initially
+devoid of particles (left). The horizontal axis in this figure is drawn on
+the same scale as that of Fig. 1.3, which shows dC/ax. See Eqs.
+2.13-2.15.
+sured if one measures C as a function of space and/or
+time. A numerical solution to a similar problem is given in
+Appendix B, Fig. B.3.
+Steady-state solutions to Fick's equations
+If sources and adsorbers are present, the final distri-
+bution of particles will not be uniform; instead, the con-
+centration will approach a steady-state value that is
+higher near sources, lower near adsorbers. In this limit,
+ac/at = 0, and Eq. 2.5 reduces to
+(2.16)
+For problems with spherical symmetry, Eq. 2.7,
+1dl
+p2 dr
+= 0.
+(2.17)
+
+--- Page 23 ---
+26-Diffusion: Macroscopic Theory
+We already have seen the steady-state solutions for diffu-
+sion in one dimension from a plane at concentration Cr
+to a plane at concentration C,, Fig. 2.2, and for diffusion
+in three dimensions from a continuous point-source in
+an infinite medium, Eq. 2.11. Here are some other ex-
+amples.
+Diffusion to a spherical adsorber: Consider a spherical
+adsorber of radius a in an infinite medium, as shown in
+Fig. 2.6. Every particle reaching the surface of the sphere
+is gobbled up, so the concentration at r = a is o. The con-
+centration at r = do is Co. With these boundary condi-
+tions, Eq. 2.17 has the solution
+(2.18)
+The flux, Eq. 2.6, is
+1(1) = - DC 3.
+(2.19)
+The net migration of molecules is radially inward, as
+shown by the dashed arrows in Fig. 2.6. The particles are
+C=0
+6=60
+at r= ∞o
+Fig. 2.6. A spherical adsorber of radius a in an infinite medium
+containing particles at an initial concentration Co. The dashed arrows
+are lines of flux.
+
+--- Page 24 ---
+Diffusion: Macroscopic Theory--27
+adsorbed by the sphere at a rate equal to the area, 4na?,
+times the inward flux, - J,(a):
+1 = 4m DaCo.
+(2.20)
+If Co is expressed in particles/om?, I is in particles/sec. We
+will refer to this adsorption rate, I, as a diffusion current.
+Note that this current is proportional not to the area of
+the sphere but to its radius. As the radius, a, increases, the
+area increases as a?, but the concentration gradient, to
+which the flux is proportional, decreases as 1/a.
+Diffusion to a disk-like adsorber: Next, consider a disk-
+shaped adsorber of radius s in a semi-infinite medium, as
+shown in Fig. 2.7. Every particle reaching the surface of
+the disk is gobbled up, so the concentration at the disk is
+0. The concentration at * = ∞ is Co. This problem is
+cylindrically symmetric rather than spherically sym-
+C=O
+C=Co
+01 x = 00
+Fig. 2.7. A disk-like adsorber of radius s on one edge of a semi-
+infinite medium, x a 0, containing particles at an initial concentration
+Co. The dashed arrows are lines of flux.
+
+--- Page 25 ---
+28 Diffusion: Macroscopic Theory
+metric, so the mathematics is not so easy; see, for exam-
+ple, p. 42 of Crank (1975). But the answer turns out to be
+simple. The diffusion current is
+1 = 4 DsCo.
+(2.21)
+4: 9-00
+Fig. 2.8. A circular aperture of radius s in a nonadsorbing barrier
+separating two semi-infinite media, x < 0 and x ≥ 0, containing parti-
+cles at initial concentrations C,> Cy. The dashed arrows are lines of
+flux.
+An analogous problem, illustrated in Fig. 2.8, involves
+diffusion through a circular aperture of radius s in a non-
+adsorbing barrier separating two semi-infinite media. The
+concentration at × = - ∞ is C, and the concentration at
+* = ∞ is Cz. The current through the aperture is
+12,1 = 2Ds(Cz-CI).
+(2.22)
+These currents are proportional not to the area of the disk
+(or aperture) but to its radius. As the radius, s, increases,
+the area increases as s?, but the concentration gradient, to
+which the flux is proportional, decreases as 1/s.
+
+--- Page 26 ---
+Diffusion: Macroscopic Theory-29
+Diffusion to an ellipsoidal adsorber: Next, consider a
+cigar-shaped adsorber, an ellipsoid of revolution with
+semi-axes a > b = c. The concentration at the surface of
+the ellipsoid is 0, and the concentration at r = ∞ is Co. If
+the ellipsoid is relatively thin, in particular, if a? » b?
+', the
+diffusion current is
+1 = 4TDaCo/In (Za/b),
+(2.23)
+where In denotes the natural logarithm. This current is
+smaller than that found for a sphere of radius a given
+in Eq. 2.20 by the factor In (2a/b). This factor is not as
+large as one might expect. For example, if b = 10-2a,
+In (2a/b) = 5.3; if b = 10-ta, In(2a/b) = 9.9. Once again,
+the current is proportional not to the area of the adsorber
+but roughly to its length.
+Appeal to an electrical analogue: The time-indepen-
+dent diffusion equation, Eq. 2.16, is analogous to La-
+place's equation for the electrostatic potential in charge-
+free space. As explained elsewhere (Berg and Purcell,
+1977), this implies that the diffusion current to an isolated
+adsorber of any size and shape can be written as
+1 = 4m DeCo,
+(2.24)
+where c is the electrical capacitance (in egs units of centi-
+meters) of an isolated conductor of that size and shape.
+Since the electrical capacitances of a variety of conduc-
+tors have been worked out, Eq. 2.24 can save some labor.
+For example, Eq. 2.23 was obtained from an expression
+for the electrical capacitance of a conducting ellipsoid [by
+using formula 195.02 of Dwight, 1961, to evaluate the
+integral 5.02 (4) of Smythe, 1950, and converting from
+mks to egs units by multiplying by 1/4тe]. Smythe used
+the same integral in another limit to compute the capaci-
+tance of a conducting disk, which led us to Eq. 2.21. We
+
+--- Page 27 ---
+30-Diffusion: Macroscopic Theory
+could have derived Eq. 2.20 in a similar fashion, but it
+was more instructive, given the spherical symmetry, to
+solve the diffusion equation directly.
+Diffusion to N disk-like adsorbers on the surface of a
+sphere: Given that diffusion currents to spheres, disks,
+and prolate ellipsoids of similar size are roughly equal, it
+seems likely that diffusion currents to other adsorbers of
+similar size should be roughly equal. This turns out to be
+true, even for nonadsorbing objects sprinkled with small
+adsorptive patches. Suppose N disk-like adsorbers, each
+of radius s, are distributed over the surface of an other-
+wise impenetrable nonadsorbing sphere of radius a »s,
+as shown in Fig. 2.9. The concentration at r = ∞ is Co.
+odius
+' sink
+C=O
+Fig. 2.9. An impenetrable nonadsorbing sphere of radius a covered
+with N disk-like adsorbers, each of radius s, in an infinite medium
+containing particles at an initial concentration Co.
+This is a reasonable model for N chemoreceptors or N
+transport proteins on the surface of a cell. How does the
+total adsorption rate vary with N? If Nis very small, two
+adsorbers should do twice as well as one, so the rate
+should increase as 4 DNsCo, Eq. 2.21. But when Nis very
+large, almost the entire surface of the sphere is adsorbing,
+and the rate should approach 4t DaCo, Eq. 2.20. What
+happens in between? In this regime, the distance between
+
+--- Page 28 ---
+Diffusion: Macroscopic Theory-31
+- 0+ 80-
+Fig. 2.10. Two disk-like adsorbers of the sphere shown in Fig. 2.9.
+The dashed arrows are lines of flux. These lines become radial at a dis-
+tance da from the surface of the sphere, a distance roughly equal to the
+distance between adjacent adsorbers.
+receptors is large compared to their radius but small com-
+pared to the radius of the cell, as shown in Fig. 2.10. The
+lines of flux are radial for r > a + a (as in Fig. 2.6) but
+converge on the adsorbers for a <r< a + Sa (as in Fig.
+2.7). Evidently, the concentration at r = a + da is con-
+stant at some intermediate value between 0 and Co.
+This problem is formally equivalent to one in electricity
+in which current flows through a medium of finite resis-
+tivity to N conductive patches on an insulating sphere,
+with the medium a large distance away at potential Vo and
+the patches at potential O. The concentration, C, is an
+analogue of the potential, V. In the electrical case, we
+have Ohm's law, which states that the current through a
+resistor is equal to the potential drop across its terminals
+divided by its resistance. For steady-state diffusion, we
+have I = C/R, where / is the diffusion current, C is the
+concentration difference, and R is the diffusion resistance.
+
+--- Page 29 ---
+32-Diffusion: Macroscopic Theory
+N resistors
+in parallel
+Rs
+Rs
+Ra+80
+r= 0
+r= a+ 80
+1= ∞
+C= 0
+C=C,
+Fig. 2.11. An electrical model for the problem of N adsorbers of
+radius s on the surface of a sphere of radius a, the problem illustrated
+in Figs. 2.9 and 2.10.
+By appealing to this relation, we note that the diffusion
+resistance for the adsorbing sphere, Eq. 2.20, is Ra =
+1/4* Da, and that the diffusion resistance for the disk-
+like adsorber, Eq. 2.20, is R, = 1/4 Ds. These resistances
+are shown as discrete elements in Fig. 2.11. The total
+resistance of this circuit is R= Ra+ta + Rs/N=
+1/[47 D(a + a)] + 1/4DNs. Since da « a, R = 1/4T Da
++ 1/4 DNs = (1/AmDa)(1 + Ta/Ns) = Ra(1 + та/Ns).
+We conclude that the diffusion resistance for a sphere
+covered with Ndisk-like adsorbers is larger than the diffu-
+sion resistance for the completely adsorbing sphere by a
+factor 1 + a/Ns. The diffusion current is smaller by the
+same factor:
+I
+1
+1 + та/Ns'
+(2.25)
+where lo = 4m DaCo, Eq. 2.20. Jis plotted as a function of
+
+--- Page 30 ---
+Diffusion: Macroscopic Theory-33
+5
+N
+Fig. 2.12. The diffusion current, or rate of adsorption, I, as a
+function of the number of adsorbers, N, for disk-like adsorbers of
+radius s on the surface of a sphere of radius a. See Eq. 2.25. I, is the
+diffusion current for the completely adsorbing sphere, Eq. 2.20.
+Nin Fig. 2.12. If Nis small, the rate increases as 4DNsCo.
+If N is large, the rate approaches 4a DaCo. This is the
+asymptotic behavior that we predicted.
+Note that the diffusion current reaches half of its maxi-
+mum value for N = ta/s. This number is surprisingly
+small. Consider a spherical cell of radius a = 5 um
+equipped with N transport proteins, each with a binding
+site of radius s = 10 A. This cell can adsorb substrate
+molecules at half the rate of a cell completely covered by
+such sites if N = na/s = 15,700. Only a small fraction of
+the surface of the cell need be specifically adsorbing,
+namely NTs/47a? = 1.6 x 104
+• The distance between
+neighboring sites is about (4za/N)'2 = 0.14 um, i.e.,
+about 140 times the site radius. Thus, many hundreds of
+different transport (or receptor) systems can be accom-
+modated on the surface of the cell, each adsorbing parti-
+cles of a specific kind with an efficiency approaching that
+of a cell whose entire surface is dedicated to one such task.
+For other discussions of this problem, see Berg and
+Purcell (1977) and DeLisi and Wiegel (1981).
+
+--- Page 31 ---
+34- Diffusion: Macroscopic Theory
+It should be stressed that the electrical analogy used
+in the derivation of Eq. 2.25 does not extend to time-
+dependent diffusion; it only applies in the steady-state.
+The flux is proportional to the concentration gradient,
+but individual particles are not moving like electrons
+through a wire; they are moving strictly at random. The
+same restriction applies to the analogy leading to
+Eg. 2.24.
+Diffusion through N circular apertures in a planar bar-
+rier: Consider a system in which two plates a distance b
+apart are held at concentrations C; and Cz, as shown in
+N
+apertures
+x =0
+x= b
+G=Cz
+ww
+Rs
+N resistors
+in parallel
+Fig. 2.13. A barrier with N = nA apertures, each of radius s, sepa-
+rating two plates of area A held at concentrations C, and C, (top), and
+an electrical model for this system (bottom). See Eq. 2.27.
+
+--- Page 32 ---
+Diffusion: Macroscopic Theory-35
+Fig. 2.2. Let the system have a cross-sectional area A.
+The diffusion current from one plate to the other is
+12,1 = DA(Cz- C,)/b.
+(2.26)
+Now insert somewhere between the two plates a thin bar-
+rier containing N apertures, each of radius s<b, as
+shown in Fig. 2.13. What is the diffusion current in the
+new steady state? The diffusion resistance for one aper-
+ture is R, = 1/2Ds, Eq. 2.22. The diffusion resistance
+of the medium between the plates is R, + R, = R2,1 =
+b/DA, Eq. 2.26. The diffusion resistance of the entire
+system is R, + R, + Rs/N= Rz,: + Rs/N= b/DA +
+1/2DNs = (b/DA)(1 + 1/2nsb), where n is the number
+of apertures per unit area. It follows that the barrier
+decreases the diffusion current by a factor
+/
+= -
+12,1
+1 + 1/2nsb
+(2.27)
+If this ratio is written as b/(b + 1/2ns), it is evident from
+the denominator that the effect of the barrier is equivalent
+to the addition of an extra diffusion path of length 1/2ns.
+The diffusion current reaches half of its maximum
+value for n = 1/2sb. This number is surprisingly small.
+Consider two cubical cells 10 um on a side joined on one
+face. Assume that the membranes comprising this face
+are of negligible thickness and penetrated by N pores,
+each of radius 50 A. How many pores are required for the
+diffusion current between the cells to be half as large as it
+would be were the barrier not there? Given N/A = 1/2sb,
+with A = 10 ° cm?
+, s = 5 x 10-7 cm, and b = 2 × 10-3
+cm, we find N = 500. Only a small fraction of the surface
+of the barrier need be penetrated, namely Nas/A =
+3.9 × 104. The distance between neighboring pores is
+about (A/N) /2 = 0.45 um, i.e., about 90 times the pore
+radius.
+
+--- Page 33 ---
+36--Diffusion: Macroscopic Theory
+A similar problem involves the diffusion of gases
+through the stomata of leaves. In this case, the concentra-
+tion is clamped at 0 inside the leaf, just to the left of the
+barrier; so R, = 0, and the diffusion resistance for each
+aperture is the same as that for the disk-like adsorber,
+R, = 1/4Ds. Thus, the stomata add an extra diffusion
+path of length 1/4ns, and the diffusion current reaches
+half of its maximum value for n = 1/4sb. This analysis is
+valid only for the boundary layer near the surface of the
+leaf, i.e., in still air. For a discussion of this problem, see
+Chapter 3 of Meidner and Mansfield (1968).
+
+--- Page 34 ---
+Chapter 3
+Diffusion to Capture
+In Chapter 2 we compared the steady-state rates of uptake
+of particles by completely adsorbing objects of various
+shapes, such as spheres, disks, and ellipsoids. We found
+that these rates are proportional to the linear dimension
+of the object rather than to its area, and that the shape is
+not of crucial importance. For example, the diffusion cur-
+rents to a sphere of radius a, a two-sided disk of radius a,
+and an ellipsoid of revolution of length 2a and radius a/10
+fall in the ratios 1 to 0.64 to 0.33. We also found that a
+reflecting object of a given size and shape sparsely covered
+with adsorbent patches is nearly as good at sequestering
+particles as a completely adsorbing object of the same size
+and shape. From a microscopic point of view, both sets of
+results reflect the fact that a diffusing particle that finds
+itself in a given region of space is destined, by that very
+circumstance, to wander around that region for a time,
+probing it rather thoroughly before wandering away for
+good. A particle that finds itself in a spherical space of
+radius a has a fair chance of blundering into a disk or an
+ellipsoid inscribed in that space. A particle that bumps
+into a reflecting object has a fair chance of hitting an
+adsorbent patch nearby on its surface. This property of
+the random walk is apparent in the two-dimensional
+simulation shown in Fig. 1.4. That particle wandered
+about in some regions at great length but ignored others
+completely. It is very difficult to get a feel for this mindless
+ramble from a casual study of the diffusion equation
+(Eq. 2.5). In this chapter, we try to make these ideas more
+quantitative by working out some probabilities of capture
+and mean times to capture.
+
+--- Page 35 ---
+38- Diffusion to Capture
+Probability of capture
+Suppose a particle is released near a spherical adsorber
+of radius a at a point r = b > a? What is the probability
+that the particle will be adsorbed at r = a rather than wan-
+der away for good? Naively, one might think that as b
+increases, this probability would decrease as 1/b?, as
+would be expected if the probability of capture depended
+on the solid angle subtended by the adsorber at the point
+of release. In fact, the probability decreases only as 1/b.
+To see this, consider a spherical shell source of radius b
+between a spherical adsorber of radius a and a spherical
+shell adsorber of radius c, as shown in Fig. 3.1. The con-
+centration rises from 0 at r = a to a maximum value Cm
+at r = b and then falls again to 0 at r = c. With these
+C= 0
+G= Cm
+C = 0
+Lout
+/ Lin
+-
+Fig. 3.1. A spherical shell source, radius b, between a spherical
+adsorber of radius a and a spherical shell adsorber of radius c. Parti-
+cles released at r = b move inward and are adsorbed at r = a at rate lin
+or move outward and are adsorbed at r = c at rate lou. Their steady-
+state concentration rises from 0 at r = a to C_at r = b and then falls
+again to 0 at r = c. See Eqs. 3.1-3.5.
+
+--- Page 36 ---
+Diffusion to Capture-39
+boundary conditions, Eq. 2.17 has the solution
+Cm.
+asrsb
+1 - a/b
+C(r) =
+(3.1)
+Cm
+c/b
+- l
+(6-1)
+bsrsc.
+The radial flux, Eq. 2.6, is
+-
+DCm
+a
+asrab
+J, (r) =
+(3.2)
+DCm
+C
+b≤r=c.
+c/b - 1 pr
+Thus, the diffusion current from the spherical shell source
+to the inner adsorber is
+(3.3)
+and the diffusion current from the spherical shell source
+to the outer adsorber is
+Lout =4TDCm-
+(3.4)
+The ratio
+Lim
+=
+a(c - b)
+Tin + lowe
+(3.5)
+b(c - a)
+is the probability that a particle released at r = b will be
+adsorbed at r = a. In the limit e→ co, this probability is
+just alb. This is the probability of capture for the sphere
+of radius a immersed in an infinite medium. As b in-
+creases, this probability decreases as 1/b, as predicted.
+
+--- Page 37 ---
+40- Diffusion to Capture
+An individual particle has no way of knowing that an
+adsorber is present unless it blunders into it. Thus, Eq. 3.5
+gives the probability that a particle released at r = b
+reaches r = a before diffusing as far as r = c, even when
+the adsorbers are not there. Suppose a particle is released
+at r = b near the surface of a reflecting sphere of radius a.
+How many times, on the average, does it reach the surface
+of the sphere and return to r = b before wandering away
+for good? The probability that the particle visits the
+sphere at least once before wandering away for good is
+p = a/b. The probability that it visits the sphere once,
+returns to r = b, and then wanders away for good is
+p(1 - p). The probability that the particle makes this
+round trip twice and then wanders away for good
+is p'(1 - p). The probability that it does so n times is
+p"(1 - p). Therefore, the mean number of round trips
+is
+(n) =
+пр"(1 - р).
+(3.6)
+n =0
+By factoring out p(1-p) and noting that 1 + 2p+
+3p'+... = (1 - p)', we find
+{n) = p/(1 - p) = a/(b- a).
+(3.7)
+It follows that a particle close to the surface of the sphere
+makes a large number of trips from b to a and back again
+before wandering away for good; the number increases
+without limit as b approaches a. In the process, the parti-
+cle probes the sphere at a large number of points, some far
+enough apart to allow it to find adsorbent patches, even
+when these patches cover only a small fraction of the sur-
+face. For a derivation of Eq. 2.25 from this point of view,
+see pp. 196-198 of Berg and Purcell (1977).
+What is the probability that a particle released at r = b
+near the surface of an adsorbing sphere of radius a wan-
+
+--- Page 38 ---
+Diffusion to Capture-41
+ders as far as r = c or farther before being captured?
+The probability that a particle is adsorbed at r = a after
+diffusing to an arbitrary radius is alb. The probability
+that a particle is adsorbed at r = a without diffusing as
+far as r = c is given by Eq. 3.5. The probability that a
+particle is adsorbed at r = a after diffusing as far as r = c
+or farther is the difference of these two probabilities,
+namely, alb - a(c-b)/b(c- a) = a(b-a)/b(c- a).
+The fraction of particles that do so is this number divided
+by alb, i.e., (b - a)/(c - a). Thus, on the average, if
+100 particles are released at r = 2a, (a/2a) × 100 = 50
+will be adsorbed at r = a, and 50 will wander away for
+good. Of the 50 that are adsorbed at r = a,
+[(2a -а)/(За - a)] × 50 = 25 will have wandered as far
+as r = 3a or farther before being captured. One will have
+wandered as far as r = 5la or farther before being cap-
+tured.
+We noted earlier that a particle executing a random
+walk has no inkling of its past. These calculations empha-
+size the fact that it also has no inkling of its future. The
+behavior of an individual particle is not affected by an
+adsorber unless, by chance, it happens to bump into it.
+The one-dimensional case is shown in Fig. 3.2. The
+diffusion currents are left = DACm/a, and Iright =
+DACm/(b - a). The probability that a particle released
+at x = a will be adsorbed at x = 0 is
+lies =
+b-a
+-.
+(3.8)
+left + right
+b
+In the limit b → oo, this probability is 1. The average num-
+ber of trips that a particle makes from x = a to a reflecting
+barrier at x = 0 before reaching x = b is (b - a)/a. The
+probability that a particle released at x = a is adsorbed
+at x = 0 after diffusing as far as x = b or farther is
+
+--- Page 39 ---
+42-Diflusion to Capture
+1 - (1 - a/b) = a/b. Thus, on the average, if 100 parti-
+cles are released at r = a, 50 will have wandered as far as
+* = 2a or farther before being captured. One will have
+wandered as far as x = 100a or farther before being cap-
+tured. None of the particles will wander away for good.
+Mean time to capture
+When a particle is released at position x = a, as indi-
+cated in Fig. 3.2, how long does it take to blunder into an
+adsorber at x = 0or x = b? If this experiment is repeated
+many times, what is the mean time to capture, W(a)? To
+find out, we return to the formalism of the random walk,
+release a particle at position x at time t = 0, and allow it
+to step to the right or to the left a distance & every + sec.
+At time r, the particle will be at position x + ô with prob-
+ability 1/2, or at position x - & with probability 1/2. The
+mean times to capture from these positions are W(* + 8)
+Iloft
+Iright
+* = 0
+x=0
+x = b
+C=0
+C= Cm
+6 = 0
+Fig. 3.2. A planar source at x = a between two planar adsorbers at
+* = 0 and x = b. The cross-sectional area of the system is A. Particles
+released at * = a move to the left and are adsorbed at * = O at rate left
+or move to the right and are adsorbed at x = b at rate right • Their
+steady-state concentration rises from 0 at * = 0 to C, at x = a and
+then falls again to 0 at x = b. See Eq. 3.8.
+
+--- Page 40 ---
+Diffusion to Capture-43
+and W(× - 8), respectively. Thus, the expectation value
+of W(x) is
+(3.9)
+By adding and subtracting W(x)/2 and multiplying
+through by 2/8, we obtain
+2T
++
+= = 0.
+In the limit of very small ô, by the definition of a deriva-
+tive, we have
+dW
+dw
+2т
+-
+.. =0.
+dx
+Dividing once more by 8, appealing again to the definition
+of a derivative, and noting that 27/82 = 1/D, we obtain
+d'w
+ax D
+= 0.
+(3.10)
+D
+This differential equation can be solved for W given suit-
+able boundary conditions. At an adsorbing boundary,
+the mean time to capture is 0, so W = 0. At a reflecting
+boundary, the mean time to capture does not vary with x,
+so dW/dx = 0.
+If there are adsorbing boundaries at x = 0 and x = b,
+as shown in Fig. 3.2, then W(0) = W(b) = 0, and
+Eq. 3.10 has the solution
+1
+W(x) =.
+2D
+- (bx - x').
+(3.11)
+
+--- Page 41 ---
+44 Diffusion to Capture
+The mean time to capture a particle released halfway in
+between, at x = b/2, is b2/8D. The mean time to capture
+a particle released at random anywhere in between x = 0
+and x = b is given by the average
+W(x) dx,
+(3.12)
+which, on substitution of Eq. 3.11, gives b2/12D.
+If there is an adsorbing boundary at x = 0 and a reflect-
+ing boundary at x = b, then W(0) = 0, dW/dx = 0 at
+x = b, and
+W(x) =
+- (2bx - x').
+2D
+(3.13)
+The mean time to capture a particle released at x = b/2 is
+now 3b2/8D, three times longer than before. Sometimes
+a particle released at x = b/2 wanders from x = b/2 to
+* = b and back again before capture at x = 0. Eq. 3.8
+tells us that the probability for this is 1/2. Events of this
+kind raise the mean. The mean time to capture a par-
+ticle released at random is now b'/3D, four times longer
+than before.
+These results are shown graphically in Fig. 3.3. The
+average height of each curve is given by the area that it
+subtends divided by its width, as specified by Eg. 3.12. In
+the case of two adsorbing boundaries, the largest contri-
+butions to the average occur when the particle is released
+near x = b/2; in the case of one adsorbing and one reflect-
+ing boundary, the largest contributions occur when the
+particle is released near x = b.
+An example of a one-dimensional process of this kind
+of enormous practical significance is the diffusion of a
+molecule of repressor along a strand of DNA, in quest of
+its binding site at the promoter. If the repressor, after
+
+--- Page 42 ---
+Diffusion to Capture-45
+8/%
+" 22
+Fig. 3.3. Plots of the mean time to capture for particles released at
+position x with adsorbing boundaries at x = 0 and * = b (lower
+curve, Eq. 3.11) or with an adsorbing boundary at x = 0 and a reflect-
+ing boundary at x = b (upper curve, Eq. 3.13). If x is chosen at ran-
+dom, the mean time to capture is b?/12.D or b'/3D, respectively; see
+Eq. 3.12.
+having arrived at a random point on a segment of DNA
+of length b terminated at one end by the promoter, is
+adsorbed strongly enough that it cannot desorb but
+loosely enough that it can move along the DNA with a
+finite diffusion coefficient D', then its mean time to cap-
+ture is b2/3D'. Given the surprisingly high rate at which
+particles can be adsorbed by a thread-like object, Eq.
+2.23, it is reasonable to suppose that the repressor ac-
+tually finds its binding site by such a two-stage mecha-
+nism. But, as discussed for an analogous problem in two
+dimensions (pp. 198-200 of Berg and Purcell, 1977), the
+importance of this mechanism depends on the strength of
+the nonspecific binding. Unless it is strong, the repressor
+can do as well or better by staying in three dimensions.
+
+--- Page 43 ---
+46-Difussion to Capture
+The equation for the mean time to capture in two or
+three dimensions is
+(3.14)
+where 72 is the two- or three-dimensional Laplacian. This
+equation also can be solved by appeal to an electrical
+analogue; it is Poisson's equation for the potential (W) in
+a region of uniform charge density (1/4mD). For some
+sample solutions, see Appendix B of Berg and Purcell
+(1977).
+Note, finally, that the logic used in the derivation of Eq.
+3.10 can be applied as well to the problem posed at the
+beginning of this chapter, the probability of capture of a
+particle at an adsorbing boundary. The recursion relation
+for the probability of capture, P(x), of a particle released
+at point x, corresponding to the recursion relation for the
+mean time to capture, Eq. 3.9, is
+P(X) = [IP(X +8) + P(X-6)1.
+(3.15)
+This leads to the differential equation
+d'p
+(3.16)
+The boundary conditions for capture by an adsorber at
+* = O rather than at one at x = b are P(0) = 1 and
+P(b) = 0. With these boundary conditions, Eq. 3.16 has
+the solution
+b - x
+P(x) = -
+b
+(3.17)
+'hich, for x = a, is the result obtained earlier from com
+utation of diffusion currents, Eq. 3.8
+
+--- Page 44 ---
+Diffusion to Capture-47
+In two or three dimensions we have
+тр = 0,
+(3.18)
+where, as before, 7' is the two- or three-dimensional
+Laplacian. For a particle released near a spherical
+adsorber of radius a at a point r = b > a the boundary
+conditions are P(a) = 1 and P(∞o) = 0. With these
+boundary conditions, Eq. 3.18 has the solution
+P(r) =
+(3.19)
+which, for r = b, is the result obtained earlier from com-
+putation of diffusion currents, a/b. Equation 3.5 follows
+from the solution of Eq. 3.18 for a spherical adsorber of
+radius a inside a spherical shell adsorber of radius c with
+boundary conditions P(a) = 1 and P(c) = 0.
+
+--- Page 45 ---
+Chapter 4
+Diffusion with Drift
+The theory of diffusion developed in Chapters 1-3 would
+be more useful if we had a means of estimating the values
+of diffusion coefficients from first principles, given the
+sizes and shapes of the particles of interest. It turns out
+that this can be done if we compute the velocity at which a
+particle drifts through the medium when exposed to an
+externally applied force, such as that due to a gravita-
+tional, centrifugal, or electrical field. In practice, the ve-
+locity at which the particle moves in response to such a
+field is infinitesimal when compared to the instantaneous
+root-mean-square velocity given by Eq. 1.2. This means
+that the particles diffuse much as they would in the ab-
+sence of the field, but with a small persistent directional
+bias, as indicated in Fig. 1.1c.
+Random walk with drift
+Consider a particle of mass m at position x subjected to
+an externally applied force, Fx, acting in the +x direc-
+tion, as shown in Fig. 4.1. In accordance with Newton's
+second law, the force causes the particle to accelerate uni-
+L
+* +8+
+Fig. 4.1. A particle of mass m subjected to an externally applied
+force F, while undergoing a one-dimensional random walk.
+
+--- Page 46 ---
+Diffusion with Drift-49
+formly to the right with acceleration a = Fx/m. The ran-
+dom walk proceeds as before, according to the rules set
+down in Chapter 1, with a particle stepping to the right or
+the left once every + seconds with an initial velocity +x
+or - Ux. A particle starting at position x with an initial
+velocity +2, moves in time a distance 6, = Vxt + 072/2,
+while a particle starting at position x with an initial veloc-
+ity - l, moves in time a distance d. = - Ux7 + aт2/2.
+Since steps to the right and left are equally probable, the
+average displacement in time r is aт/2, and the particle
+drifts to the right with an average velocity
+1
+1 t.
+- т.
+(4.1)
+2 m
+It is customary to relate the drift velocity to the applied
+force by a parameter, J, called the frictional drag
+coefficient:
+Dd =
+(4.2)
+In our model, f = 2m/т. Multiplying both the numerator
+and the denominator of this expression by (8/т)2 and
+noting that x = 8/T and D = 82/2, we find f= mux/D.
+But by Eq. 1.1, mux? = KT; therefore, J = KT/D, or
+D =
+(4.3)
+This result, known as the Einstein-Smoluchowski rela-
+tion, turns out to be very general. It does not depend on
+any assumptions made about the structure of the particle
+or the details of its motion, a point to which we will return
+in Chapter 5. Given Eqs. 4.2 and 4.3, we have a procedure
+for estimating D. First, apply a force Fx, measure va, and
+use Eq. 4.2 to compute f; then, use Eq. 4.3 to compute D.
+A reader who knows more physics might be perturbed
+by our derivation of Eq. 4.3. Real particles do not step in
+
+--- Page 47 ---
+50- Diffusion with Drift
+synchrony at a fixed interval, move solely in one dimen-
+sion, or start each step at a fixed velocity. Step intervals,
+directions, velocities, and lengths continuously vary as
+the particle exchanges energy with the molecules of the
+fluid in which it is suspended. In a more rigorous treat-
+ment, one worries about the distributions of these quan-
+tities and defines a mean collision time-or for a large
+particle diffusing in a medium of small particles, a direc-
+tional correlation time-a mean velocity, and a mean free
+path. The functional dependence of D and f on these
+parameters is the same as in our model, but some of the
+numerical coefficients differ. The final result is the same.
+The essential point is that a particle is accelerated by the
+externally applied force; it forgets about this acceleration
+when it exchanges energy with the molecules of the fluid in
+which it is suspended, and then it is accelerated once
+again. As a result, the particle drifts through the medium
+with a velocity proportional to the externally applied
+force. The constant of proportionality is D/kT. For
+further discussion of these points, see Chapters 1-43 of
+Feynman, Leighton, and Sands (1963).
+Note, finally, that we could have obtained the same
+drift velocity, Da = (D/kT)Fx, from a biased random
+walk, with the step rate, velocity and distance constant,
+given a probability of stepping in the +x direction
+p = 1/2 + Fx0/4kT and a probability of stepping in
+the - x direction q = 1/2 - Fx8/4kT. To see this, use
+Eqs. 1.17 and 1.18 with n = t/т, D = 82/2. Since the bias
+is small, p/q = 1 + Fx8/kT.
+Fick's equations for diffusion with drift
+If all the particles in a distribution drift in the +x direc-
+tion at velocity "d, then the flux at point x must increase by
+an amount vaC(x). Thus, Fick's first equation, Eq. 2.1,
+
+--- Page 48 ---
+Diffusion with Drift-51
+becomes
+дс
+(4.4)
+ax
+The derivation of Fick's second equation, Eq. 2.3,
+proceeds as before, giving
+ac
+= D
+2°c
+at
+ax?
+(4.5)
+We will use this equation in the general proof of the
+Einstein-Smoluchowski relation given in Chapter S.
+Viscous drag
+If a particle is large compared to the molecules com-
+prising the medium in which it is suspended, it is possible
+to use the equations of motion of viscous fluids and cal-
+culate the frictional drag coefficient. These equations,
+called the Navier-Stokes equations, become relatively
+simple when applied to small things moving slowly, i.e.,
+under conditions in which viscous forces are important
+but inertial forces are not. Viscous forces arise whenever a
+fluid is sheared, i.e., whenever the velocities of adjacent
+regions of fluid differ. Shear is generated, for example,
+when two parallel plates are moved relative to one
+another, as shown in Fig. 4.2. In this case, the velocity
+→ F
+4y (y)
+Fig. 4.2. A viscous fluid contained between flat plates at y = 0 and
+y = h. The area of each plate is A. The bottom plate is fixed. The top
+one is propelled to the right by a force in the x direction, Fx. Arrows
+show the velocity of the fluid relative to the bottom plate at different
+distances from this plate, y.
+
+--- Page 49 ---
+52-Diffusion with Drift
+profile is linear:
+0x (h)
+h
+- y,
+(4.6)
+and the shear, du./ay, does not depend on the position, y.
+Note that there is no slip at the boundaries; the fluid at the
+surface of each plate moves at the velocity of that plate.
+The force, Fx, is balanced by the viscous drag due to the
+shear:
+Fx = nA
+(4.7)
+dy |y= h
+This equation provides an operational definition for the
+coefficient of viscosity, y. The viscous drag is propor-
+tional to n, the area of the plate, and the rate of shear of
+the fluid at the surface of the plate. The units of n can be
+found from the dimensional equation [g cm/sec?] =
+[mcm?][cm/sec cm], which yields [n] = [g/cm sec],
+which is called a poise (P). The kinematic viscosity, v, is n
+divided by the specific gravity of the medium, o; its units
+are the same as that of the diffusion coefficient, cm/sec,
+which is called a stoke. The viscosity of water at 20°C is
+0.01 P, or 1 centipoise (cP). The viscosities of air, water,
+and glycerol are compared in the table below.
+Viscosities of various fluids at different temperatures,
+in g/cm sec (poise)
+Air
+Water
+Glycerol (dry)
+40°C
+1.93 × 10~
+6.53 × 10-3
+2.83
+20°C
+1.83 × 10-4
+1.00 x 10-2
+14.1
+0°C
+1.71 × 10*
+1.79 × 10-
+120.
+The viscosity of air increases slowly with temperature;
+it is nearly independent of pressure (data not shown). The
+
+--- Page 50 ---
+Diffusion with Drift-53
+viscosities of the liquids decrease rapidly with tempera-
+ture. For most liquids encountered in the laboratory, nis
+a constant at a given temperature; it does not depend on
+the rate of shear. However, this is not the case for solu-
+tions containing molecules with long unbranched chains,
+such as methylcellulose; see, for example, Berg and
+Turner (1979). Indeed, some media are so complex that
+the viscous drag is not even in the direction of flow.
+Fortunately, we do not encounter these problems with
+dilute aqueous solutions of globular particles or with sub-
+stances of low molecular weight.
+Flow through a thin rectangular channel: Here is a
+sample calculation. Consider a channel of length b
+bounded by flat plates at y = 0 and y = h, as shown in
+Fig. 4.3. If a pressure difference A Pis applied between the
+left and right ends of this channel, what is the flow profile
+Vx (y)? We can solve this problem using Eq. 4.7, assuming
+that the width of the channel, w, is so large compared to
+its height, h, that edge effects can be neglected. Consider a
+thin layer of fluid extending from y to y + dy. The net
+force due to the pressure difference at the ends of this
+layer tending to drive the fluid through the channel is
+A Pwdy. The net drag due to viscous shear at the bottom
+and top edges of this layer tending to resist such flow is
+....
+'xly+dy)
+*(y)
+Fig. 4.3. Fluid in a channel between two parallel plates driven from
+left to right by a pressure gradient 4P/b. Both plates are fixed. The
+channel is of height h, length b, and width w > h.
+
+--- Page 51 ---
+54-Diffusion with Drift
+Thus,
+230x =-
+ДР
+(4.8)
+ay?
+nb
+Integrating this equation twice and applying the bound-
+ary conditions ux (0) = 0x(h) = 0, we obtain
+AP
+- (hy - y°) =
+40m (hy - g2),
+(4.9)
+h2
+where Um is the maximum velocity, APh /87b. The flow
+profile is parabolic; the maximum velocity occurs in the
+middle of the channel at y = h/2. The volume of fluid
+passing through the channel per unit time is
+-whom.
+(4.10)
+The average velocity of the fluid is 20m/3.
+In its most general form, Eq. 4.8 states that the
+Laplacian of the velocity is equal to the gradient of the
+pressure divided by the coefficient of viscosity. This is the
+basic equation of slow viscous flow; see, for example,
+Chapter 2 of Landau and Lifshitz (1959).
+Flow around a sphere: Viscous flows around sinall
+particles are highly regular. Figure 4.4 shows the flow
+lines around a sphere, radius a, moving to the right
+through a viscous fluid at constant velocity va. The radial
+and azimuthal components of the velocity of the fluid
+relative to the sphere are
+За
+3
+(4.11)
+!!-
+4 г
+4г3
+
+--- Page 52 ---
+Diffusion with Drift-55
+0.1|
+0,26
+0.38
+0.47
+0.53
+0.58
+0.63
+0.66
+0.69
+Fig. 4.4. A solid sphere moving at a constant velocity v through an
+incompressible viscous fluid. The fluid moves around the sphere along
+the flow lines shown. See Eq. 4.11. The numbers on the flow lines at
+® = - 90° indicate the magnitudes of up at these points in units of va.
+Note that both are 0 at the surface of the sphere and that
+both increase as r increases. The fluid at the surface of the
+sphere moves with the sphere; the fluid a long distance
+away does not. The motion of the sphere causes the fluid
+to shear. Even at the outermost flow line shown in the
+figure, the fluid is moving 30% as fast as the sphere. The
+sphere carries fluid with it. Evidently, it must move
+several diameters before it can shed its local environment.
+Stoke's law: A calculation of the net force acting on the
+sphere yields Stoke's law, which states that the force
+necessary to drag a sphere of radius a at a velocity la
+through an incompressible, viscous liquid is 6anavd.
+
+--- Page 53 ---
+56-Diffusion with Drift
+Given Eqs. 4.2 and 4.3, this implies that
+Isphere = 6rna,
+(4.12)
+and
+KT
+Dsphere =
+(4.13)
+For a sphere of radius a = 10~ cm in water at room
+temperature, Isphere = 1.9 x 10-5 g/sec, and Dsphere =
+2.2 × 10-9 cm/sec.
+The net force acting on a liquid droplet is slightly
+smaller than that for a solid sphere of the same size,
+because the liquid can flow backward along the sides of
+the droplet (in the +0 direction, Fig. 4.4) and return
+along its axis. This reduces the shear in the external
+medium. For a sphere of viscosity n' in a medium of vis-
+cosity n,
+21y + 3m
+Jarapler = 6тna -
+3n + 3n:
+(4.14)
+see $337 of Lamb (1932). In the limit n' → oo, this reduces
+to Eq. 4.12. In the limit y' → O, we get the frictional drag
+coefficient for a bubble, e.g., of air:
+Joubbie = 4mna.
+(4.15)
+Note that a spherical cell behaves as a solid rather than as
+a liquid, because the plasma membrane is not free to flow
+through the middle of the cell. The same thing is true for a
+droplet or bubble in a medium containing surface-active
+agents that form a monolayer at the interface.
+The frictional drag coefficients of a disk and an ellip-
+soid of revolution are compared in Fig. 4.5. When a parti-
+cle diffuses, it continuously changes its orientation. The
+frictional drag coefficient, f, that characterizes the aver-
+age drift velocity (and average diffusion coefficient) of
+
+--- Page 54 ---
+Diffusion with Drift-57
+Disk, moving
+J1 = 16na
+face-on
+Disk, moving
+edge-on
+52-32 na
+Disk, moving
+at random
+j= 12na
+Ellipsoid, moving
+4тnа
+lengthwise
+J1=
+2a
+T
+Ellipsoid, moving
+sidewise
+12=-
+Sana
+2a
+Ellipsoid, moving
+at random
+2a
+In b
+Fig. 4.5. Comparison of the viscous drag coefficients of a solid
+circular disk of radius a and a prolate ellipsoid of revolution of semi-
+major axis a and semi-minor axes b. The expressions for the ellipsoid
+are valid in the limit a? » b'. For general expressions for oblate and
+prolate eliipsoids, see p. 499 of Perrin (1934). The average coefficient
+J was obtained from f, and f2 as described in the text; see also pp.
+10-11 of Perrin (1936). The frictional drag coefficient for a solid
+sphere of radius a is 6ana, Eq. 4.12.
+
+--- Page 55 ---
+58-Diflusion with Drift
+such a particle is given by 1/f = (1/fi + 1/f2 + 1/f3)/3,
+where f1, f2, and f3 are the drag coefficients for motion
+along the principal axes. For the particles shown in Fig.
+4.5, J2 = J3. Note that even though a particle is highly
+asymmetric, fi and f'2 differ by less than a factor of 2.
+Stoke's law gives a good ballpark estimate for the vis-
+cous drag on globular things, even for particles as small as
+a molecule of the protein lysozyme. As a first approxima-
+tion, do not worry about the shape of the particle, just
+think in terms of a sphere of roughly the same linear size.
+However, situations do arise in which asymmetries in
+viscous drag matter. One that we will encounter in Chap-
+ter 6 is flagellar propulsion. A great deal of effort has gone
+into figuring out the hydrodynamic properties of objects
+of complex shape; see, for example, García de la Torre
+and Bloomfield (1981).
+Sedimentation rate
+We are now in a position to write down the equations
+governing the sedimentation of particles in a gravitational
+or centrifugal field. A particle of mass m and volume V is
+suspended in a fluid of specific gravity p and viscosity n
+and subjected to a gravitational field of acceleration g, as
+shown in Fig. 4.6. The net downward force on the particle
+Fdown = m'g,
+(4.16)
+where m' is the effective mass of the particle, the mass of
+the particle less the mass of the fluid it displaces:
+m' = m - Vp.
+(4.17)
+In a vacuum, the downward force on the particle would
+be mg. In a fluid, it is reduced by an amount Vpg, the
+force due to buoyancy. If Vp is smaller than m (m' posi-
+
+--- Page 56 ---
+Diffusion with Drift-59
+m, V
+P,
+n
+9
+Fig. 4.6. A particle suspended in a fluid and subjected to a gravita-
+tional field. The particle has mass m and volume V. The fluid has
+specific gravity p, viscosity n. The downward acceleration is g.
+tive), the particle sinks; if it is larger than m (m' negative),
+the particle floats; if it is equal to m (m' zero), the particle
+is neutrally buoyant. Equation 4.17 often is expressed as
+m' = m(1 - Tp), where i is the specific volume of the par-
+ticle, V/m.
+From Eqs. 4.2 and 4.3 we have
+Fdown
+m'gD
+Do =
+=-
+-•
+(4.18)
+This is the Svedberg equation. It usually is written
+3l
+=S = M'D
+g
+KT'
+(4.19)
+where S is the sedimentation rate per unit acceleration.
+The units of S are in sec; 1 Svedberg = 10-'sec. A 70 S
+particle, such as a ribosome from the bacterium Esche-
+richia coli, sediments in a field of 1 cm/sec? at the rate
+70 × 10-13 cm/sec. The acceleration due to gravity, g,
+is about 980 cm/sec, so in an ultracentrifuge at
+
+--- Page 57 ---
+60 - Diffusion with Drift
+100,000 xg, the 70 S particle sediments at the rate
+70 × 10-5cm/sec. This velocity is only 10-5 as large as the
+instantaneous root-mean-square velocity of such a parti-
+cle, which is about 100 cm/sec. The centrifugal field adds
+a small but persistent bias to the much more riotous
+motion due to thermal energy.
+Note that the sedimentation rate depends both on the
+effective mass, m', and on the diffusion coefficient, D (or
+the frictional drag coefficient, f). If two particles have the
+same effective mass, the one that is more compact sinks
+more rapidly. To cite an extreme example, a man wearing
+a parachute reaches a much higher terminal velocity when
+his chute fails to open than when it functions properly,
+even though his effective mass is the same in either case.
+In a centrifuge, we deal not with the gravitational accel-
+eration g, but with a centrifugal acceleration rw?, where
+r is the distance from the axis of rotation and w is the
+angular velocity of the rotor in radians/sec (2m times the
+rotation rate in revolutions per sec). The sedimentation
+rate increases with distance from the axis of rotation,
+because r increases, but for now we ignore this com-
+plication. In general, there are two ways of doing an
+experiment. Consider a solution containing two kinds of
+particles whose sedimentation rates differ by a factor of
+about two. Either we start with a centrifuge tube (or
+sector cell) filled with the mixture, as shown at the top of
+Fig. 4.7, or we layer a small sample at the top of a tube
+containing something else, usually a density gradient of
+sucrose, as shown at the bottom of Fig. 4.7. In the former
+case, the particles with the smaller sedimentation rate lag
+behind near the top of the tube. In the latter case, the two
+species separate out into different bands. The sucrose
+gradient is absolutely essential; without it, the bands
+would have larger specific gravities than the fluid beneath
+them, and they would sink in bulk by convective flow. At
+
+--- Page 58 ---
+Diffusion with Drift....61
+Fig. 4.7. Sedimentation rate experiments involving a mixture of two
+kinds of particles having sedimentation rates that differ by a factor of
+about two, shown at times 0 (left), to (middle), and 2%, (right). In the
+upper experiment, the mixture initially fills a sector cell in an analy-
+tical centrifuge. In the lower experiment, it is layered at the top of a
+sucrose gradient in a swinging bucket of a preparative centrifuge. The
+same centrifugal field is applied in either case; the particles sediment
+to the right. The upper and lower graphs show the concentrations of
+particles observed in the two experiments. The lower graph also
+depicts a C/ar, where C' is the concentration in the upper experiment.
+In the analytical centrifuge, this function can be displayed directly
+with schlieren optics. Note in the upper experiment that the particles
+pile up at the bottom of the cell.
+higher sucrose densities, the particles sediment more
+slowly, but we ignore this buoyant effect. Diffusion
+broadens the moving boundaries shown in the upper
+graph of Fig. 4.7, in accordance with Eq. 2.13 (see Fig.
+2.5), and it broadens the moving bands shown in the
+lower graph, in accordance with Eg. 1.22 (see Fig. 1.3).
+The relative displacement of the boundaries (or bands)
+increases linearly with time, while the spreading increases
+only as the square-root of the time; therefore, the separa-
+tion improves with the square-root of the time. One can
+
+--- Page 59 ---
+62 - Diffusion with Drift
+always improve the separation by working at higher
+fields, because this increases the sedimentation rates but
+does not change the diffusion coefficients. From the
+spreading, one can compute D; from the sedimentation
+rate, given D, one can compute the effective mass, m'. If
+the specific volume of the particle is known, one can use
+Eg. 4.7 and compute the mass, m.
+From the spreading shown in Fig. 4.7, it is evident that
+more rapidly sedimenting particles have smaller diffusion
+coefficients. This is generally true for globular particles
+made of a similar material. The effective mass of a sphere
+of radius a and specific gravity ps IS
+'sphere=m - Vp= V(ps-p) = 4та' (os-p)/3.
+(4.20)
+The sedimentation rate of the sphere is
+Fdown
+mg
+Ud,sphere
+- = 20-(ps-p)g/9n,
+блуа
+(4.21)
+a quantity that increases as a?. As we already have seen in
+Eq. 4.13, the diffusion coefficient of the sphere is inversely
+proportional to a. Therefore, a sphere that sediments
+twice as fast has a diffusion coefficient that is smaller by a
+factor of 2-12. A sphere of radius a = 10-4 cm and specific
+gravity ps = 1.2 g/cm' sediments in water in a field 1 × g
+at the rate tdsphere = 4.4 x 10-5 cm/sec.
+Electrophoresis
+If a particle carries an electric charge, then one can
+exert a force on it with an electric field. An ion carrying
+charge q (esu) in an electric field of intensity E (stat-
+volts/cm) experiences a force in the direction of the field
+Eq (dynes). Unfortunately, q is not easy to define. Parti-
+
+--- Page 60 ---
+Diffusion with Drift-63
+cles of biological interest contain a variety of ionizable
+groups whose charges depend strongly on pH. These
+charges are shielded by counter-ions attracted from the
+medium in which the particles are suspended. The effec-
+tiveness of the shielding depends on the ionic strength. So
+you do not hear much about particles that have specified
+electrophoretic drift rates per unit field (as you do, for
+example, about 30, 50, or 70 S ribosomes). Nevertheless,
+electrophoretic methods of separating and characterizing
+biological materials are extremely useful. In practice,
+they are remarkably simple.
+As in the case of sedimentation, Fig. 4.7, there are
+essentially two ways of doing an experiment. One either
+creates a sharp interface between a column of liquid con-
+taining a mixture of the particles to be studied and a
+column of liquid devoid of such particles and then passes
+an electrical current from one to the other, generating
+patterns analogous to those shown at the top of Fig. 4.7,
+or one layers a mixture of particles at the top of a medium
+designed to suppress convective stirring and passes an
+electrical current through that, generating patterns
+analogous to those shown at the bottom of Fig. 4.7. The
+physics is much the same: the relative displacement of the
+boundaries (or bands) increases linearly with time, while
+the spreading increases as the square-root of the time; so
+the separation improves as the square-root of the time.
+But in the case of electrophoresis, it is not always possible
+to improve the separation by increasing the field, because
+the electric current generates heat. The heat is generated
+at the same rate at all points across a transverse section of
+the electrophoretic column, but it is dissipated only at the
+edges, so the center of the column becomes relatively hot-
+ter. In most of the media used to suppress convection (see
+below), this increases the electrophoretic mobility, and
+the bands become curved.
+
+--- Page 61 ---
+64 - Diffusion with Drift
+As noted earlier, convective stirring is suppressed in the
+ultracentrifuge by the use of density gradients, e.g., of
+sucrose or CsCl. In an electrophoresis experiment, it is
+more convenient to use a gel, e.g., polyacrylamide or
+agarose. At the end of the experiment the bands can be
+precipitated into the gel and/or stained, e.g., with colored
+or fluorescent dyes, or the gel can be dried down and
+exposed to X-ray film to reveal components that are
+radioactive. Gels are not used in the ultracentrifuge,
+because they collapse in large centrifugal fields.
+Gels not only suppress convective stirring, they act as
+molecular sieves. The rate of migration of a particle
+through the gel is strongly dependent on size. A particle
+that is small compared to the pores in the gel can diffuse
+through it, almost as if the gel were not there. A particle
+that is large compared to the pores in the gel simply is
+immobilized. Particles of intermediate size get through
+with varying degrees of difficulty. Particles that would
+move through a dilute aqueous medium at roughly the
+same rate move through the gel at rates that decrease
+exponentially with size; as a result, an estimate of size (or
+mass) can be made from a measurement of the logarithm
+of the displacement. Pieces of DNA and RNA are
+routinely sorted in this way, as are proteins dissolved in
+ionic detergents, such as sodium dodecyl sulfate. It is easy
+to distinguish gels of this kind, because the faster-moving
+bands always are broader; the molecules that drift more
+rapidly are smaller and have larger diffusion coefficients.
